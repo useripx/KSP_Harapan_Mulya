@@ -105,8 +105,61 @@ class DashboardController extends Controller
     public function ketuaDashboard()
     {
         Auth::requireRole(ROLE_KETUA);
-        // Similar to admin but focused on reports
-        return $this->renderAdminDashboard();
+        return $this->renderManagerDashboard();
+    }
+
+    /**
+     * Manager Dashboard
+     */
+    private function renderManagerDashboard()
+    {
+        $db = db();
+
+        // Get statistics (Tunggakan is removed per requirement)
+        $stats = [
+            'total_anggota' => $this->getTotalAnggota(),
+            'total_simpanan' => $this->getTotalSimpanan(),
+            'total_pinjaman_aktif' => $this->getTotalPinjamanAktif(),
+            'anggota_baru_bulan_ini' => $this->getAnggotaBaruBulanIni(),
+        ];
+
+        // Member Summary Table Data — kompatibel MySQL 5.7 & 8.x
+        $sql = "
+            SELECT
+                a.no_anggota,
+                a.nama,
+                COALESCE(vss.saldo, 0) as iuran,
+                COALESCE(vr.sisa_pokok_total, 0) as cicilan,
+                GREATEST(
+                    COALESCE(MAX(st.tanggal), '1970-01-01'),
+                    COALESCE(MAX(p2.created_at), '1970-01-01'),
+                    COALESCE(MAX(ans.tanggal_bayar), '1970-01-01')
+                ) as aktivitas_terakhir
+            FROM anggota a
+            LEFT JOIN v_saldo_simpanan vss ON vss.anggota_id = a.id
+            LEFT JOIN (
+                SELECT anggota_id, SUM(sisa_pokok) as sisa_pokok_total
+                FROM v_ringkasan_pinjaman
+                WHERE status IN ('BERJALAN', 'DICAIRKAN')
+                GROUP BY anggota_id
+            ) vr ON vr.anggota_id = a.id
+            LEFT JOIN simpanan_transaksi st ON st.anggota_id = a.id
+            LEFT JOIN pinjaman p2 ON p2.anggota_id = a.id
+            LEFT JOIN angsuran ans ON ans.pinjaman_id = p2.id
+            WHERE a.status = 'AKTIF'
+            GROUP BY a.id, a.no_anggota, a.nama, vss.saldo, vr.sisa_pokok_total
+            ORDER BY aktivitas_terakhir DESC
+        ";
+
+        $ringkasanAnggota = $db->query($sql)->fetchAll();
+
+        $data = [
+            'pageTitle' => 'Dashboard Manager',
+            'stats' => $stats,
+            'ringkasanAnggota' => $ringkasanAnggota,
+        ];
+
+        $this->view('dashboard/manager', $data);
     }
 
     /**
@@ -229,7 +282,7 @@ class DashboardController extends Controller
             ORDER BY tanggal DESC
             LIMIT ?
         ";
-        
+
         $stmt = $db->prepare($sql);
         $stmt->execute([$limit]);
         return $stmt->fetchAll();

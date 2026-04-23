@@ -1,11 +1,21 @@
-<div class="container-fluid py-4">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white border-bottom py-3">
-                    <h5 class="card-title mb-0 fw-bold">Ganti Password</h5>
-                    <p class="text-muted small mb-0">Ubah password akun Anda untuk keamanan lebih baik.</p>
-                </div>
+<div class="mb-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+    <div>
+        <h2 class="page-title mb-0">Ganti Password</h2>
+        <p class="text-muted small mb-0">Ubah password akun Anda untuk keamanan lebih baik.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+        <a href="javascript:history.back()" class="btn btn-outline-primary btn-sm shadow-sm rounded fw-semibold">
+            <i class="bi bi-arrow-left me-1"></i> Kembali
+        </a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom py-3">
+                <h5 class="card-title mb-0 fw-bold">Keamanan Akun</h5>
+            </div>
                 <div class="card-body p-4">
                     <?php View::flash(); ?>
 
@@ -14,7 +24,12 @@
                         
                         <div class="mb-3">
                             <label class="form-label">Password Saat Ini</label>
-                            <input type="password" name="old_password" class="form-control" placeholder="Masukkan password sekarang" required>
+                            <div class="password-wrapper">
+                                <input type="password" name="old_password" class="form-control" placeholder="Masukkan password sekarang" required>
+                                <div class="password-toggle">
+                                    <i class="bi bi-eye"></i>
+                                </div>
+                            </div>
                             <?php if ($error = View::error('old_password')): ?>
                                 <div class="text-danger small mt-1"><?= $error ?></div>
                             <?php endif; ?>
@@ -24,7 +39,12 @@
 
                         <div class="mb-3">
                             <label class="form-label">Password Baru</label>
-                            <input type="password" name="new_password" class="form-control" placeholder="Minimal 6 karakter" required>
+                            <div class="password-wrapper">
+                                <input type="password" name="new_password" class="form-control" placeholder="Minimal 6 karakter" required>
+                                <div class="password-toggle">
+                                    <i class="bi bi-eye"></i>
+                                </div>
+                            </div>
                             <?php if ($error = View::error('new_password')): ?>
                                 <div class="text-danger small mt-1"><?= $error ?></div>
                             <?php endif; ?>
@@ -32,7 +52,12 @@
 
                         <div class="mb-4">
                             <label class="form-label">Konfirmasi Password Baru</label>
-                            <input type="password" name="confirm_password" class="form-control" placeholder="Ulangi password baru" required>
+                            <div class="password-wrapper">
+                                <input type="password" name="confirm_password" class="form-control" placeholder="Ulangi password baru" required>
+                                <div class="password-toggle">
+                                    <i class="bi bi-eye"></i>
+                                </div>
+                            </div>
                             <?php if ($error = View::error('confirm_password')): ?>
                                 <div class="text-danger small mt-1"><?= $error ?></div>
                             <?php endif; ?>

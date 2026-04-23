@@ -1,6 +1,13 @@
-<div class="mb-4">
-    <h2 class="page-title">Pusat Laporan & Analitik</h2>
-    <p class="text-muted">Pilih jenis laporan yang ingin Anda lihat atau cetak.</p>
+<div class="mb-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+    <div>
+        <h2 class="page-title mb-0">Pusat Laporan & Analitik</h2>
+        <p class="text-muted small mb-0">Pilih jenis laporan yang ingin Anda lihat atau cetak.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+        <a href="javascript:history.back()" class="btn btn-outline-primary btn-sm shadow-sm rounded fw-semibold">
+            <i class="bi bi-arrow-left me-1"></i> Kembali
+        </a>
+    </div>
 </div>
 
 <div class="row g-4">

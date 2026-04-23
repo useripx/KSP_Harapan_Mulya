@@ -6,9 +6,9 @@ $userRole = Auth::role();
 <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
         <div class="logo">
-            <i class="bi bi-bank2"></i>
+            <img src="<?= url('/assets/img/img.png') ?>" alt="Logo">
         </div>
-        <h4>KSP Harapan Mulya</h4>
+        <h4>Koperasi Harapan Mulya</h4>
     </div>
 
     <div class="sidebar-section">
@@ -18,11 +18,11 @@ $userRole = Auth::role();
                 <?php
                 $dashboardPath = '/dashboard';
                 if ($userRole === ROLE_ADMIN)
-                    $dashboardPath = '/admin';
+                    $dashboardPath = '/validator';
                 elseif ($userRole === ROLE_TELLER)
-                    $dashboardPath = '/teller';
+                    $dashboardPath = '/bau';
                 elseif ($userRole === ROLE_KETUA)
-                    $dashboardPath = '/ketua';
+                    $dashboardPath = '/manager';
                 elseif ($userRole === ROLE_ANGGOTA)
                     $dashboardPath = '/anggota/dashboard';
                 ?>
@@ -53,14 +53,31 @@ $userRole = Auth::role();
                     </a>
                 </li>
             <?php endif; ?>
+
             <?php if (in_array($userRole, [ROLE_ADMIN, ROLE_TELLER, ROLE_KETUA, ROLE_ANGGOTA])): ?>
                 <li>
-                    <a href="<?= url('/pinjaman') ?>" class="<?= View::isActive('/pinjaman') ?>">
+                    <?php
+                    // Trik agar menu Pinjaman mati saat berada di halaman Simulasi
+                    $uri = $_SERVER['REQUEST_URI'] ?? '';
+                    $isSimulasi = strpos($uri, '/pinjaman/simulasi') !== false;
+                    $pinjamanClass = $isSimulasi ? View::isActive('/path-mati') : View::isActive('/pinjaman');
+                    ?>
+                    <a href="<?= url('/pinjaman') ?>" class="<?= $pinjamanClass ?>">
                         <i class="bi bi-cash-stack"></i>
                         <span>Pinjaman</span>
                     </a>
                 </li>
             <?php endif; ?>
+
+            <?php if ($userRole === ROLE_ANGGOTA): ?>
+                <li>
+                    <a href="<?= url('/pinjaman/simulasi') ?>" class="<?= View::isActive('/pinjaman/simulasi') ?>">
+                        <i class="bi bi-calculator"></i>
+                        <span>Simulasi Pinjaman</span>
+                    </a>
+                </li>
+            <?php endif; ?>
+
             <?php if (in_array($userRole, [ROLE_ADMIN, ROLE_TELLER])): ?>
                 <li>
                     <a href="<?= url('/angsuran') ?>" class="<?= View::isActive('/angsuran') ?>">

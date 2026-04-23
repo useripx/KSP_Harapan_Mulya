@@ -5,9 +5,9 @@
  */
 
 // User Roles
-define('ROLE_ADMIN', 'ADMIN');
-define('ROLE_TELLER', 'TELLER');
-define('ROLE_KETUA', 'KETUA');
+define('ROLE_ADMIN', 'VALIDATOR');   // Validator (dulu ADMIN)
+define('ROLE_TELLER', 'BAU');         // BAU (dulu TELLER)
+define('ROLE_KETUA', 'MANAGER');      // Manager (dulu KETUA)
 define('ROLE_ANGGOTA', 'ANGGOTA');
 
 // Anggota Status
@@ -127,9 +127,9 @@ function getAllRoles() {
  */
 function getRoleLabel($role) {
     $labels = [
-        ROLE_ADMIN => 'Administrator',
-        ROLE_TELLER => 'Teller',
-        ROLE_KETUA => 'Ketua Koperasi',
+        ROLE_ADMIN   => 'Validator',
+        ROLE_TELLER  => 'BAU',
+        ROLE_KETUA   => 'Manager',
         ROLE_ANGGOTA => 'Anggota'
     ];
     return $labels[$role] ?? $role;

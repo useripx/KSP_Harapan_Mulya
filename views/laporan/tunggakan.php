@@ -18,7 +18,7 @@
 <div class="card border-0 shadow-sm mb-4 bg-white">
     <div class="card-body p-4">
         <div class="text-center mb-4 d-none d-print-block border-bottom border-dark pb-3">
-            <h3 class="text-uppercase fw-bold mb-1">KSP Harapan Mulya</h3>
+            <h3 class="text-uppercase fw-bold mb-1">Koperasi Harapan Mulya</h3>
             <p class="mb-0">Daftar Anggota Menunggak Angsuran</p>
         </div>
 

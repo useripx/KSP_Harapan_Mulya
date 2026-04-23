@@ -1,8 +1,13 @@
-<div class="mb-4">
-    <a href="<?= url('/simpanan') ?>" class="text-muted text-decoration-none small">
-        <i class="bi bi-arrow-left me-1"></i> Kembali ke Riwayat
-    </a>
-    <h2 class="page-title mt-2">Setor Simpanan</h2>
+<div class="mb-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+    <div>
+        <h2 class="page-title mb-0">Setor Simpanan</h2>
+        <p class="text-muted small mb-0">Proses penyetoran dana ke saldo simpanan anggota.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+        <a href="javascript:history.back()" class="btn btn-outline-primary btn-sm shadow-sm rounded fw-semibold">
+            <i class="bi bi-arrow-left me-1"></i> Kembali
+        </a>
+    </div>
 </div>
 
 <div class="row">

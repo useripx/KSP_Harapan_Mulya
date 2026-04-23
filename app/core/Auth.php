@@ -160,7 +160,7 @@ class Auth {
     /**
      * Require specific role
      */
-    public static function requireRole($role, $redirectTo = '/') {
+    public static function requireRole($role, $redirectTo = '/dashboard') {
         self::requireLogin();
         
         if (!self::hasRole($role)) {
@@ -172,7 +172,7 @@ class Auth {
     /**
      * Require any of given roles
      */
-    public static function requireAnyRole($roles, $redirectTo = '/') {
+    public static function requireAnyRole($roles, $redirectTo = '/dashboard') {
         self::requireLogin();
         
         if (!self::hasAnyRole($roles)) {

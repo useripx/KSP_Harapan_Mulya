@@ -1,22 +1,21 @@
-<div class="mb-4">
-    <a href="<?= url('/anggota') ?>" class="text-muted text-decoration-none small">
-        <i class="bi bi-arrow-left me-1"></i> Kembali ke Daftar
-    </a>
-    <div class="d-flex justify-content-between align-items-center mt-2">
-        <h2 class="page-title mb-0">
-            <?= $pageTitle ?>
-        </h2>
-        <div>
-            <a href="<?= url('/anggota/' . $anggota['id'] . '/edit') ?>" class="btn btn-warning btn-sm">
-                <i class="bi bi-pencil me-1"></i> Edit Data
-            </a>
-            <form action="<?= url('/anggota/' . $anggota['id'] . '/delete') ?>" method="POST" class="d-inline" onsubmit="return confirm('Hapus anggota ini?')">
-                <?= View::csrf() ?>
-                <button type="submit" class="btn btn-danger btn-sm">
-                    <i class="bi bi-trash me-1"></i> Hapus
-                </button>
-            </form>
-        </div>
+<div class="mb-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+    <div>
+        <h2 class="page-title mb-0"><?= $pageTitle ?></h2>
+        <p class="text-muted small mb-0">Informasi profil lengkap dan data keanggotaan.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+        <a href="<?= url('/anggota/' . $anggota['id'] . '/edit') ?>" class="btn btn-warning btn-sm shadow-sm fw-semibold">
+            <i class="bi bi-pencil me-1"></i> Edit Data
+        </a>
+        <form action="<?= url('/anggota/' . $anggota['id'] . '/delete') ?>" method="POST" class="d-inline" onsubmit="return confirm('Hapus anggota ini?')">
+            <?= View::csrf() ?>
+            <button type="submit" class="btn btn-danger btn-sm shadow-sm fw-semibold">
+                <i class="bi bi-trash me-1"></i> Hapus
+            </button>
+        </form>
+        <a href="javascript:history.back()" class="btn btn-outline-primary btn-sm shadow-sm rounded fw-semibold">
+            <i class="bi bi-arrow-left me-1"></i> Kembali
+        </a>
     </div>
 </div>
 

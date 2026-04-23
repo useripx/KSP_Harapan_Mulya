@@ -26,7 +26,7 @@ $shu = $totalPendapatan - $totalBeban;
         <div class="card border-0 shadow-lg mb-4 bg-white" style="border-radius: 1rem;">
             <div class="card-body p-5">
                 <div class="text-center mb-5 border-bottom border-2 border-dark pb-3">
-                    <h2 class="text-uppercase fw-bolder mb-1">KSP Harapan Mulya</h2>
+                    <h2 class="text-uppercase fw-bolder mb-1">Koperasi Harapan Mulya</h2>
                     <p class="mb-0 text-muted">Laporan Perhitungan Hasil Usaha (Laba/Rugi)</p>
                     <p class="fw-bold text-primary mb-0">Periode: <?= e($filterText ?? 'Semua Waktu') ?></p>
                 </div>

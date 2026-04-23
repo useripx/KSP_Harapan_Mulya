@@ -359,4 +359,18 @@ class PinjamanController extends Controller
             $this->redirect('/pinjaman/' . $id . '/pencairan', 'Gagal mencairkan pinjaman: ' . $e->getMessage(), 'error');
         }
     }
+    /**
+     * Menampilkan halaman simulasi pinjaman untuk Anggota
+     */
+    public function simulasi()
+    {
+        // Pastikan user sudah login
+        Auth::requireLogin();
+        
+        // Panggil view yang sudah kita buat tadi
+        $this->view('anggota/simulasi', [
+            'pageTitle' => 'Simulasi Peminjaman',
+            'bungaDefault' => 1.5
+        ]);
+    }
 }

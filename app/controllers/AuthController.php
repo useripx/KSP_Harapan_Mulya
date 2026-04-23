@@ -29,13 +29,13 @@ class AuthController extends Controller
             // Redirect based on role
             switch ($role) {
                 case ROLE_ADMIN:
-                    $this->redirect('/admin');
+                    $this->redirect('/validator');
                     break;
                 case ROLE_TELLER:
-                    $this->redirect('/teller');
+                    $this->redirect('/bau');
                     break;
                 case ROLE_KETUA:
-                    $this->redirect('/ketua');
+                    $this->redirect('/manager');
                     break;
                 case ROLE_ANGGOTA:
                     $this->redirect('/anggota/dashboard');
@@ -82,20 +82,27 @@ class AuthController extends Controller
             // Log audit
             $this->logAudit('LOGIN', 'users', Auth::id(), 'User logged in successfully');
 
+            // Detect if password is same as username
+            if ($password === $username) {
+                $_SESSION['must_change_password'] = true;
+            } else {
+                unset($_SESSION['must_change_password']);
+            }
+
             // Redirect based on role
             $role = Auth::role();
             switch ($role) {
                 case ROLE_ADMIN:
-                    $this->redirect('/admin', 'Selamat datang Admin!', 'success');
+                    $this->redirect('/validator', 'Selamat datang, Validator!', 'success');
                     break;
                 case ROLE_TELLER:
-                    $this->redirect('/teller', 'Selamat datang Teller!', 'success');
+                    $this->redirect('/bau', 'Selamat datang, BAU!', 'success');
                     break;
                 case ROLE_KETUA:
-                    $this->redirect('/ketua', 'Selamat datang Ketua!', 'success');
+                    $this->redirect('/manager', 'Selamat datang, Manager!', 'success');
                     break;
                 case ROLE_ANGGOTA:
-                    $this->redirect('/anggota/dashboard', 'Selamat datang Anggota!', 'success');
+                    $this->redirect('/anggota/dashboard', 'Selamat datang, Anggota!', 'success');
                     break;
                 default:
                     $this->redirect('/dashboard', 'Login berhasil!', 'success');
@@ -178,6 +185,9 @@ class AuthController extends Controller
         $newHash = Auth::hashPassword($newPassword);
         $stmt = $db->prepare("UPDATE users SET password_hash = ? WHERE id = ?");
         $stmt->execute([$newHash, Auth::id()]);
+
+        // Remove session flag
+        unset($_SESSION['must_change_password']);
 
         // Audit log
         $this->logAudit('CHANGE_PASSWORD', 'users', Auth::id(), 'User changed password successfully');

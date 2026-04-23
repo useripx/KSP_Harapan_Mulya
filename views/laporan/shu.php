@@ -18,7 +18,7 @@ $sosial = $shu * 0.05;
         <div class="card border-0 shadow-lg mb-4 bg-white" style="border-radius: 1rem;">
             <div class="card-body p-5">
                 <div class="text-center mb-5 border-bottom border-2 border-dark pb-3">
-                    <h2 class="text-uppercase fw-bolder mb-1">KSP Harapan Mulya</h2>
+                    <h2 class="text-uppercase fw-bolder mb-1">Koperasi Harapan Mulya</h2>
                     <p class="mb-0 text-muted">Laporan Distribusi Sisa Hasil Usaha (SHU)</p>
                     <p class="fw-bold text-success mb-0">Total SHU Bersih: <?= formatRupiah($shu) ?></p>
                 </div>

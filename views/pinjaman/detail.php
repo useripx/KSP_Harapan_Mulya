@@ -1,20 +1,30 @@
-<div class="mb-4 d-flex justify-content-between align-items-center">
+<div class="mb-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
     <div>
-        <a href="<?= url('/pinjaman') ?>" class="text-muted text-decoration-none small">
-            <i class="bi bi-arrow-left me-1"></i> Kembali ke Daftar
-        </a>
-        <h2 class="page-title mt-2">Detail Pinjaman #<?= $pinjaman['id'] ?></h2>
+        <h2 class="page-title mb-1">Detail Pinjaman #<?= $pinjaman['id'] ?></h2>
+        <p class="text-muted small mb-0">Informasi lengkap pengajuan pinjaman anggota.</p>
     </div>
-    <div class="d-flex gap-2">
+    <div class="d-flex flex-wrap gap-2 align-items-center">
         <?php if (in_array(Auth::role(), [ROLE_ADMIN, ROLE_TELLER]) && $pinjaman['status'] === 'DIAJUKAN'): ?>
-            <a href="<?= url('/pinjaman/' . $pinjaman['id'] . '/verifikasi') ?>" class="btn btn-info btn-sm">Verifikasi</a>
+            <a href="<?= url('/pinjaman/' . $pinjaman['id'] . '/verifikasi') ?>" class="btn btn-info btn-sm fw-semibold shadow-sm text-white">
+                <i class="bi bi-check-circle me-1"></i> Verifikasi
+            </a>
         <?php endif; ?>
+        
         <?php if (Auth::role() === ROLE_KETUA && $pinjaman['status'] === 'DIVERIFIKASI'): ?>
-            <a href="<?= url('/pinjaman/' . $pinjaman['id'] . '/approval') ?>" class="btn btn-primary btn-sm">Approval</a>
+            <a href="<?= url('/pinjaman/' . $pinjaman['id'] . '/approval') ?>" class="btn btn-primary btn-sm fw-semibold shadow-sm">
+                <i class="bi bi-check2-all me-1"></i> Approval
+            </a>
         <?php endif; ?>
+        
         <?php if (in_array(Auth::role(), [ROLE_ADMIN, ROLE_TELLER]) && $pinjaman['status'] === 'DISETUJUI'): ?>
-            <a href="<?= url('/pinjaman/' . $pinjaman['id'] . '/pencairan') ?>" class="btn btn-success btn-sm">Cairkan Pinjaman</a>
+            <a href="<?= url('/pinjaman/' . $pinjaman['id'] . '/pencairan') ?>" class="btn btn-success btn-sm fw-semibold shadow-sm">
+                <i class="bi bi-cash-coin me-1"></i> Cairkan Pinjaman
+            </a>
         <?php endif; ?>
+
+        <a href="javascript:history.back()" class="btn btn-outline-primary btn-sm shadow-sm rounded fw-semibold">
+            <i class="bi bi-arrow-left me-1"></i> Kembali
+        </a>
     </div>
 </div>
 
@@ -84,7 +94,6 @@
 .stepper-item.rejected::after {
     border-bottom-color: #dc3545;
 }
-/* Dark Mode Overrides for Stepper */
 [data-theme="dark"] .stepper-item::before, 
 [data-theme="dark"] .stepper-item::after {
   border-bottom-color: var(--border);
@@ -152,10 +161,9 @@ if (in_array($pinjaman['status'], ['DIVERIFIKASI', 'DISETUJUI'])) {
 
 <div class="row g-4">
     <div class="col-lg-4">
-        <!-- Informasi Pinjaman -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="card-title">Informasi Pinjaman</h5>
+        <div class="card mb-4 shadow-sm border-0">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="card-title mb-0">Informasi Pinjaman</h5>
             </div>
             <div class="card-body">
                 <div class="mb-3">
@@ -187,10 +195,9 @@ if (in_array($pinjaman['status'], ['DIVERIFIKASI', 'DISETUJUI'])) {
             </div>
         </div>
 
-        <!-- Informasi Anggota -->
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title">Informasi Anggota</h5>
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="card-title mb-0">Informasi Anggota</h5>
             </div>
             <div class="card-body">
                 <div class="d-flex align-items-center mb-3">
@@ -219,7 +226,6 @@ if (in_array($pinjaman['status'], ['DIVERIFIKASI', 'DISETUJUI'])) {
     </div>
 
     <div class="col-lg-8">
-        <!-- Rangkuman Pembayaran (Jika sudah berjalan) -->
         <?php if ($summary): ?>
         <div class="row g-4 mb-4">
             <div class="col-md-6">
@@ -241,17 +247,16 @@ if (in_array($pinjaman['status'], ['DIVERIFIKASI', 'DISETUJUI'])) {
         </div>
         <?php endif; ?>
 
-        <!-- Jadwal Angsuran -->
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="card-title">Jadwal Angsuran</h5>
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center pt-4 pb-3">
+                <h5 class="card-title mb-0 fw-bold">Jadwal Angsuran</h5>
                 <?php if ($pinjaman['status'] === 'BERJALAN' || $pinjaman['status'] === 'LUNAS'): ?>
-                    <span class="badge bg-light text-dark fw-normal">Estimasi Jadwal</span>
+                    <span class="badge bg-light text-dark fw-normal border">Estimasi Jadwal</span>
                 <?php endif; ?>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table mb-0">
+                    <table class="table table-hover mb-0">
                         <thead class="bg-light">
                             <tr>
                                 <th class="ps-4">Ke</th>
@@ -262,30 +267,30 @@ if (in_array($pinjaman['status'], ['DIVERIFIKASI', 'DISETUJUI'])) {
                                 <th class="text-center pe-4">Status</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="jadwalTableBody">
                             <?php if (empty($jadwal)): ?>
                                 <tr>
-                                    <td colspan="6" class="text-center py-5 text-muted italic">
+                                    <td colspan="6" class="text-center py-5 text-muted fst-italic">
                                         Jadwal akan muncul setelah pinjaman disetujui dan dicairkan.
                                     </td>
                                 </tr>
                             <?php else: ?>
                                 <?php foreach ($jadwal as $row): ?>
-                                    <tr>
-                                        <td class="ps-4 fw-medium text-muted"><?= $row['angsuran_ke'] ?></td>
-                                        <td><?= formatTanggalShort($row['jatuh_tempo']) ?></td>
-                                        <td class="text-end"><?= formatRupiah($row['pokok_tagih']) ?></td>
-                                        <td class="text-end"><?= formatRupiah($row['bunga_tagih']) ?></td>
-                                        <td class="text-end fw-bold">
+                                    <tr class="jadwal-row">
+                                        <td class="ps-4 fw-medium text-muted align-middle"><?= $row['angsuran_ke'] ?></td>
+                                        <td class="align-middle"><?= formatTanggalShort($row['jatuh_tempo']) ?></td>
+                                        <td class="text-end align-middle"><?= formatRupiah($row['pokok_tagih']) ?></td>
+                                        <td class="text-end align-middle"><?= formatRupiah($row['bunga_tagih']) ?></td>
+                                        <td class="text-end fw-bold align-middle">
                                             <?= formatRupiah($row['total_tagih']) ?>
                                         </td>
-                                        <td class="text-center pe-4">
+                                        <td class="text-center pe-4 align-middle">
                                             <?php if ($row['status'] === 'BAYAR'): ?>
-                                                <span class="badge bg-success-subtle text-success border border-success-subtle">
+                                                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 rounded-pill">
                                                     LUNAS
                                                 </span>
                                             <?php else: ?>
-                                                <span class="badge bg-warning-subtle text-warning border border-warning-subtle">
+                                                <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1 rounded-pill">
                                                     BELUM
                                                 </span>
                                             <?php endif; ?>
@@ -296,7 +301,90 @@ if (in_array($pinjaman['status'], ['DIVERIFIKASI', 'DISETUJUI'])) {
                         </tbody>
                     </table>
                 </div>
+
+                <?php if (!empty($jadwal) && count($jadwal) > 5): ?>
+                <div class="d-flex justify-content-between align-items-center p-3 border-top bg-light rounded-bottom">
+                    <div class="small fw-medium text-muted" id="jadwal-page-info">
+                        Menampilkan data...
+                    </div>
+                    <div class="btn-group shadow-sm">
+                        <button id="jadwal-prev-btn" class="btn btn-white border btn-sm text-primary fw-semibold" onclick="changeJadwalPage(-1)">
+                            <i class="bi bi-chevron-left me-1"></i> Prev
+                        </button>
+                        <button id="jadwal-next-btn" class="btn btn-white border btn-sm text-primary fw-semibold" onclick="changeJadwalPage(1)">
+                            Next <i class="bi bi-chevron-right ms-1"></i>
+                        </button>
+                    </div>
+                </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const rows = document.querySelectorAll("#jadwalTableBody .jadwal-row");
+    
+    if (rows.length === 0) return; // Berhenti jika tidak ada data
+
+    const rowsPerPage = 5; // Tampilkan 5 baris per halaman
+    let currentPage = 1;
+    const totalPages = Math.ceil(rows.length / rowsPerPage);
+
+    function displayJadwalTable(page) {
+        const start = (page - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+
+        // Tampilkan atau Sembunyikan baris
+        rows.forEach((row, index) => {
+            if (index >= start && index < end) {
+                row.style.display = ""; // Tampilkan
+            } else {
+                row.style.display = "none"; // Sembunyikan
+            }
+        });
+
+        // Update teks info
+        const currentEnd = Math.min(end, rows.length);
+        const infoText = document.getElementById("jadwal-page-info");
+        if (infoText) {
+            infoText.innerText = `Menampilkan ${start + 1}-${currentEnd} dari total ${rows.length} angsuran`;
+        }
+
+        // Matikan tombol jika mentok
+        const prevBtn = document.getElementById("jadwal-prev-btn");
+        const nextBtn = document.getElementById("jadwal-next-btn");
+        
+        if (prevBtn) prevBtn.disabled = (page === 1);
+        if (nextBtn) nextBtn.disabled = (page === totalPages);
+    }
+
+    displayJadwalTable(currentPage);
+
+    window.changeJadwalPage = function(step) {
+        currentPage += step;
+        
+        if (currentPage < 1) currentPage = 1;
+        if (currentPage > totalPages) currentPage = totalPages;
+        
+        displayJadwalTable(currentPage);
+    };
+});
+</script>
+
+<style>
+/* Mempercantik tombol pagination */
+.btn-white {
+    background-color: #ffffff;
+}
+.btn-white:hover:not(:disabled) {
+    background-color: #f8fafc;
+    color: #1e40af !important;
+}
+.btn-white:disabled {
+    background-color: #f1f5f9;
+    color: #94a3b8 !important;
+    cursor: not-allowed;
+}
+</style>

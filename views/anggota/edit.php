@@ -1,10 +1,13 @@
-<div class="mb-4">
-    <a href="<?= url('/anggota') ?>" class="text-muted text-decoration-none small">
-        <i class="bi bi-arrow-left me-1"></i> Kembali ke Daftar
-    </a>
-    <h2 class="page-title mt-2">
-        <?= $pageTitle ?>
-    </h2>
+<div class="mb-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+    <div>
+        <h2 class="page-title mb-0"><?= $pageTitle ?></h2>
+        <p class="text-muted small mb-0">Perbarui data informasi anggota koperasi.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+        <a href="javascript:history.back()" class="btn btn-outline-primary btn-sm shadow-sm rounded fw-semibold">
+            <i class="bi bi-arrow-left me-1"></i> Kembali
+        </a>
+    </div>
 </div>
 
 <div class="row">
@@ -39,10 +42,12 @@
                         <div class="col-md-6">
                             <label class="form-label">Tipe Anggota</label>
                             <select name="tipe" class="form-select" required>
-                                <option value="UMUM" <?= $anggota['tipe'] == 'UMUM' ? 'selected' : '' ?>>UMUM</option>
-                                <option value="MAHASISWA" <?= $anggota['tipe'] == 'MAHASISWA' ? 'selected' : '' ?>>MAHASISWA</option>
-                                <option value="DOSEN" <?= $anggota['tipe'] == 'DOSEN' ? 'selected' : '' ?>>DOSEN</option>
-                                <option value="STAF" <?= $anggota['tipe'] == 'STAF' ? 'selected' : '' ?>>STAF</option>
+                                <option value="DOSEN TETAP" <?= $anggota['tipe'] == 'DOSEN TETAP' ? 'selected' : '' ?>>DOSEN TETAP</option>
+                                <option value="DOSEN KONTRAK" <?= $anggota['tipe'] == 'DOSEN KONTRAK' ? 'selected' : '' ?>>DOSEN KONTRAK</option>
+                                <option value="DOSEN TIDAK TETAP" <?= $anggota['tipe'] == 'DOSEN TIDAK TETAP' ? 'selected' : '' ?>>DOSEN TIDAK TETAP</option>
+                                <option value="KARYAWAN TETAP" <?= $anggota['tipe'] == 'KARYAWAN TETAP' ? 'selected' : '' ?>>KARYAWAN TETAP</option>
+                                <option value="KARYAWAN KONTRAK" <?= $anggota['tipe'] == 'KARYAWAN KONTRAK' ? 'selected' : '' ?>>KARYAWAN KONTRAK</option>
+                                <option value="KARYAWAN TIDAK TETAP" <?= $anggota['tipe'] == 'KARYAWAN TIDAK TETAP' ? 'selected' : '' ?>>KARYAWAN TIDAK TETAP</option>
                             </select>
                         </div>
 

@@ -1,5 +1,5 @@
 -- ================================================
--- SEED DATA untuk KSP Harapan Mulya
+-- SEED DATA untuk Koperasi Harapan Mulya
 -- Data dummy untuk testing aplikasi
 -- ================================================
 
@@ -24,9 +24,9 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- ================================================
 
 INSERT INTO users (id, name, email, username, password_hash, role, is_active, created_at) VALUES
-(1, 'Administrator', 'admin@ksp.com', 'admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'ADMIN', 1, NOW()),
-(2, 'Teller 1', 'teller1@ksp.com', 'teller1', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'TELLER', 1, NOW()),
-(3, 'Ketua Koperasi', 'ketua@ksp.com', 'ketua', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'KETUA', 1, NOW()),
+(1, 'Administrator', 'admin@ksp.com', 'admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'VALIDATOR', 1, NOW()),
+(2, 'Teller 1', 'teller1@ksp.com', 'teller1', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'BAU', 1, NOW()),
+(3, 'Manager Koperasi', 'manager@ksp.com', 'manager', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'MANAGER', 1, NOW()),
 (4, 'Ahmad Rizki', 'ahmad@example.com', 'ahmad', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'ANGGOTA', 1, NOW()),
 (5, 'Siti Nurhaliza', 'siti@example.com', 'siti', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'ANGGOTA', 1, NOW()),
 (6, 'Budi Santoso', 'budi@example.com', 'budi', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'ANGGOTA', 1, NOW()),

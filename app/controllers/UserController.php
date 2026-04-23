@@ -181,4 +181,29 @@ class UserController extends Controller
             $this->redirect('/users', 'Gagal mengubah status user', 'error');
         }
     }
+
+    public function resetPassword($id)
+    {
+        if (!$this->isPost()) {
+            return $this->json(['success' => false, 'message' => 'Method not allowed']);
+        }
+
+        $user = $this->userModel->find($id);
+        if (!$user) {
+            return $this->json(['success' => false, 'message' => 'User tidak ditemukan']);
+        }
+
+        // Set password same as username (which acts as ID Anggota)
+        $newPassword = $user['username'];
+        
+        $updateData = [
+            'password' => $newPassword
+        ];
+
+        if ($this->userModel->updateUser($id, $updateData)) {
+            return $this->json(['success' => true, 'message' => 'Password berhasil direset']);
+        } else {
+            return $this->json(['success' => false, 'message' => 'Gagal mereset password']);
+        }
+    }
 }

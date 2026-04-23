@@ -1,7 +1,7 @@
 <?php
 /**
  * App Configuration
- * KSP Harapan Mulya - Koperasi Simpan Pinjam
+ * Koperasi Harapan Mulya - Koperasi Simpan Pinjam
  */
 
 // Load environment variables
@@ -37,7 +37,7 @@ loadEnv(__DIR__ . '/../../.env');
 
 // App Configuration
 return [
-    'name' => 'KSP Harapan Mulya',
+    'name' => 'Koperasi Harapan Mulya',
     'version' => '1.0.0',
     'env' => $_ENV['APP_ENV'] ?? 'production',
     'debug' => filter_var($_ENV['APP_DEBUG'] ?? false, FILTER_VALIDATE_BOOLEAN),

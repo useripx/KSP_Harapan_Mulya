@@ -119,7 +119,16 @@ class LaporanController extends Controller
 
     public function tunggakan()
     {
-        $this->view('laporan/tunggakan', ['pageTitle' => 'Laporan Tunggakan']);
+        $db = db();
+        // Tarik dari view v_tunggakan
+        $sql = "SELECT * FROM v_tunggakan ORDER BY hari_telat DESC";
+        $stmt = $db->query($sql);
+        $tunggakan = $stmt->fetchAll();
+
+        $this->view('laporan/tunggakan', [
+            'pageTitle' => 'Laporan Tunggakan Pinjaman',
+            'tunggakan' => $tunggakan
+        ]);
     }
 
     public function kas()
@@ -139,18 +148,90 @@ class LaporanController extends Controller
         ]);
     }
 
-    public function neraca()
-    {
-        $this->view('laporan/neraca', ['pageTitle' => 'Laporan Neraca']);
-    }
-
     public function labaRugi()
     {
-        $this->view('laporan/laba_rugi', ['pageTitle' => 'Laporan Laba Rugi']);
+        $filter = $this->buildDateFilter('a.tanggal_bayar');
+        $db = db();
+
+        // 1. Pendapatan (Bunga & Denda dari Angsuran)
+        $sqlPendapatan = "SELECT SUM(bunga_bayar) as bunga, SUM(denda) as denda 
+                          FROM angsuran a WHERE " . $filter['where'];
+        $stmtP = $db->prepare($sqlPendapatan);
+        $stmtP->execute($filter['params']);
+        $pendapatan = $stmtP->fetch();
+
+        // 2. Pendapatan Administrasi (Potongan Pinjaman Cair)
+        $sqlAdmin = "SELECT SUM(potongan_admin) as admin 
+                     FROM pinjaman a WHERE status IN ('DICAIRKAN', 'BERJALAN', 'LUNAS') 
+                     AND " . str_replace('a.tanggal_bayar', 'a.tgl_cair', $filter['where']);
+        $stmtA = $db->prepare($sqlAdmin);
+        $stmtA->execute($filter['params']);
+        $admin = $stmtA->fetch();
+
+        // 3. Beban Operasional (Kas Keluar)
+        $sqlBeban = "SELECT SUM(jumlah) as beban FROM kas_transaksi a 
+                     WHERE tipe = 'KAS_KELUAR' AND sumber = 'OPERASIONAL' 
+                     AND " . str_replace('a.tanggal_bayar', 'a.tanggal', $filter['where']);
+        $stmtB = $db->prepare($sqlBeban);
+        $stmtB->execute($filter['params']);
+        $beban = $stmtB->fetch();
+
+        $this->view('laporan/laba_rugi', [
+            'pageTitle' => 'Laporan Laba Rugi',
+            'pendapatan' => $pendapatan,
+            'admin' => $admin,
+            'beban' => $beban,
+            'filterText' => $filter['filterText']
+        ]);
+    }
+
+    public function neraca()
+    {
+        $db = db();
+
+        // --- 1. AKTIVA (Aset) ---
+        $kasIn = $db->query("SELECT SUM(jumlah) FROM kas_transaksi WHERE tipe='KAS_MASUK'")->fetchColumn() ?: 0;
+        $kasOut = $db->query("SELECT SUM(jumlah) FROM kas_transaksi WHERE tipe='KAS_KELUAR'")->fetchColumn() ?: 0;
+        $saldoKas = $kasIn - $kasOut;
+
+        $piutang = $db->query("SELECT SUM(sisa_pokok) FROM v_ringkasan_pinjaman WHERE status='BERJALAN'")->fetchColumn() ?: 0;
+
+        $jumlahAset = $saldoKas + $piutang;
+
+
+        // --- 2. PASIVA (Kewajiban & Ekuitas) ---
+        // Total kewajiban koperasi = Uang simpanan anggota yang dititipkan
+        $totalSimpanan = $db->query("SELECT SUM(saldo) FROM v_saldo_simpanan")->fetchColumn() ?: 0;
+
+        // Ekuitas (Modal/SHU) = Total Aset dikurangi Kewajiban biar balance
+        $ekuitas = $jumlahAset - $totalSimpanan;
+
+        $this->view('laporan/neraca', [
+            'pageTitle' => 'Laporan Neraca',
+            'saldoKas' => $saldoKas,
+            'piutang' => $piutang,
+            'jumlahAset' => $jumlahAset,
+            'totalSimpanan' => $totalSimpanan,
+            'ekuitas' => $ekuitas
+        ]);
     }
 
     public function shu()
     {
-        $this->view('laporan/shu', ['pageTitle' => 'Laporan SHU']);
+        $filter = $this->buildDateFilter('a.tanggal_bayar');
+        $db = db();
+
+        // Hitung SHU Bersih (Sama kayak Laba Rugi)
+        $bunga = $db->query("SELECT SUM(bunga_bayar) FROM angsuran")->fetchColumn() ?: 0;
+        $denda = $db->query("SELECT SUM(denda) FROM angsuran")->fetchColumn() ?: 0;
+        $admin = $db->query("SELECT SUM(potongan_admin) FROM pinjaman WHERE status IN ('DICAIRKAN', 'BERJALAN', 'LUNAS')")->fetchColumn() ?: 0;
+        $beban = $db->query("SELECT SUM(jumlah) FROM kas_transaksi WHERE tipe = 'KAS_KELUAR' AND sumber = 'OPERASIONAL'")->fetchColumn() ?: 0;
+
+        $shuBersih = ($bunga + $denda + $admin) - $beban;
+
+        $this->view('laporan/shu', [
+            'pageTitle' => 'Distribusi SHU',
+            'shuBersih' => $shuBersih
+        ]);
     }
 }

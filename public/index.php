@@ -109,10 +109,14 @@ $router->get('/profile', 'ProfileController@index');
 
 // Protected routes - Dashboard
 $router->get('/dashboard', 'DashboardController@index');
+$router->get('/validator', 'DashboardController@adminDashboard');
+$router->get('/bau', 'DashboardController@tellerDashboard');
+$router->get('/manager', 'DashboardController@ketuaDashboard');
+$router->get('/anggota/dashboard', 'DashboardController@anggotaDashboard');
+// Alias lama agar tidak 404 jika ada sesi lama
 $router->get('/admin', 'DashboardController@adminDashboard');
 $router->get('/teller', 'DashboardController@tellerDashboard');
 $router->get('/ketua', 'DashboardController@ketuaDashboard');
-$router->get('/anggota/dashboard', 'DashboardController@anggotaDashboard');
 
 // Anggota routes
 $router->get('/anggota', 'AnggotaController@index');
@@ -131,6 +135,7 @@ $router->get('/users/{id}/edit', 'UserController@edit');
 $router->post('/users/{id}/update', 'UserController@update');
 $router->post('/users/{id}/delete', 'UserController@delete');
 $router->post('/users/{id}/toggle-status', 'UserController@toggleStatus');
+$router->post('/users/{id}/reset-password', 'UserController@resetPassword');
 
 // Simpanan routes
 $router->get('/simpanan', 'SimpananController@index');
@@ -145,6 +150,13 @@ $router->post('/simpanan/transfer', 'SimpananController@prosesTransfer');
 $router->get('/pinjaman', 'PinjamanController@index');
 $router->get('/pinjaman/ajukan', 'PinjamanController@ajukan');
 $router->post('/pinjaman/store', 'PinjamanController@store');
+
+// ============================================
+// FIX: Rute Simulasi ditambahkan di sini (Harus di atas rute {id})
+// ============================================
+$router->get('/pinjaman/simulasi', 'PinjamanController@simulasi');
+// ============================================
+
 $router->get('/pinjaman/{id}', 'PinjamanController@detail');
 $router->get('/pinjaman/{id}/verifikasi', 'PinjamanController@verifikasi');
 $router->post('/pinjaman/{id}/verifikasi', 'PinjamanController@prosesVerifikasi');
@@ -180,7 +192,6 @@ $router->get('/api/anggota/search', 'AnggotaController@search');
 $router->get('/api/anggota/{id}/saldo', 'AnggotaController@getSaldo');
 $router->get('/api/pinjaman/{id}/jadwal', 'PinjamanController@getJadwal');
 $router->post('/api/notifikasi/read', 'NotifikasiController@markAllAsRead');
-$router->post('/chatbot/ask', 'ChatbotController@ask');
 
 // 404 handler
 $router->setNotFound(function () {

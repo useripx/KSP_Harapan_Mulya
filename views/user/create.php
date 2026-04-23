@@ -1,15 +1,19 @@
-<div class="container-fluid">
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="<?= url('/users') ?>">Manajemen User</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Tambah User Baru</li>
-                </ol>
-            </nav>
-            <h1 class="h3 mb-0 text-gray-800">Tambah User Baru</h1>
-        </div>
+<div class="mb-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a href="<?= url('/users') ?>">Manajemen User</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Tambah User Baru</li>
+            </ol>
+        </nav>
+        <h2 class="page-title mb-0">Tambah User Baru</h2>
     </div>
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+        <a href="javascript:history.back()" class="btn btn-outline-primary btn-sm shadow-sm rounded fw-semibold">
+            <i class="bi bi-arrow-left me-1"></i> Kembali
+        </a>
+    </div>
+</div>
 
     <div class="row">
         <div class="col-md-8">
@@ -55,11 +59,16 @@
 
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">Password</label>
-                                <input type="password" name="password"
-                                    class="form-control <?= isset($errors['password']) ? 'is-invalid' : '' ?>"
-                                    placeholder="Minimal 6 karakter">
+                                <div class="password-wrapper">
+                                    <input type="password" name="password"
+                                        class="form-control <?= isset($errors['password']) ? 'is-invalid' : '' ?>"
+                                        placeholder="Minimal 6 karakter">
+                                    <div class="password-toggle">
+                                        <i class="bi bi-eye"></i>
+                                    </div>
+                                </div>
                                 <?php if (isset($errors['password'])): ?>
-                                    <div class="invalid-feedback">
+                                    <div class="invalid-feedback d-block">
                                         <?= $errors['password'] ?>
                                     </div>
                                 <?php endif; ?>

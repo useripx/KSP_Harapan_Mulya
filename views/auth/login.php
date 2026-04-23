@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Masuk - KSP Harapan Mulya</title>
+    <title>Masuk - Koperasi Harapan Mulya</title>
+    <link rel="icon" type="image/png" href="<?= url('/assets/img/img.png') ?>">
 
     <!-- Bootstrap 5.3.8 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -39,7 +40,7 @@
         .login-card {
             width: 100%;
             max-width: 420px;
-            padding: 48px 32px;
+            padding: 32px 32px;
             background: #ffffff;
             border-radius: var(--radius);
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
@@ -48,21 +49,22 @@
 
         .login-header {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 20px;
         }
 
         .logo {
-            width: 48px;
-            height: 48px;
-            background: linear-gradient(135deg, var(--primary), #3b82f6);
-            border-radius: 12px;
+            width: 130px;
+            height: 130px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            margin-bottom: 24px;
-            font-size: 28px;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+            margin-bottom: 12px;
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
 
         .login-header h1 {
@@ -125,6 +127,30 @@
             font-size: 13px;
             color: var(--muted);
         }
+
+        /* Password Toggle Styles */
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: var(--muted);
+            z-index: 10;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+        }
+
+        .password-toggle:hover {
+            color: var(--primary);
+        }
     </style>
 </head>
 
@@ -132,10 +158,10 @@
     <div class="login-card">
         <div class="login-header">
             <div class="logo">
-                <i class="bi bi-bank2"></i>
+                <img src="<?= url('/assets/img/img.png') ?>" alt="Logo">
             </div>
             <h1>Selamat Datang</h1>
-            <p>Masukkan kredensial Anda untuk mengakses sistem</p>
+            <p>Masuk dengan akun Anda untuk mengakses sistem</p>
         </div>
 
         <?php View::flash(); ?>
@@ -155,13 +181,19 @@
                             class="text-decoration-none" style="font-size: 12px; color: var(--muted);">Lupa
                             password?</a>
                     </div>
-                    <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+                    <div class="password-wrapper">
+                        <input type="password" name="password" id="passwordInput" class="form-control"
+                            placeholder="••••••••" required>
+                        <div class="password-toggle" id="passwordToggle">
+                            <i class="bi bi-eye"></i>
+                        </div>
+                    </div>
                 </div>
                 <button type="submit" class="btn btn-primary">Masuk</button>
         </form>
 
         <div class="login-footer">
-            &copy; <?= date('Y') ?> KSP Harapan Mulya
+            &copy; <?= date('Y') ?> Koperasi Harapan Mulya
         </div>
     </div>
 
@@ -174,7 +206,7 @@
                         <i class="bi bi-info-circle-fill"></i>
                     </div>
                     <h5 class="fw-bold mb-2">Lupa Kata Sandi?</h5>
-                    <p class="text-muted mb-4">Silahkan hubungi pihak/teller <strong>KSP Harapan Mulya</strong> secara
+                    <p class="text-muted mb-4">Silahkan hubungi pihak <strong>Koperasi Harapan Mulya</strong> secara
                         langsung, dan membawa Kartu Identitas (KTP,NIM, NIP, atau SIM) untuk melakukan reset atau
                         pembuatan kata sandi baru.</p>
                     <button type="button" class="btn btn-primary px-4 w-100" data-bs-dismiss="modal">Saya
@@ -188,9 +220,24 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
 
-    <!-- Chatbot Anita -->
-    <?php require_once dirname(__DIR__) . '/layout/chatbot.php'; ?>
-    <script src="<?= url('js/chatbot.js') ?>"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const passwordInput = document.getElementById('passwordInput');
+            const passwordToggle = document.getElementById('passwordToggle');
+            const toggleIcon = passwordToggle.querySelector('i');
+
+            passwordToggle.addEventListener('click', function () {
+                // Toggle the type attribute
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+
+                // Toggle the icon
+                toggleIcon.classList.toggle('bi-eye');
+                toggleIcon.classList.toggle('bi-eye-slash');
+            });
+        });
+    </script>
 </body>
 
 

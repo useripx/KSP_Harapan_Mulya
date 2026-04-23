@@ -1,11 +1,23 @@
-<div class="container-fluid py-4">
-    <div class="row">
-        <div class="col-md-4 mb-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body p-4">
-                    <h5 class="fw-bold mb-3">Pengaturan Akun</h5>
-                    <p class="text-muted small">Kelola informasi profil dan pengaturan keamanan akun Anda dalam satu
-                        tempat.</p>
+<div class="mb-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+    <div>
+        <h2 class="page-title mb-0">Pengaturan Akun</h2>
+        <p class="text-muted small mb-0">Kelola informasi profil dan keamanan akun Anda.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+        <a href="javascript:history.back()" class="btn btn-outline-primary btn-sm shadow-sm rounded fw-semibold">
+            <i class="bi bi-arrow-left me-1"></i> Kembali
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <h5 class="fw-bold mb-0">Menu Pengaturan</h5>
+                </div>
+                <p class="text-muted small">Navigasi pengaturan akun Anda.</p>
 
                     <div class="list-group list-group-settings mt-4">
                         <a href="#security"
@@ -18,16 +30,7 @@
                                 <div class="small opacity-75">Ganti password & proteksi</div>
                             </div>
                         </a>
-                        <a href="javascript:void(0)"
-                            class="list-group-item list-group-item-action d-flex align-items-center disabled opacity-50">
-                            <div class="icon-wrapper me-3">
-                                <i class="bi bi-bell"></i>
-                            </div>
-                            <div>
-                                <div class="fw-semibold">Notifikasi</div>
-                                <div class="small opacity-75">Segera hadir</div>
-                            </div>
-                        </a>
+
                     </div>
                 </div>
             </div>
@@ -55,8 +58,13 @@
                                 <label class="form-label mb-md-0">Password Saat Ini</label>
                             </div>
                             <div class="col-md-8">
-                                <input type="password" name="old_password" class="form-control"
-                                    placeholder="Masukkan password sekarang" required>
+                                <div class="password-wrapper">
+                                    <input type="password" name="old_password" class="form-control"
+                                        placeholder="Masukkan password sekarang" required>
+                                    <div class="password-toggle">
+                                        <i class="bi bi-eye"></i>
+                                    </div>
+                                </div>
                                 <?php if ($error = View::error('old_password')): ?>
                                     <div class="text-danger small mt-1"><?= $error ?></div>
                                 <?php endif; ?>
@@ -70,8 +78,13 @@
                                 <label class="form-label mb-md-0">Password Baru</label>
                             </div>
                             <div class="col-md-8">
-                                <input type="password" name="new_password" class="form-control"
-                                    placeholder="Minimal 6 karakter" required>
+                                <div class="password-wrapper">
+                                    <input type="password" name="new_password" class="form-control"
+                                        placeholder="Minimal 6 karakter" required>
+                                    <div class="password-toggle">
+                                        <i class="bi bi-eye"></i>
+                                    </div>
+                                </div>
                                 <?php if ($error = View::error('new_password')): ?>
                                     <div class="text-danger small mt-1"><?= $error ?></div>
                                 <?php endif; ?>
@@ -83,8 +96,13 @@
                                 <label class="form-label mb-md-0">Konfirmasi Password Baru</label>
                             </div>
                             <div class="col-md-8">
-                                <input type="password" name="confirm_password" class="form-control"
-                                    placeholder="Ulangi password baru" required>
+                                <div class="password-wrapper">
+                                    <input type="password" name="confirm_password" class="form-control"
+                                        placeholder="Ulangi password baru" required>
+                                    <div class="password-toggle">
+                                        <i class="bi bi-eye"></i>
+                                    </div>
+                                </div>
                                 <?php if ($error = View::error('confirm_password')): ?>
                                     <div class="text-danger small mt-1"><?= $error ?></div>
                                 <?php endif; ?>

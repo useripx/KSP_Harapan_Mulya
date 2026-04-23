@@ -57,7 +57,7 @@ function toggleFilterInputs() {
 </script>
 
 <div class="print-header d-none mb-4 text-center">
-    <h3 class="fw-bold mb-1">KSP HARAPAN MULYA</h3>
+    <h3 class="fw-bold mb-1">KOPERASI HARAPAN MULYA</h3>
     <p class="mb-1 text-muted">Jl. Contoh Koperasi No. 123, Kota Harapan</p>
     <hr style="border-top: 2px solid #000;">
     <h4 class="fw-bold mt-3"><?= e($pageTitle) ?></h4>

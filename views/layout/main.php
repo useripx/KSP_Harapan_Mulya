@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $title ?? 'Dashboard' ?> - KSP Harapan Mulya</title>
+    <title><?= $title ?? 'Dashboard' ?> - Koperasi Harapan Mulya</title>
+    <link rel="icon" type="image/png" href="<?= url('/assets/img/img.png') ?>">
 
     <!-- Bootstrap 5.3.8 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -121,7 +122,16 @@
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 1050;
             overflow-y: auto;
+            overflow-x: hidden;
             box-shadow: 4px 0 24px rgba(0, 0, 0, 0.02);
+            /* Hide scrollbar for IE, Edge and Firefox */
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .sidebar::-webkit-scrollbar {
+            display: none;
         }
 
         .sidebar.collapsed {
@@ -138,23 +148,30 @@
         .sidebar-header .logo {
             width: 40px;
             height: 40px;
-            background: linear-gradient(135deg, var(--primary), #3b82f6);
-            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
             flex-shrink: 0;
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+            border-radius: 12px;
+            overflow: hidden;
+            background: transparent;
+        }
+
+        .sidebar-header .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
 
         .sidebar-header h4 {
-            font-size: 18px;
+            font-size: 15px;
             font-weight: 700;
             margin: 0;
-            letter-spacing: -0.03em;
+            letter-spacing: -0.02em;
             color: var(--foreground);
-            white-space: nowrap;
+            white-space: normal;
+            line-height: 1.3;
         }
 
         .sidebar.collapsed .sidebar-header h4 {
@@ -598,6 +615,29 @@
                 padding: 0 20px;
             }
         }
+        /* Password Toggle Styles */
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: var(--muted-foreground);
+            z-index: 10;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+        }
+
+        .password-toggle:hover {
+            color: var(--primary);
+        }
     </style>
 
     <?= $additionalCSS ?? '' ?>
@@ -692,11 +732,60 @@
             document.documentElement.setAttribute('data-bs-theme', savedTheme);
             updateThemeIcon(savedTheme);
         });
+
+        // Universal Password Toggle
+        document.addEventListener('click', function (e) {
+            const toggle = e.target.closest('.password-toggle');
+            if (toggle) {
+                const wrapper = toggle.closest('.password-wrapper');
+                if (!wrapper) return;
+                
+                const input = wrapper.querySelector('input');
+                const icon = toggle.querySelector('i');
+
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('bi-eye');
+                    icon.classList.add('bi-eye-slash');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('bi-eye-slash');
+                    icon.classList.add('bi-eye');
+                }
+            }
+        });
     </script>
 
-    Chatbot Widget
-    <!-- <?php // require_once __DIR__ . '/chatbot.php'; ?> -->
-    <!-- <script src="<?= url('js/chatbot.js') ?>"></script> -->
+    <?php if (isset($_SESSION['must_change_password']) && $_SESSION['must_change_password'] === true && !isset($_SESSION['password_warning_shown']) && strpos($_SERVER['REQUEST_URI'], '/settings') === false): ?>
+    <div class="modal fade" id="passwordWarningModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-warning">
+                <div class="modal-header border-0 pb-0">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center p-4 pt-0">
+                    <i class="bi bi-shield-exclamation text-warning mb-3" style="font-size: 4rem;"></i>
+                    <h4 class="fw-bold">Peringatan Keamanan!</h4>
+                    <p class="mb-4 text-muted">Sandi Anda saat ini masih menggunakan Default ID Anggota/Username. Demi keamanan akun Anda, silakan segera ganti sandi Anda sekarang.</p>
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-warning fw-bold shadow-sm" onclick="window.location.href='<?= url('/settings') ?>'">Ganti Sandi Sekarang</button>
+                        <button type="button" class="btn btn-light text-muted" data-bs-dismiss="modal">Nanti Saja</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var pwModal = new bootstrap.Modal(document.getElementById('passwordWarningModal'));
+        pwModal.show();
+    });
+    </script>
+    <?php 
+    // Tandai bahwa pop up sudah pernah ditampilkan di sesi ini
+    $_SESSION['password_warning_shown'] = true; 
+    endif; 
+    ?>
 
     <?= $additionalJS ?? '' ?>
 </body>

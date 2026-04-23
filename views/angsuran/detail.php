@@ -1,14 +1,18 @@
-<div class="mb-5 d-print-none d-flex justify-content-between align-items-center">
-    <a href="<?= url('/angsuran') ?>" class="btn btn-link text-muted text-decoration-none p-0">
-        <i class="bi bi-arrow-left me-1"></i> Kembali ke Daftar
-    </a>
-    <div class="gap-2 d-flex">
-        <button onclick="window.print()" class="btn btn-outline-dark rounded-pill px-4">
-            <i class="bi bi-printer me-2"></i> Cetak
+<div class="mb-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 d-print-none">
+    <div>
+        <h2 class="page-title mb-0">Kuitansi Pembayaran #<?= str_pad($payment['id'], 6, '0', STR_PAD_LEFT) ?></h2>
+        <p class="text-muted small mb-0">Bukti pembayaran resmi koperasi.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+        <button onclick="window.print()" class="btn btn-outline-dark btn-sm rounded fw-semibold shadow-sm">
+            <i class="bi bi-printer me-1"></i> Cetak
         </button>
-        <button id="btnDownloadPDF" class="btn btn-success rounded-pill px-4">
-            <i class="bi bi-file-earmark-pdf me-2"></i> Simpan PDF
+        <button id="btnDownloadPDF" class="btn btn-success btn-sm rounded fw-semibold shadow-sm">
+            <i class="bi bi-file-earmark-pdf me-1"></i> Simpan PDF
         </button>
+        <a href="javascript:history.back()" class="btn btn-outline-primary btn-sm shadow-sm rounded fw-semibold">
+            <i class="bi bi-arrow-left me-1"></i> Kembali
+        </a>
     </div>
 </div>
 
@@ -27,7 +31,7 @@
             </div>
             <div class="text-end">
                 <div class="d-inline-flex align-items-center mb-2">
-                    <span class="fs-4 fw-bold text-success text-uppercase" style="letter-spacing: -0.02em;">KSP Harapan Mulya</span>
+                    <span class="fs-4 fw-bold text-success text-uppercase" style="letter-spacing: -0.02em;">Koperasi Harapan Mulya</span>
                     <div class="bg-success rounded-circle d-flex align-items-center justify-content-center ms-3" style="width: 38px; height: 38px; min-width: 38px;">
                         <i class="bi bi-graph-up-arrow text-white fs-5"></i>
                     </div>
@@ -106,7 +110,7 @@
         <hr class="receipt-hr">
         <div class="row receipt-footer mt-4">
             <div class="col-7">
-                <h6 class="fw-bold text-success mb-2">KSP Harapan Mulya</h6>
+                <h6 class="fw-bold text-success mb-2">Koperasi Harapan Mulya</h6>
                 <div class="small text-muted mb-1">Jl. Ahmad Dahlan No.76, Mojoroto, Kediri</div>
                 <div class="small text-muted mb-1">Jawa Timur, Indonesia 64112</div>
                 <div class="small text-muted">Telepon: (0354) 123456 | Email: info@harapanmulya.id</div>
