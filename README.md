@@ -1,3 +1,11 @@
+<div align="center">
+  <br>
+  <i>Dikembangkan dengan ❤️ untuk digitalisasi dan efisiensi Koperasi Harapan Mulya.</i>
+  <br>  
+</div><div align="center">
+  <img src="https://img.shields.io/badge/Koperasi-Harapan%20Mulya-2b5a9b?style=for-the-badge&logo=home-assistant" alt="Koperasi Logo">
+  <h1>Sistem Informasi Manajemen Koperasi Simpan Pinjam</h1>
+<br>
 <p>
     <strong>Aplikasi Manajemen Koperasi Modern, Analitik Lanjutan, dan Keamanan Tingkat Tinggi.</strong>
   </p>
@@ -104,13 +112,3 @@ Gunakan kredensial berikut untuk menguji *Role* yang berbeda dalam sistem:
 Aplikasi ini terus berkembang pesat. Untuk melihat daftar lengkap pembaruan sistem mulai dari versi awal hingga **v23**, silakan baca [CHANGELOG.md](changelog.md).
 
 ---
-
-<div align="center">
-  <br>
-  <i>Dikembangkan dengan ❤️ untuk digitalisasi dan efisiensi Koperasi Harapan Mulya.</i>
-  <br>  
-</div><div align="center">
-  <img src="https://img.shields.io/badge/Koperasi-Harapan%20Mulya-2b5a9b?style=for-the-badge&logo=home-assistant" alt="Koperasi Logo">
-  <h1>Sistem Informasi Manajemen Koperasi Simpan Pinjam</h1>
-=======
-# KSP_Harapan_Mulya
