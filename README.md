@@ -1,7 +1,14 @@
-<<<<<<< HEAD
 
+<div align="center">
+  <br>
+  <i>Dikembangkan dengan ❤️ untuk digitalisasi dan efisiensi Koperasi Harapan Mulya.</i>
+  <br>  
+</div><div align="center">
+  <img src="https://img.shields.io/badge/Koperasi-Harapan%20Mulya-2b5a9b?style=for-the-badge&logo=home-assistant" alt="Koperasi Logo">
+  <h1>Sistem Informasi Manajemen Koperasi Simpan Pinjam</h1>
+<br>
 <p>
-    <strong>Aplikasi Manajemen Koperasi Modern dengan Integrasi AI, Analitik Lanjutan, dan Keamanan Tingkat Tinggi.</strong>
+    <strong>Aplikasi Manajemen Koperasi Modern, Analitik Lanjutan, dan Keamanan Tingkat Tinggi.</strong>
   </p>
 
 <!-- Badges -->
@@ -54,7 +61,7 @@ Sistem Koperasi Harapan Mulya adalah platform digital berbasis web yang dirancan
 | **Frontend Framework**  | Bootstrap 5.3.8                    |
 | **Iconography**         | Bootstrap Icons (Bi-icons)         |
 | **Modul Interaktif**    | Vanilla JavaScript, SweetAlert2    |
-| **Integrasi Eksternal** | Groq API (Untuk Modul AI)          |
+| **Integrasi Eksternal** | -                                  |
 
 ---
 
@@ -75,7 +82,7 @@ Ikuti langkah-langkah di bawah ini untuk menjalankan aplikasi di lingkungan peng
    cp .env.example .env
    ```
 
-   > ⚠️ Pastikan Anda mengatur `DB_NAME`, `DB_USER`, `DB_PASS`, serta memasukkan API Key untuk Groq API (`GROQ_API_KEY`) di dalam file `.env`.
+   > ⚠️ Pastikan Anda mengatur `DB_NAME`, `DB_USER`, `DB_PASS`, di dalam file `.env`.
    >
 3. **Impor Database**
 
@@ -106,13 +113,3 @@ Gunakan kredensial berikut untuk menguji *Role* yang berbeda dalam sistem:
 Aplikasi ini terus berkembang pesat. Untuk melihat daftar lengkap pembaruan sistem mulai dari versi awal hingga **v23**, silakan baca [CHANGELOG.md](changelog.md).
 
 ---
-
-<div align="center">
-  <br>
-  <i>Dikembangkan dengan ❤️ untuk digitalisasi dan efisiensi Koperasi Harapan Mulya.</i>
-</div><div align="center">
-  <img src="https://img.shields.io/badge/Koperasi-Harapan%20Mulya-2b5a9b?style=for-the-badge&logo=home-assistant" alt="Koperasi Logo">
-  <h1>Sistem Informasi Manajemen Koperasi Simpan Pinjam</h1>
-=======
-# KSP_Harapan_Mulya
->>>>>>> 21ff0606c6eb7723c4832ba3896d9e8fb61e5dd9
