@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <p>
     <strong>Aplikasi Manajemen Koperasi Modern dengan Integrasi AI, Analitik Lanjutan, dan Keamanan Tingkat Tinggi.</strong>
   </p>
@@ -116,3 +117,6 @@ Aplikasi ini terus berkembang pesat. Untuk melihat daftar lengkap pembaruan sist
 </div><div align="center">
   <img src="https://img.shields.io/badge/Koperasi-Harapan%20Mulya-2b5a9b?style=for-the-badge&logo=home-assistant" alt="Koperasi Logo">
   <h1>Sistem Informasi Manajemen Koperasi Simpan Pinjam</h1>
+=======
+# KSP_Harapan_Mulya
+>>>>>>> 21ff0606c6eb7723c4832ba3896d9e8fb61e5dd9
