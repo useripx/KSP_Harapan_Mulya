@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-
 <p>
     <strong>Aplikasi Manajemen Koperasi Modern dengan Integrasi AI, Analitik Lanjutan, dan Keamanan Tingkat Tinggi.</strong>
   </p>
