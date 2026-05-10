@@ -1,5 +1,5 @@
 <p>
-    <strong>Aplikasi Manajemen Koperasi Modern dengan Integrasi AI, Analitik Lanjutan, dan Keamanan Tingkat Tinggi.</strong>
+    <strong>Aplikasi Manajemen Koperasi Modern, Analitik Lanjutan, dan Keamanan Tingkat Tinggi.</strong>
   </p>
 
 <!-- Badges -->
