@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-
-=======
->>>>>>> 9ce450f458ee1f3eafa86130efea85372f23606a
 <div align="center">
   <br>
   <i>Dikembangkan dengan ❤️ untuk digitalisasi dan efisiensi Koperasi Harapan Mulya.</i>
