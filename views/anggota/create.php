@@ -24,7 +24,7 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label">No. Anggota</label>
-                            <input type="text" name="no_anggota" class="form-control" value="<?= $no_anggota ?>"
+                            <input type="text" name="no_anggota" class="form-control" value="Dihasilkan Otomatis"
                                 readonly>
                         </div>
                         <div class="col-md-6">

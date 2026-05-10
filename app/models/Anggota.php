@@ -17,27 +17,29 @@ class Anggota extends Model
         ");
     }
 
-    public function generateNoAnggota()
+    public function generateNoAnggota($nama = '')
     {
-        $datePrefix = date('ymd'); // Format: YYMMDD
-        $yearPrefix = date('y');   // Format: YY
+        $nama = trim($nama);
+        $initials = !empty($nama) ? strtoupper(substr($nama, 0, 1)) : 'X';
 
-        // Cari nomor anggota terakhir di tahun yang sama dengan format 11 digit
+        // Cari nomor anggota terakhir dengan inisial ini menggunakan REGEXP agar presisi
         $sql = "SELECT no_anggota FROM anggota 
-                WHERE no_anggota LIKE ? AND LENGTH(no_anggota) = 11 
-                ORDER BY no_anggota DESC LIMIT 1";
+                WHERE no_anggota REGEXP ?
+                ORDER BY CAST(SUBSTRING(no_anggota, ?) AS UNSIGNED) DESC LIMIT 1";
+        
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([$yearPrefix . '%']);
+        // Pattern: Starts with initials, followed by numbers
+        $stmt->execute(['^' . $initials . '[0-9]+$', strlen($initials) + 1]);
         $last = $stmt->fetch();
 
         if (!$last) {
             $num = 1;
         } else {
-            // Ambil 5 digit terakhir sebagai nomor urutan di tahun ini
-            $num = (int) substr($last['no_anggota'], 6) + 1;
+            $lastNumStr = substr($last['no_anggota'], strlen($initials));
+            $num = (int)$lastNumStr + 1;
         }
 
-        return $datePrefix . str_pad($num, 5, '0', STR_PAD_LEFT);
+        return $initials . str_pad($num, 4, '0', STR_PAD_LEFT);
     }
 
     public function search($query)

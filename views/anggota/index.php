@@ -10,9 +10,11 @@
             </span>
             <input type="text" id="anggotaSearchInput" class="form-control border-start-0 ps-0" placeholder="Cari Nama/ID...">
         </div>
+        <?php if ($userRole === ROLE_ADMIN): ?>
         <a href="<?= url('/anggota/create') ?>" class="btn btn-primary btn-sm shadow-sm px-3">
             <i class="bi bi-person-plus me-1"></i> Tambah Anggota
         </a>
+        <?php endif; ?>
         <a href="javascript:history.back()" class="btn btn-outline-primary btn-sm shadow-sm rounded fw-semibold">
             <i class="bi bi-arrow-left me-1"></i> Kembali
         </a>
@@ -60,9 +62,11 @@
                                     <a href="<?= url('/anggota/' . $item['id']) ?>" class="btn btn-outline-primary btn-sm rounded-pill px-3 me-1">
                                         <i class="bi bi-eye"></i> Detail
                                     </a>
+                                    <?php if ($userRole === ROLE_ADMIN): ?>
                                     <a href="<?= url('/anggota/' . $item['id'] . '/edit') ?>" class="btn btn-outline-warning btn-sm rounded-pill px-3">
                                         <i class="bi bi-pencil"></i> Edit
                                     </a>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

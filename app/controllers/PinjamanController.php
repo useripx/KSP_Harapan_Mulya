@@ -70,20 +70,58 @@ class PinjamanController extends Controller
         ]);
     }
 
+    // ==========================================
+    // FUNGSI PENGAJUAN BARU
+    // ==========================================
     public function ajukan()
     {
+        $nominalSimulasi = $_GET['nominal'] ?? '';
+        $tenorSimulasi = $_GET['tenor'] ?? '';
+
         $db = db();
+
+        if (Auth::role() === ROLE_ANGGOTA) {
+            // 1. Satpam Simulasi
+            if (empty($nominalSimulasi) || empty($tenorSimulasi)) {
+                $this->redirect('/pinjaman/simulasi', 'Tolong isi form Simulasi terlebih dahulu sebelum mengajukan pinjaman!', 'warning');
+            }
+
+            // 2. Cek Sisa Hutang Otomatis di Database
+            $stmt = $db->prepare("
+                SELECT p.id, 
+                       (SELECT SUM(total_tagih) FROM pinjaman_jadwal WHERE pinjaman_id = p.id AND status = 'BELUM') as sisa_hutang 
+                FROM pinjaman p 
+                JOIN anggota a ON p.anggota_id = a.id 
+                WHERE a.user_id = ? AND p.status = 'BERJALAN'
+            ");
+            $stmt->execute([Auth::id()]);
+            $pinjamanAktif = $stmt->fetch();
+
+            // Jika ada hutang > 0, Lempar otomatis ke Top Up!
+            if ($pinjamanAktif && $pinjamanAktif['sisa_hutang'] > 0) {
+                $this->redirect('/pinjaman/topup?nominal=' . $nominalSimulasi . '&tenor=' . $tenorSimulasi, 'Anda terdeteksi memiliki sisa hutang. Pengajuan otomatis dialihkan ke jalur Top Up.', 'info');
+            }
+        }
+
         $anggota = [];
         if (Auth::role() !== ROLE_ANGGOTA) {
             $anggota = $db->query("SELECT * FROM anggota WHERE status = 'AKTIF' ORDER BY nama ASC")->fetchAll();
         }
 
+        $settings = $db->query("SELECT bunga_jangka_pendek, bunga_jangka_panjang FROM setting_koperasi ORDER BY id DESC LIMIT 1")->fetch();
+
         $this->view('pinjaman/ajukan', [
-            'pageTitle' => 'Ajukan Pinjaman',
-            'anggota' => $anggota
+            'pageTitle' => 'Pengajuan Pinjaman Baru',
+            'anggota' => $anggota,
+            'nominalOtomatis' => $nominalSimulasi,
+            'tenorOtomatis' => $tenorSimulasi,
+            'settings' => $settings ?: ['bunga_jangka_pendek' => 1.0, 'bunga_jangka_panjang' => 0.6]
         ]);
     }
 
+    // ==========================================
+    // FUNGSI STORE (SIMPAN DATA)
+    // ==========================================
     public function store()
     {
         if (!$this->isPost()) $this->redirect('/pinjaman');
@@ -100,33 +138,49 @@ class PinjamanController extends Controller
                 $this->redirect('/pinjaman', 'Data anggota tidak ditemukan.', 'error');
             }
             $data['anggota_id'] = $member['id'];
+            
+            // Tangkap pilihan metode dari form (Transfer/Tunai)
+            $data['metode'] = $data['metode'] ?? 'TRANSFER';
         }
 
         $errors = $this->validate($data, [
             'anggota_id' => 'required',
             'pokok' => 'required|numeric|min_value:500000',
             'tenor_bulan' => 'required|numeric',
-            'metode' => 'required',
             'tujuan' => 'required'
         ]);
 
+        // TANGKAP NOMINAL & TENOR BUAT OLEH-OLEH BALIK JIKA ERROR
+        $nom = $data['pokok'] ?? '';
+        $ten = $data['tenor_bulan'] ?? '';
+        
+        // Cek darimana form ini dikirim (Top Up atau Baru)
+        $isTopUp = isset($data['jenis_pengajuan']) && $data['jenis_pengajuan'] === 'TOP_UP';
+        $redirectPath = $isTopUp ? '/pinjaman/topup' : '/pinjaman/ajukan';
+
         if (!empty($errors)) {
             View::setErrors($errors);
-            $this->redirect('/pinjaman/ajukan', 'Harap lengkapi form dengan benar.', 'error');
+            $this->redirect($redirectPath . '?nominal=' . $nom . '&tenor=' . $ten, 'Harap lengkapi form dengan benar.', 'error');
         }
 
         try {
-            // Get current setting for bunga
+            // Get interest rates from settings
             $db = db();
-            $setting = $db->query("SELECT bunga_pinjaman_persen_bln FROM setting_koperasi ORDER BY id DESC LIMIT 1")->fetch();
-            $bunga = $setting ? $setting['bunga_pinjaman_persen_bln'] : 1.5;
+            $setting = $db->query("SELECT bunga_jangka_pendek, bunga_jangka_panjang FROM setting_koperasi ORDER BY id DESC LIMIT 1")->fetch();
+            $tenor = (int)$data['tenor_bulan'];
+            
+            if ($setting) {
+                $bunga = ($tenor === 1) ? $setting['bunga_jangka_pendek'] : $setting['bunga_jangka_panjang'];
+            } else {
+                $bunga = ($tenor === 1) ? 1.0 : 0.6; // Fallback
+            }
 
             $pinjamanId = $this->pinjamanModel->insert([
                 'anggota_id' => $data['anggota_id'],
                 'tgl_pengajuan' => date('Y-m-d'),
                 'pokok' => $data['pokok'],
                 'tenor_bulan' => $data['tenor_bulan'],
-                'metode' => $data['metode'],
+                'metode' => $data['metode'] ?? 'TRANSFER',
                 'bunga_persen_bln' => $bunga,
                 'tujuan' => $data['tujuan'],
                 'status' => 'DIAJUKAN'
@@ -136,14 +190,14 @@ class PinjamanController extends Controller
                 // Log action
                 require_once APP_PATH . '/models/AuditLog.php';
                 $audit = new AuditLog();
-                $audit->log('PENGAJUAN_PINJAMAN', 'pinjaman', $pinjamanId, "Pengajuan pinjaman baru sebesar " . formatRupiah($data['pokok']));
+                $audit->log('PENGAJUAN_PINJAMAN', 'pinjaman', $pinjamanId, "Pengajuan pinjaman sebesar " . formatRupiah($data['pokok']));
                 
-                notifyRole([ROLE_TELLER, ROLE_ADMIN], 'warning', 'bi-file-earmark-plus', 'Pengajuan Baru', 'Terdapat pengajuan pinjaman baru sebesar ' . formatRupiah($data['pokok']), url('/pinjaman/' . $pinjamanId));
+                notifyRole([ROLE_TELLER, ROLE_ADMIN], 'warning', 'bi-file-earmark-plus', 'Pengajuan Baru', 'Terdapat pengajuan pinjaman sebesar ' . formatRupiah($data['pokok']), url('/pinjaman/' . $pinjamanId));
             }
 
             $this->redirect('/pinjaman/' . $pinjamanId, 'Pengajuan pinjaman berhasil dikirim.', 'success');
         } catch (Exception $e) {
-            $this->redirect('/pinjaman/ajukan', 'Gagal mengirim pengajuan: ' . $e->getMessage(), 'error');
+            $this->redirect($redirectPath . '?nominal=' . $nom . '&tenor=' . $ten, 'Gagal mengirim pengajuan: ' . $e->getMessage(), 'error');
         }
     }
 
@@ -359,18 +413,194 @@ class PinjamanController extends Controller
             $this->redirect('/pinjaman/' . $id . '/pencairan', 'Gagal mencairkan pinjaman: ' . $e->getMessage(), 'error');
         }
     }
-    /**
-     * Menampilkan halaman simulasi pinjaman untuk Anggota
-     */
+
     public function simulasi()
     {
-        // Pastikan user sudah login
         Auth::requireLogin();
         
-        // Panggil view yang sudah kita buat tadi
+        $db = db();
+        $settings = $db->query("SELECT bunga_pinjaman_persen_bln, bunga_jangka_pendek, bunga_jangka_panjang FROM setting_koperasi ORDER BY id DESC LIMIT 1")->fetch();
+
         $this->view('anggota/simulasi', [
             'pageTitle' => 'Simulasi Peminjaman',
-            'bungaDefault' => 1.5
+            'settings' => $settings ?: [
+                'bunga_jangka_pendek' => 1.0,
+                'bunga_jangka_panjang' => 0.6
+            ]
         ]);
+    }
+
+    public function topup()
+    {
+        $nominalSimulasi = $_GET['nominal'] ?? '';
+        $tenorSimulasi = $_GET['tenor'] ?? '';
+        
+        $db = db();
+        $sisaHutang = 0;
+
+        if (Auth::role() === ROLE_ANGGOTA) {
+            // 1. Satpam Simulasi
+            if (empty($nominalSimulasi) || empty($tenorSimulasi)) {
+                $this->redirect('/pinjaman/simulasi', 'Tolong isi form Simulasi terlebih dahulu sebelum mengajukan Top Up!', 'warning');
+            }
+
+            // 2. Ambil Sisa Hutang
+            $stmt = $db->prepare("
+                SELECT p.id, 
+                       (SELECT SUM(total_tagih) FROM pinjaman_jadwal WHERE pinjaman_id = p.id AND status = 'BELUM') as sisa_hutang 
+                FROM pinjaman p 
+                JOIN anggota a ON p.anggota_id = a.id 
+                WHERE a.user_id = ? AND p.status = 'BERJALAN'
+            ");
+            $stmt->execute([Auth::id()]);
+            $pinjamanAktif = $stmt->fetch();
+
+            if (!$pinjamanAktif || $pinjamanAktif['sisa_hutang'] <= 0) {
+                $this->redirect('/pinjaman/ajukan?nominal=' . $nominalSimulasi . '&tenor=' . $tenorSimulasi, 'Sisa hutang Anda Rp 0. Silakan gunakan form Pinjaman Baru.', 'info');
+            }
+
+            $sisaHutang = $pinjamanAktif['sisa_hutang'];
+        }
+
+        $anggota = [];
+        if (Auth::role() !== ROLE_ANGGOTA) {
+            $anggota = $db->query("SELECT * FROM anggota WHERE status = 'AKTIF' ORDER BY nama ASC")->fetchAll();
+        }
+
+        $this->view('pinjaman/topup', [
+            'pageTitle' => 'Pengajuan Top Up Pinjaman',
+            'anggota' => $anggota,
+            'nominalOtomatis' => $nominalSimulasi,
+            'tenorOtomatis' => $tenorSimulasi,
+            'sisaHutang' => $sisaHutang
+        ]);
+    }
+
+    public function darurat()
+    {
+        $db = db();
+        $sisaHutang = 0;
+
+        if (Auth::role() === ROLE_ANGGOTA) {
+            $stmt = $db->prepare("
+                SELECT p.id, 
+                       (SELECT SUM(total_tagih) FROM pinjaman_jadwal WHERE pinjaman_id = p.id AND status = 'BELUM') as sisa_hutang 
+                FROM pinjaman p 
+                JOIN anggota a ON p.anggota_id = a.id 
+                WHERE a.user_id = ? AND p.status = 'BERJALAN'
+            ");
+            $stmt->execute([Auth::id()]);
+            $pinjamanAktif = $stmt->fetch();
+
+            if ($pinjamanAktif && $pinjamanAktif['sisa_hutang'] > 0) {
+                $sisaHutang = $pinjamanAktif['sisa_hutang'];
+            }
+        }
+
+        $anggota = [];
+        if (Auth::role() !== ROLE_ANGGOTA) {
+            $anggota = $db->query("SELECT * FROM anggota WHERE status = 'AKTIF' ORDER BY nama ASC")->fetchAll();
+        }
+
+        $this->view('pinjaman/darurat', [
+            'pageTitle' => 'Pengajuan Pinjaman Darurat',
+            'anggota' => $anggota,
+            'sisaHutang' => $sisaHutang
+        ]);
+    }
+
+    public function pernyataan()
+    {
+        $db = db();
+        $userId = Auth::id();
+        $userRole = Auth::role();
+
+        $sql = "SELECT p.*, a.nama, a.no_anggota 
+                FROM pinjaman p
+                JOIN anggota a ON p.anggota_id = a.id";
+
+        if ($userRole === ROLE_ANGGOTA) {
+            $sql .= " WHERE a.user_id = " . (int)$userId;
+        }
+
+        $sql .= " ORDER BY p.created_at DESC";
+        $pinjaman = $db->query($sql)->fetchAll();
+
+        $this->view('pinjaman/pernyataan', [
+            'pageTitle' => 'Cetak Surat Pernyataan',
+            'pinjaman' => $pinjaman
+        ]);
+    }
+
+    // ==========================================
+    // FUNGSI PELUNASAN (UPDATE BARU)
+    // ==========================================
+    public function pelunasan()
+    {
+        Auth::requireLogin();
+        $db = db();
+        
+        // Ambil ID Anggota berdasarkan User Login
+        $stmtId = $db->prepare("SELECT id FROM anggota WHERE user_id = ?");
+        $stmtId->execute([Auth::id()]);
+        $anggota = $stmtId->fetch();
+        $anggotaId = $anggota['id'] ?? 0;
+
+        // Ambil data jadwal yang belum lunas untuk tabel di view pelunasan
+        $stmt = $db->prepare("
+            SELECT pj.* FROM pinjaman_jadwal pj
+            JOIN pinjaman p ON pj.pinjaman_id = p.id
+            WHERE p.anggota_id = ? AND pj.status = 'BELUM'
+            ORDER BY pj.jatuh_tempo ASC
+        ");
+        $stmt->execute([$anggotaId]);
+        $jadwalAngsuran = $stmt->fetchAll();
+
+        $this->view('pinjaman/pelunasan', [
+            'pageTitle' => 'Pelunasan Dipercepat',
+            'jadwalAngsuran' => $jadwalAngsuran
+        ]); 
+    }
+
+    // ==========================================
+    // FUNGSI CETAK PDF (JALUR MULTI-PENCARIAN)
+    // ==========================================
+    public function cetakSurat($id)
+    {
+        $pinjaman = $this->pinjamanModel->findWithAnggota($id);
+        
+        if (!$pinjaman) {
+            die("Data pinjaman tidak ditemukan.");
+        }
+
+        if (Auth::role() === ROLE_ANGGOTA) {
+            $db = db();
+            $stmt = $db->prepare("SELECT user_id FROM anggota WHERE id = ?");
+            $stmt->execute([$pinjaman['anggota_id']]);
+            $member = $stmt->fetch();
+            if ($member['user_id'] != Auth::id()) {
+                die("Akses ditolak.");
+            }
+        }
+
+        // Kita tebar jaring: PHP akan mencoba satu per satu lokasi ini sampai ketemu file-nya
+        $lokasiFile = [
+            APP_PATH . '/views/pinjaman/cetak_surat_pdf.php',               // Standar MVC
+            dirname(__DIR__) . '/views/pinjaman/cetak_surat_pdf.php',       // Naik 1 folder
+            ROOT_PATH . '/views/pinjaman/cetak_surat_pdf.php'               // Di root (seperti foto VS code)
+        ];
+
+        $ketemu = false;
+        foreach ($lokasiFile as $path) {
+            if (file_exists($path)) {
+                require_once $path;
+                $ketemu = true;
+                break; // Langsung stop pencarian kalau udah ketemu!
+            }
+        }
+
+        if (!$ketemu) {
+            die("File cetak_surat_pdf.php benar-benar tidak ditemukan di folder mana pun. Pastikan nama filenya tidak ada typo (seperti .php.php)!");
+        }
     }
 }

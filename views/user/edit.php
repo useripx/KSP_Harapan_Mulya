@@ -1,199 +1,189 @@
+<?php 
+/**
+ * View: Edit User & Anggota
+ */
+?>
 <div class="mb-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
     <div>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-1">
-                <li class="breadcrumb-item"><a href="<?= url('/users') ?>">Manajemen User</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Edit User</li>
+                <li class="breadcrumb-item"><a href="<?= url('/users') ?>" class="text-decoration-none">Manajemen User</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Edit Anggota</li>
             </ol>
         </nav>
-        <h2 class="page-title mb-0">Edit User: <?= htmlspecialchars($user['name']) ?></h2>
+        <h2 class="page-title mb-0">Edit Anggota: <?= e($anggota['nama'] ?? $user['name']) ?></h2>
+        <p class="text-muted small mb-0">Perbarui data informasi dan akun login anggota koperasi.</p>
     </div>
+    
     <div class="d-flex flex-wrap gap-2 align-items-center">
-        <a href="javascript:history.back()" class="btn btn-outline-primary btn-sm shadow-sm rounded fw-semibold">
+        <a href="<?= url('/users') ?>" class="btn btn-outline-primary btn-sm shadow-sm rounded fw-semibold">
             <i class="bi bi-arrow-left me-1"></i> Kembali
         </a>
     </div>
 </div>
 
+<form action="<?= url('/users/update/' . $user['id']) ?>" method="POST">
+    <?= View::csrf() ?>
     <div class="row">
-        <div class="col-md-8">
-            <div class="card border-0 shadow-sm">
+        <!-- Kolom Kiri: Informasi Pribadi -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title mb-0 fw-bold">Informasi Pribadi & Instansi</h5>
+                </div>
                 <div class="card-body p-4">
-                    <form action="<?= url("/users/{$user['id']}/update") ?>" method="POST">
-                        <div class="row g-3">
-                            <div class="col-md-12">
-                                <label class="form-label fw-bold">Nama Lengkap</label>
-                                <input type="text" name="name"
-                                    class="form-control <?= isset($errors['name']) ? 'is-invalid' : '' ?>"
-                                    value="<?= $old['name'] ?? $user['name'] ?>" placeholder="Masukkan nama lengkap">
-                                <?php if (isset($errors['name'])): ?>
-                                    <div class="invalid-feedback">
-                                        <?= $errors['name'] ?>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Username</label>
-                                <input type="text" name="username"
-                                    class="form-control <?= isset($errors['username']) ? 'is-invalid' : '' ?>"
-                                    value="<?= $old['username'] ?? $user['username'] ?>"
-                                    placeholder="Masukkan username">
-                                <?php if (isset($errors['username'])): ?>
-                                    <div class="invalid-feedback">
-                                        <?= $errors['username'] ?>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Email</label>
-                                <input type="email" name="email"
-                                    class="form-control <?= isset($errors['email']) ? 'is-invalid' : '' ?>"
-                                    value="<?= $old['email'] ?? $user['email'] ?>" placeholder="nama@perusahaan.com">
-                                <?php if (isset($errors['email'])): ?>
-                                    <div class="invalid-feedback">
-                                        <?= $errors['email'] ?>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Aksi Sandi</label>
-                                <div>
-                                    <button type="button" class="btn btn-warning w-100 fw-bold" onclick="showResetConfirm()">
-                                        <i class="bi bi-arrow-counterclockwise"></i> Reset Sandi
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Role</label>
-                                <select name="role"
-                                    class="form-select <?= isset($errors['role']) ? 'is-invalid' : '' ?>">
-                                    <option value="">Pilih Role</option>
-                                    <?php foreach ($roles as $role): ?>
-                                        <option value="<?= $role ?>" <?= (isset($old['role']) ? $old['role'] === $role : $user['role'] === $role) ? 'selected' : '' ?>>
-                                            <?= $role ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                                <?php if (isset($errors['role'])): ?>
-                                    <div class="invalid-feedback">
-                                        <?= $errors['role'] ?>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-
-                            <div class="col-md-12">
-                                <div class="form-check form-switch mt-2">
-                                    <input class="form-check-input" type="checkbox" name="is_active" id="isActive"
-                                        <?= ($user['is_active']) ? 'checked' : '' ?>>
-                                    <label class="form-check-label fw-bold" for="isActive">User Aktif</label>
-                                    <p class="text-muted small">Jika dinonaktifkan, user tidak dapat login ke sistem.
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div class="col-md-12 mt-4">
-                                <hr>
-                                <div class="d-flex justify-content-end gap-2">
-                                    <a href="<?= url('/users') ?>" class="btn btn-light px-4">Batal</a>
-                                    <button type="submit" class="btn btn-primary px-4">Simpan Perubahan</button>
-                                </div>
-                            </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small text-muted">No. Anggota</label>
+                            <input type="text" class="form-control bg-light" value="<?= e($anggota['no_anggota'] ?? '-') ?>" readonly>
                         </div>
-                    </form>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">Tanggal Daftar</label>
+                            <input type="date" name="tgl_daftar" class="form-control" value="<?= date('Y-m-d', strtotime($anggota['tgl_daftar'] ?? 'now')) ?>" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold small">Nama Lengkap (Sesuai Identitas)</label>
+                            <input type="text" name="name" class="form-control" value="<?= e($anggota['nama'] ?? $user['name']) ?>" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">Tipe Anggota</label>
+                            <select name="tipe" class="form-select" required>
+                                <?php 
+                                $tipe_list = ['DOSEN TETAP', 'DOSEN KONTRAK', 'DOSEN TIDAK TETAP', 'KARYAWAN TETAP', 'KARYAWAN KONTRAK', 'KARYAWAN TIDAK TETAP'];
+                                foreach($tipe_list as $t): ?>
+                                    <option value="<?= $t ?>" <?= ($anggota['tipe'] ?? '') == $t ? 'selected' : '' ?>><?= $t ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">Status Keanggotaan</label>
+                            <select name="status_keanggotaan" class="form-select" required>
+                                <?php $st = $anggota['status'] ?? 'AKTIF'; ?>
+                                <option value="AKTIF" <?= $st == 'AKTIF' ? 'selected' : '' ?>>AKTIF</option>
+                                <option value="NONAKTIF" <?= $st == 'NONAKTIF' ? 'selected' : '' ?>>NONAKTIF</option>
+                                <option value="KELUAR" <?= $st == 'KELUAR' ? 'selected' : '' ?>>KELUAR</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">No. Identitas (KTP/NIP)</label>
+                            <input type="text" name="identitas_no" class="form-control" value="<?= e($anggota['identitas_no'] ?? '') ?>">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">No. HP / WhatsApp</label>
+                            <input type="text" name="no_hp" class="form-control" value="<?= e($anggota['no_hp'] ?? '') ?>">
+                        </div>
+                        <input type="hidden" name="prodi_unit" value="<?= e($anggota['prodi_unit'] ?? '') ?>">
+                        <input type="hidden" name="alamat" value="<?= e($anggota['alamat'] ?? '') ?>">
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm p-2 mb-4">
-                <div class="card-body">
-                    <h5 class="card-title fw-bold mb-3">Informasi Akun</h5>
-                    <div class="mb-2 small">
-                        <span class="text-muted">ID:</span> #
-                        <?= $user['id'] ?>
+
+        <!-- Kolom Kanan: Akun Login & Aksi -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title mb-0 fw-bold">Akun Login</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Username</label>
+                        <input type="text" name="username" class="form-control" value="<?= e($user['username']) ?>" required>
                     </div>
-                    <div class="mb-2 small">
-                        <span class="text-muted">Dibuat pada:</span>
-                        <?= date('d M Y, H:i', strtotime($user['created_at'])) ?>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Email</label>
+                        <input type="email" name="email" class="form-control" value="<?= e($user['email']) ?>" required>
                     </div>
-                    <div class="small">
-                        <span class="text-muted">Login terakhir:</span>
-                        <?= $user['last_login_at'] ? date('d M Y, H:i', strtotime($user['last_login_at'])) : 'Belum pernah' ?>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Role Akses</label>
+                        <select name="role" class="form-select">
+                            <?php foreach ($roles as $role): ?>
+                                <option value="<?= $role ?>" <?= ($user['role'] === $role) ? 'selected' : '' ?>><?= $role ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <button type="button" class="btn btn-warning w-100 fw-bold shadow-sm mt-2" onclick="showResetConfirm()">
+                        <i class="bi bi-shield-lock-fill me-1"></i> Reset Password
+                    </button>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm border-start border-primary border-4 mb-4">
+                <div class="card-body p-3">
+                    <h6 class="fw-bold small mb-3">Statistik Akun</h6>
+                    <div class="d-flex justify-content-between mb-2 small">
+                        <span class="text-muted">ID Sistem:</span>
+                        <span class="fw-semibold">#<?= $user['id'] ?></span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2 small">
+                        <span class="text-muted">Terdaftar:</span>
+                        <span><?= date('d M Y', strtotime($user['created_at'])) ?></span>
                     </div>
                 </div>
             </div>
+
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary shadow py-2 fw-bold">Simpan Perubahan</button>
+                <a href="<?= url('/users') ?>" class="btn btn-light border">Batal</a>
+            </div>
         </div>
     </div>
-</div>
+</form>
 
-<!-- Reset Password Modals -->
-<div class="modal fade" id="confirmResetModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header border-0 pb-0">
-        <h5 class="modal-title fw-bold">Konfirmasi Reset Sandi</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <p>Apakah Anda Yakin ingin mereset sandi untuk <strong><?= e($user['name']) ?></strong>?</p>
-      </div>
-      <div class="modal-footer border-0 pt-0">
-        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Tidak</button>
-        <button type="button" class="btn btn-primary" onclick="executeReset()">Ya</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="modal fade" id="successResetModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-body text-center p-4">
-        <i class="bi bi-check-circle-fill text-success" style="font-size: 3rem;"></i>
-        <h5 class="mt-3 fw-bold">Reset Berhasil</h5>
-        <p class="mb-4">Sandi untuk Anggota <strong><?= e($user['name']) ?></strong> telah direset ke Default ID Anggota</p>
-        <button type="button" class="btn btn-primary w-100" onclick="window.location.href='<?= url('/validator') ?>'">Oke</button>
-      </div>
-    </div>
-  </div>
-</div>
-
+<!-- Reset Password Script -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-let confirmModal;
-let successModal;
-
-document.addEventListener('DOMContentLoaded', function() {
-    confirmModal = new bootstrap.Modal(document.getElementById('confirmResetModal'));
-    successModal = new bootstrap.Modal(document.getElementById('successResetModal'));
-});
-
 function showResetConfirm() {
-    confirmModal.show();
-}
+    const userName = "<?= e($anggota['nama'] ?? $user['name']) ?>";
+    const userId = "<?= $user['id'] ?>";
+    const noAnggota = "<?= e($anggota['no_anggota'] ?? '-') ?>";
 
-function executeReset() {
-    confirmModal.hide();
-    
-    fetch('<?= url("/users/{$user['id']}/reset-password") ?>', {
-        method: 'POST',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
+    Swal.fire({
+        title: 'Konfirmasi Reset Password',
+        html: `Apakah anda yakin ingin akan mereset password <br><strong>${userName}</strong>?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#f59e0b',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: 'Ya, Reset!',
+        cancelButtonText: 'Tidak',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'Memproses...',
+                didOpen: () => { Swal.showLoading() },
+                allowOutsideClick: false
+            });
+
+            fetch(`<?= url('/users/') ?>${userId}/reset-password`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `csrf_token=<?= View::getCsrfToken() ?>`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        title: 'Reset Berhasil!',
+                        html: `Beritahu <strong>${userName}</strong> terkait bahwa reset password telah dilakukan. silahkan lakukan pergantian password mandiri oleh user atau datang ke KSP untuk panduan lebih lanjut.`,
+                        icon: 'success',
+                        confirmButtonText: 'Oke',
+                        confirmButtonColor: '#2563eb'
+                    }).then(() => {
+                        window.location.href = '<?= url('/users') ?>';
+                    });
+                } else {
+                    Swal.fire('Gagal!', data.message || 'Terjadi kesalahan.', 'error');
+                }
+            })
+            .catch(error => {
+                Swal.fire('Error!', 'Terjadi kesalahan sistem.', 'error');
+            });
         }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            successModal.show();
-        } else {
-            alert('Gagal: ' + data.message);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Terjadi kesalahan saat memproses permintaan.');
     });
 }
 </script>

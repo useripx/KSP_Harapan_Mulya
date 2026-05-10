@@ -66,7 +66,6 @@ class DashboardController extends Controller
             'total_anggota' => $this->getTotalAnggota(),
             'total_simpanan' => $this->getTotalSimpanan(),
             'total_pinjaman_aktif' => $this->getTotalPinjamanAktif(),
-            'total_tunggakan' => $this->getTotalTunggakan(),
             'anggota_baru_bulan_ini' => $this->getAnggotaBaruBulanIni(),
             'transaksi_hari_ini' => $this->getTransaksiHariIni(),
         ];
@@ -77,8 +76,6 @@ class DashboardController extends Controller
         // Get upcoming angsuran
         $upcomingAngsuran = $this->getUpcomingAngsuran(5);
 
-        // Get tunggakan list
-        $tunggakan = $this->getTunggakanList(5);
 
         // Chart data - Transaksi 7 hari terakhir
         $chartData = $this->getTransaksiChart7Hari();
@@ -91,7 +88,6 @@ class DashboardController extends Controller
             'stats' => $stats,
             'recentTransactions' => $recentTransactions,
             'upcomingAngsuran' => $upcomingAngsuran,
-            'tunggakan' => $tunggakan,
             'chartData' => $chartData,
             'pinjamanByStatus' => $pinjamanByStatus,
         ];
@@ -99,6 +95,9 @@ class DashboardController extends Controller
         $this->view('dashboard/admin', $data);
     }
 
+    /**
+     * Validator Dashboard logic
+     */
     /**
      * Ketua Dashboard
      */
@@ -115,6 +114,25 @@ class DashboardController extends Controller
     {
         $db = db();
 
+        // Get selected year from query param or default to current year
+        $selectedYear = isset($_GET['year']) ? (int)$_GET['year'] : (int)date('Y');
+
+        // Get available years for the filter
+        $yearsResult = $db->query("
+            SELECT DISTINCT YEAR(tgl_daftar) as year 
+            FROM anggota 
+            WHERE tgl_daftar IS NOT NULL AND YEAR(tgl_daftar) > 0
+            UNION 
+            SELECT DISTINCT YEAR(tanggal) as year 
+            FROM simpanan_transaksi
+            WHERE tanggal IS NOT NULL AND YEAR(tanggal) > 0
+            ORDER BY year DESC
+        ")->fetchAll();
+        
+        $availableYears = array_column($yearsResult, 'year');
+        if (empty($availableYears)) $availableYears = [(int)date('Y')];
+        if (!in_array((int)date('Y'), $availableYears)) array_unshift($availableYears, (int)date('Y'));
+
         // Get statistics (Tunggakan is removed per requirement)
         $stats = [
             'total_anggota' => $this->getTotalAnggota(),
@@ -124,39 +142,65 @@ class DashboardController extends Controller
         ];
 
         // Member Summary Table Data — kompatibel MySQL 5.7 & 8.x
+        // Logic: Calculate cumulative savings based on years of membership up to $selectedYear
         $sql = "
             SELECT
                 a.no_anggota,
                 a.nama,
-                COALESCE(vss.saldo, 0) as iuran,
-                COALESCE(vr.sisa_pokok_total, 0) as cicilan,
-                GREATEST(
-                    COALESCE(MAX(st.tanggal), '1970-01-01'),
-                    COALESCE(MAX(p2.created_at), '1970-01-01'),
-                    COALESCE(MAX(ans.tanggal_bayar), '1970-01-01')
-                ) as aktivitas_terakhir
+                a.tgl_daftar,
+                -- Years active up to selected year
+                (? - YEAR(a.tgl_daftar) + 1) as years_active,
+                -- Cumulative Dummy Data (Amount per year * years_active)
+                (500000 + (a.id * 10000)) * (? - YEAR(a.tgl_daftar) + 1) as simpanan_wajib,
+                (100000 + (a.id * 5000)) * (? - YEAR(a.tgl_daftar) + 1) as simpanan_pokok,
+                (250000 + (a.id * 2000)) * (? - YEAR(a.tgl_daftar) + 1) as simpanan_sukarela,
+                (150000 + (a.id * 1500)) * (? - YEAR(a.tgl_daftar) + 1) as simpanan_belanja,
+                (50000 + (a.id * 1000)) * (? - YEAR(a.tgl_daftar) + 1) as simpanan_dana_sosial,
+                -- Data Simpanan Baru (Dinamis dari Konfigurasi Validator)
+                COALESCE(k.simpanan_motor, 0) * (? - YEAR(a.tgl_daftar) + 1) as simpanan_motor,
+                COALESCE(k.simpanan_mobil, 0) * (? - YEAR(a.tgl_daftar) + 1) as simpanan_mobil,
+                (
+                    ((500000 + (a.id * 10000)) + 
+                     (100000 + (a.id * 5000)) + 
+                     (250000 + (a.id * 2000)) + 
+                     (150000 + (a.id * 1500)) + 
+                     (50000 + (a.id * 1000)) +
+                     COALESCE(k.simpanan_motor, 0) +
+                     COALESCE(k.simpanan_mobil, 0)) * (? - YEAR(a.tgl_daftar) + 1)
+                ) as total
             FROM anggota a
-            LEFT JOIN v_saldo_simpanan vss ON vss.anggota_id = a.id
-            LEFT JOIN (
-                SELECT anggota_id, SUM(sisa_pokok) as sisa_pokok_total
-                FROM v_ringkasan_pinjaman
-                WHERE status IN ('BERJALAN', 'DICAIRKAN')
-                GROUP BY anggota_id
-            ) vr ON vr.anggota_id = a.id
-            LEFT JOIN simpanan_transaksi st ON st.anggota_id = a.id
-            LEFT JOIN pinjaman p2 ON p2.anggota_id = a.id
-            LEFT JOIN angsuran ans ON ans.pinjaman_id = p2.id
+            LEFT JOIN konfigurasi_simpanan_anggota k ON a.id = k.anggota_id
             WHERE a.status = 'AKTIF'
-            GROUP BY a.id, a.no_anggota, a.nama, vss.saldo, vr.sisa_pokok_total
-            ORDER BY aktivitas_terakhir DESC
+            AND YEAR(a.tgl_daftar) <= ?
+            GROUP BY a.id, a.no_anggota, a.nama, a.tgl_daftar, k.simpanan_motor, k.simpanan_mobil
+            ORDER BY total DESC
         ";
 
-        $ringkasanAnggota = $db->query($sql)->fetchAll();
+        $stmt = $db->prepare($sql);
+        // Bind parameters: selectedYear (10 times)
+        $stmt->execute([
+            $selectedYear, $selectedYear, $selectedYear, $selectedYear, 
+            $selectedYear, $selectedYear, $selectedYear, $selectedYear,
+            $selectedYear, $selectedYear
+        ]);
+        $ringkasanAnggota = $stmt->fetchAll();
+
+        // Get Member Savings Config Summary (For the second table)
+        $configSummary = $db->query("
+            SELECT a.no_anggota, a.nama, k.simpanan_motor, k.simpanan_mobil, (k.simpanan_motor + k.simpanan_mobil) as total
+            FROM anggota a
+            JOIN konfigurasi_simpanan_anggota k ON a.id = k.anggota_id
+            WHERE a.status = 'AKTIF'
+            ORDER BY k.id DESC
+        ")->fetchAll();
 
         $data = [
             'pageTitle' => 'Dashboard Manager',
             'stats' => $stats,
             'ringkasanAnggota' => $ringkasanAnggota,
+            'configSummary' => $configSummary,
+            'selectedYear' => $selectedYear,
+            'availableYears' => $availableYears
         ];
 
         $this->view('dashboard/manager', $data);
@@ -174,16 +218,60 @@ class DashboardController extends Controller
             $this->redirect('/login', 'Data anggota tidak ditemukan', 'error');
         }
 
+        // Ambil Data Gaji & Info Anggota
+        $db = db();
+        $stmt = $db->prepare("SELECT gaji, nama FROM anggota WHERE id = ?");
+        $stmt->execute([$anggotaId]);
+        $anggotaData = $stmt->fetch();
+        $gajiBulanIni = $anggotaData['gaji'] ?? 0;
+
+        // Ambil Detail Pinjaman Aktif (Untuk Info Sisa Tenor)
+        $stmtPinjaman = $db->prepare("
+            SELECT id, pokok, tenor_bulan, 
+                   (SELECT COUNT(*) FROM pinjaman_jadwal WHERE pinjaman_id = pinjaman.id AND status = 'LUNAS') as tenor_terbayar 
+            FROM pinjaman 
+            WHERE anggota_id = ? AND status = 'BERJALAN' 
+            ORDER BY created_at DESC LIMIT 1
+        ");
+        $stmtPinjaman->execute([$anggotaId]);
+        $pinjamanAktif = $stmtPinjaman->fetch();
+
+        // Kalkulasi Kewajiban Bulan Ini (Slip Gaji Virtual)
+        // Asumsi: Simpanan Wajib = Rp 50.000 / bulan (Bisa disesuaikan dengan aturan koperasimu)
+        $simpananWajibBulanIni = 50000; 
+        
+        // Ambil Angsuran yang JATUH TEMPO bulan ini (BELUM DIBAYAR)
+        $stmtAngsuran = $db->prepare("
+            SELECT COALESCE(SUM(total_tagih), 0) as total_tagihan_bulan_ini
+            FROM pinjaman_jadwal pj
+            JOIN pinjaman p ON pj.pinjaman_id = p.id
+            WHERE p.anggota_id = ? 
+            AND pj.status = 'BELUM'
+            AND MONTH(pj.jatuh_tempo) = MONTH(CURDATE())
+            AND YEAR(pj.jatuh_tempo) = YEAR(CURDATE())
+        ");
+        $stmtAngsuran->execute([$anggotaId]);
+        $tagihanPinjamanBulanIni = (float) $stmtAngsuran->fetch()['total_tagihan_bulan_ini'];
+
+        $totalKewajiban = $simpananWajibBulanIni + $tagihanPinjamanBulanIni;
+        $takeHomePay = $gajiBulanIni - $totalKewajiban;
+
+        // Stats Global (Sesuai aslinya + tambahan)
         $stats = [
             'saldo_simpanan' => $this->getSaldoSimpanan($anggotaId),
-            'total_setoran' => $this->getTotalSetoranAnggota($anggotaId),
-            'total_penarikan' => $this->getTotalPenarikanAnggota($anggotaId),
-            'total_pinjaman' => $this->getTotalPinjamanAnggota($anggotaId),
+            'total_pinjaman' => $pinjamanAktif ? $pinjamanAktif['pokok'] : 0,
             'sisa_pinjaman' => $this->getSisaPinjamanAnggota($anggotaId),
-            'angsuran_bulan_ini' => $this->getAngsuranBulanIni($anggotaId),
+            'tenor_berjalan' => $pinjamanAktif ? $pinjamanAktif['tenor_terbayar'] . ' / ' . $pinjamanAktif['tenor_bulan'] . ' Bulan' : 'Tidak Ada',
+            
+            // Data untuk Slip Gaji Virtual
+            'gaji_kotor' => $gajiBulanIni,
+            'potongan_simpanan' => $simpananWajibBulanIni,
+            'potongan_angsuran' => $tagihanPinjamanBulanIni,
+            'total_potongan' => $totalKewajiban,
+            'gaji_bersih' => $takeHomePay
         ];
 
-        $riwayatTransaksi = $this->getRiwayatTransaksiAnggota($anggotaId, 10);
+        $riwayatTransaksi = $this->getRiwayatTransaksiAnggota($anggotaId, 5);
         $jadwalAngsuran = $this->getJadwalAngsuranAnggota($anggotaId, 5);
 
         $data = [
@@ -191,6 +279,7 @@ class DashboardController extends Controller
             'stats' => $stats,
             'riwayatTransaksi' => $riwayatTransaksi,
             'jadwalAngsuran' => $jadwalAngsuran,
+            'namaAnggota' => $anggotaData['nama']
         ];
 
         $this->view('dashboard/anggota', $data);
@@ -229,13 +318,6 @@ class DashboardController extends Controller
             FROM pinjaman 
             WHERE status IN ('BERJALAN', 'DICAIRKAN')
         ")->fetch();
-        return (int) $result['total'];
-    }
-
-    private function getTotalTunggakan()
-    {
-        $db = db();
-        $result = $db->query("SELECT COUNT(*) as total FROM v_tunggakan")->fetch();
         return (int) $result['total'];
     }
 
@@ -305,18 +387,6 @@ class DashboardController extends Controller
         return $stmt->fetchAll();
     }
 
-    private function getTunggakanList($limit = 5)
-    {
-        $db = db();
-        $stmt = $db->prepare("
-            SELECT * FROM v_tunggakan
-            ORDER BY hari_telat DESC
-            LIMIT ?
-        ");
-        $stmt->execute([$limit]);
-        return $stmt->fetchAll();
-    }
-
     private function getTransaksiChart7Hari()
     {
         $db = db();
@@ -358,70 +428,36 @@ class DashboardController extends Controller
     private function getSaldoSimpanan($anggotaId)
     {
         $db = db();
-        $stmt = $db->prepare("SELECT saldo FROM v_saldo_simpanan WHERE anggota_id = ?");
-        $stmt->execute([$anggotaId]);
-        $result = $stmt->fetch();
-        return $result ? (float) $result['saldo'] : 0;
-    }
-
-    private function getTotalSetoranAnggota($anggotaId)
-    {
-        $db = db();
-        $stmt = $db->prepare("SELECT COALESCE(SUM(jumlah), 0) as total FROM simpanan_transaksi WHERE anggota_id = ? AND tipe = 'SETOR'");
-        $stmt->execute([$anggotaId]);
-        $result = $stmt->fetch();
-        return (float) $result['total'];
-    }
-
-    private function getTotalPenarikanAnggota($anggotaId)
-    {
-        $db = db();
-        $stmt = $db->prepare("SELECT COALESCE(SUM(jumlah), 0) as total FROM simpanan_transaksi WHERE anggota_id = ? AND tipe = 'TARIK'");
-        $stmt->execute([$anggotaId]);
-        $result = $stmt->fetch();
-        return (float) $result['total'];
-    }
-
-    private function getTotalPinjamanAnggota($anggotaId)
-    {
-        $db = db();
-        $stmt = $db->prepare("
-            SELECT COALESCE(SUM(pokok), 0) as total 
-            FROM pinjaman 
-            WHERE anggota_id = ? AND status IN ('BERJALAN', 'DICAIRKAN', 'LUNAS')
-        ");
-        $stmt->execute([$anggotaId]);
-        $result = $stmt->fetch();
-        return (float) $result['total'];
+        // Fallback jika view v_saldo_simpanan bermasalah
+        try {
+            $stmt = $db->prepare("SELECT saldo FROM v_saldo_simpanan WHERE anggota_id = ?");
+            $stmt->execute([$anggotaId]);
+            $result = $stmt->fetch();
+            return $result ? (float) $result['saldo'] : 0;
+        } catch (Exception $e) {
+            // Hitung manual jika view tidak ada
+            $stmt = $db->prepare("
+                SELECT SUM(CASE WHEN tipe = 'SETOR' THEN jumlah WHEN tipe = 'TARIK' THEN -jumlah ELSE 0 END) as saldo 
+                FROM simpanan_transaksi WHERE anggota_id = ?
+            ");
+            $stmt->execute([$anggotaId]);
+            return (float) $stmt->fetch()['saldo'];
+        }
     }
 
     private function getSisaPinjamanAnggota($anggotaId)
     {
         $db = db();
+        // Menghitung total tagihan yang belum dibayar dari tabel jadwal
         $stmt = $db->prepare("
-            SELECT COALESCE(SUM(sisa_pokok), 0) as sisa
-            FROM v_ringkasan_pinjaman
-            WHERE anggota_id = ? AND status IN ('BERJALAN', 'DICAIRKAN')
+            SELECT COALESCE(SUM(total_tagih), 0) as sisa
+            FROM pinjaman_jadwal pj
+            JOIN pinjaman p ON pj.pinjaman_id = p.id
+            WHERE p.anggota_id = ? AND pj.status = 'BELUM' AND p.status = 'BERJALAN'
         ");
         $stmt->execute([$anggotaId]);
         $result = $stmt->fetch();
         return (float) $result['sisa'];
-    }
-
-    private function getAngsuranBulanIni($anggotaId)
-    {
-        $db = db();
-        $stmt = $db->prepare("
-            SELECT COALESCE(SUM(total), 0) as total
-            FROM angsuran a
-            JOIN pinjaman p ON a.pinjaman_id = p.id
-            WHERE p.anggota_id = ?
-            AND MONTH(a.tanggal_bayar) = MONTH(CURDATE())
-            AND YEAR(a.tanggal_bayar) = YEAR(CURDATE())
-        ");
-        $stmt->execute([$anggotaId]);
-        $result = $stmt->fetch();
-        return (float) $result['total'];
     }
 
     private function getRiwayatTransaksiAnggota($anggotaId, $limit = 10)

@@ -21,15 +21,15 @@ class AnggotaController extends Controller
         $anggota = $this->anggotaModel->getAllWithUser();
         $this->view('anggota/index', [
             'pageTitle' => 'Manajemen Anggota',
-            'anggota' => $anggota
+            'anggota' => $anggota,
+            'userRole' => Auth::role()
         ]);
     }
 
     public function create()
     {
         $this->view('anggota/create', [
-            'pageTitle' => 'Tambah Anggota Baru',
-            'no_anggota' => $this->anggotaModel->generateNoAnggota()
+            'pageTitle' => 'Tambah Anggota Baru'
         ]);
     }
 
@@ -40,8 +40,13 @@ class AnggotaController extends Controller
 
         $data = $this->post();
         
+        // Generate Nomor Anggota berdasarkan nama
+        if (isset($data['nama'])) {
+            $data['no_anggota'] = $this->anggotaModel->generateNoAnggota($data['nama']);
+        }
+        
         // Set otomatis username menggunakan Nomor Anggota
-        $data['username'] = $data['no_anggota'];
+        $data['username'] = $data['no_anggota'] ?? '';
         
         $errors = $this->validate($data, [
             'nama' => 'required',
@@ -189,15 +194,37 @@ class AnggotaController extends Controller
     /**
      * API: Search members by name or number
      */
-    public function search()
-    {
+    // Pastikan hanya ada satu fungsi search() di AnggotaController.php
+    public function search() {
         $q = $_GET['q'] ?? '';
-        if (strlen($q) < 2) {
-            return $this->json([]);
-        }
+        $db = db();
+        
+        // Mencari anggota aktif berdasarkan nama, nomor identitas, atau nomor anggota (ID)
+        $stmt = $db->prepare("SELECT id as anggota_id, user_id, nama, no_anggota, identitas_no 
+                            FROM anggota 
+                            WHERE status = 'AKTIF' 
+                            AND (nama LIKE ? OR identitas_no LIKE ? OR no_anggota LIKE ?) 
+                            LIMIT 10");
+        
+        $searchTerm = "%$q%";
+        $stmt->execute([$searchTerm, $searchTerm, $searchTerm]);
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        $results = $this->anggotaModel->search($q);
-        return $this->json($results);
+        header('Content-Type: application/json');
+        echo json_encode($results);
+        exit;
+    }
+    public function search_ajax() {
+        $q = $_GET['q'] ?? '';
+        $db = db();
+        // Query hanya mengambil anggota AKTIF
+        $stmt = $db->prepare("SELECT user_id, nama FROM anggota WHERE status = 'AKTIF' AND nama LIKE ? LIMIT 5");
+        $stmt->execute(["%$q%"]);
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        header('Content-Type: application/json');
+        echo json_encode($results);
+        exit;
     }
 
     /**

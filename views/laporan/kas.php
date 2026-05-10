@@ -20,7 +20,7 @@ $kas = $kas ?? [];
             </span>
             <input type="text" id="kasSearchInput" class="form-control border-start-0 ps-0" placeholder="Cari Kode/Modul/Ket...">
         </div>
-        <a href="javascript:history.back()" class="btn btn-outline-primary btn-sm shadow-sm rounded fw-semibold">
+        <a href="<?= url('/laporan') ?>" class="btn btn-outline-primary btn-sm shadow-sm rounded fw-semibold px-3">
             <i class="bi bi-arrow-left me-1"></i> Kembali
         </a>
     </div>
@@ -72,6 +72,7 @@ $kas = $kas ?? [];
                 </tbody>
             </table>
         </div>
+        <?php require '_print_signature.php'; ?>
 
         <?php if (!empty($kas) && count($kas) > 5): ?>
         <div class="d-flex justify-content-between align-items-center p-3 border-top bg-light rounded-bottom">

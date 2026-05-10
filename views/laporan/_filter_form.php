@@ -1,5 +1,9 @@
 <?php 
-$periode = $_GET['periode'] ?? 'semua';
+// Tangkap flag dari file parent (misal neraca.php). Kalau nggak ada, defaultnya false
+$isYearlyOnly = $isYearlyOnly ?? false;
+
+// Kalau dipaksa tahunan, otomatis set ke 'tahunan'
+$periode = $isYearlyOnly ? 'tahunan' : ($_GET['periode'] ?? 'semua');
 $tanggal = $_GET['tanggal'] ?? date('Y-m-d');
 $bulan = $_GET['bulan'] ?? date('Y-m');
 $tahun = $_GET['tahun'] ?? date('Y');
@@ -7,6 +11,8 @@ $tahun = $_GET['tahun'] ?? date('Y');
 <div class="card mb-4 no-print border-0 shadow-sm align-items-center flex-row">
     <div class="card-body">
         <form method="GET" action="" class="row g-3 align-items-end">
+            
+            <?php if(!$isYearlyOnly): ?>
             <div class="col-md-3">
                 <label class="form-label text-muted small">Filter Periode</label>
                 <select name="periode" class="form-select" id="periodeSelect" onchange="toggleFilterInputs()">
@@ -26,9 +32,12 @@ $tahun = $_GET['tahun'] ?? date('Y');
                 <label class="form-label text-muted small">Pilih Bulan</label>
                 <input type="month" name="bulan" class="form-control" value="<?= e($bulan) ?>">
             </div>
+            <?php else: ?>
+            <input type="hidden" name="periode" value="tahunan">
+            <?php endif; ?>
             
             <div class="col-md-3" id="filterTahunan" style="display: <?= $periode == 'tahunan' ? 'block' : 'none' ?>;">
-                <label class="form-label text-muted small">Pilih Tahun</label>
+                <label class="form-label text-muted small">Pilih Tahun Laporan</label>
                 <input type="number" name="tahun" class="form-control" min="2020" max="2100" value="<?= e($tahun) ?>">
             </div>
             
@@ -82,6 +91,10 @@ function toggleFilterInputs() {
         }
         body {
             background-color: white !important;
+        }
+        .ttd-container {
+            page-break-inside: avoid;
+            break-inside: avoid;
         }
     }
 </style>

@@ -117,19 +117,6 @@ class LaporanController extends Controller
         ]);
     }
 
-    public function tunggakan()
-    {
-        $db = db();
-        // Tarik dari view v_tunggakan
-        $sql = "SELECT * FROM v_tunggakan ORDER BY hari_telat DESC";
-        $stmt = $db->query($sql);
-        $tunggakan = $stmt->fetchAll();
-
-        $this->view('laporan/tunggakan', [
-            'pageTitle' => 'Laporan Tunggakan Pinjaman',
-            'tunggakan' => $tunggakan
-        ]);
-    }
 
     public function kas()
     {
@@ -189,31 +176,145 @@ class LaporanController extends Controller
     {
         $db = db();
 
-        // --- 1. AKTIVA (Aset) ---
+        // --- 1. AKTIVA (Aset) Otomatis Sistem ---
         $kasIn = $db->query("SELECT SUM(jumlah) FROM kas_transaksi WHERE tipe='KAS_MASUK'")->fetchColumn() ?: 0;
         $kasOut = $db->query("SELECT SUM(jumlah) FROM kas_transaksi WHERE tipe='KAS_KELUAR'")->fetchColumn() ?: 0;
         $saldoKas = $kasIn - $kasOut;
 
-        $piutang = $db->query("SELECT SUM(sisa_pokok) FROM v_ringkasan_pinjaman WHERE status='BERJALAN'")->fetchColumn() ?: 0;
-
+        // Perhitungan Piutang (Sisa Pokok dari Pinjaman Berjalan)
+        $piutang = $db->query("
+            SELECT SUM(p.pokok - COALESCE(ang.total_pokok_bayar, 0))
+            FROM pinjaman p
+            LEFT JOIN (
+                SELECT pinjaman_id, SUM(pokok_bayar) as total_pokok_bayar 
+                FROM angsuran 
+                GROUP BY pinjaman_id
+            ) ang ON p.id = ang.pinjaman_id
+            WHERE p.status = 'BERJALAN'
+        ")->fetchColumn() ?: 0;
         $jumlahAset = $saldoKas + $piutang;
 
-
-        // --- 2. PASIVA (Kewajiban & Ekuitas) ---
-        // Total kewajiban koperasi = Uang simpanan anggota yang dititipkan
-        $totalSimpanan = $db->query("SELECT SUM(saldo) FROM v_saldo_simpanan")->fetchColumn() ?: 0;
-
-        // Ekuitas (Modal/SHU) = Total Aset dikurangi Kewajiban biar balance
+        // --- 2. PASIVA (Kewajiban & Ekuitas) Otomatis Sistem ---
+        // Perhitungan Total Simpanan (Setor - Tarik)
+        $totalSimpanan = $db->query("
+            SELECT SUM(
+                CASE 
+                    WHEN tipe = 'SETOR' THEN jumlah 
+                    WHEN tipe = 'TARIK' THEN -jumlah 
+                    ELSE 0 
+                END
+            ) FROM simpanan_transaksi
+        ")->fetchColumn() ?: 0;
         $ekuitas = $jumlahAset - $totalSimpanan;
 
+        // --- 3. AMBIL DATA MANUAL NERACA ---
+        // Filter berdasarkan tahun yang dipilih, default tahun ini
+        $tahun = $_GET['tahun'] ?? date('Y');
+        
+        $sqlManual = "SELECT * FROM neraca_manual WHERE tahun = ?";
+        $stmtManual = $db->prepare($sqlManual);
+        $stmtManual->execute([$tahun]);
+        $manualItems = $stmtManual->fetchAll();
+
+        // Siapkan wadah (array) biar view nggak error
+        $manualData = [
+            'aset_lancar' => [],
+            'aset_tetap'  => [],
+            'kewajiban'   => [],
+            'ekuitas'     => []
+        ];
+
+        // Pisah-pisahkan data ke kategorinya masing-masing
+        if ($manualItems) {
+            foreach ($manualItems as $item) {
+                $manualData[$item['kategori']][] = $item;
+            }
+        }
+
+        // --- 4. KIRIM SEMUA DATA KE VIEW ---
         $this->view('laporan/neraca', [
             'pageTitle' => 'Laporan Neraca',
             'saldoKas' => $saldoKas,
             'piutang' => $piutang,
             'jumlahAset' => $jumlahAset,
             'totalSimpanan' => $totalSimpanan,
-            'ekuitas' => $ekuitas
+            'ekuitas' => $ekuitas,
+            'manualData' => $manualData // <- Ini yang bikin datanya nampil
         ]);
+    }
+
+    public function tambahNeracaManual() 
+    {
+        // 1. Tangkap data dari form modal
+        // Pakai $_POST bawaan PHP biar aman kalau method custom nggak ada
+        $kategori = $_POST['kategori'] ?? '';
+        $nama_item = $_POST['nama_item'] ?? '';
+        $nominal = $_POST['nominal'] ?? 0;
+        $tahun = $_POST['tahun'] ?? date('Y');
+
+        try {
+            $db = db();
+            // 2. Simpan ke tabel neraca_manual
+            $sql = "INSERT INTO neraca_manual (kategori, nama_item, nominal, tahun) VALUES (?, ?, ?, ?)";
+            $stmt = $db->prepare($sql);
+            $stmt->execute([$kategori, $nama_item, $nominal, $tahun]);
+
+            // 3. Balikin ke halaman Neraca sesuai tahun yang lagi dibuka
+            header("Location: " . url('/laporan/neraca?tahun=' . $tahun));
+            exit;
+
+        } catch (\Exception $e) {
+            // Kalau gagal, matikan eksekusi dan kasih tau errornya
+            die("Gagal menyimpan data manual: " . $e->getMessage());
+        }
+    }
+    
+    public function editNeracaManual() 
+    {
+        // Tangkap data dari modal edit
+        $id = $_POST['id'] ?? '';
+        $kategori = $_POST['kategori'] ?? '';
+        $nama_item = $_POST['nama_item'] ?? '';
+        $nominal = $_POST['nominal'] ?? 0;
+        $tahun = $_POST['tahun'] ?? date('Y');
+
+        try {
+            $db = db();
+            // Eksekusi update data ke tabel neraca_manual
+            $sql = "UPDATE neraca_manual SET kategori = ?, nama_item = ?, nominal = ?, tahun = ? WHERE id = ?";
+            $stmt = $db->prepare($sql);
+            $stmt->execute([$kategori, $nama_item, $nominal, $tahun, $id]);
+
+            // Balikin ke halaman Neraca dengan tahun yang sama
+            header("Location: " . url('/laporan/neraca?tahun=' . $tahun));
+            exit;
+
+        } catch (\Exception $e) {
+            die("Gagal mengupdate data manual: " . $e->getMessage());
+        }
+    }
+
+    public function hapusNeracaManual() 
+    {
+        // Tangkap ID yang mau dihapus dan tahun buat redirect
+        $id = $_POST['id'] ?? '';
+        $tahun = $_POST['tahun'] ?? date('Y');
+
+        if ($id) {
+            try {
+                $db = db();
+                $sql = "DELETE FROM neraca_manual WHERE id = ?";
+                $stmt = $db->prepare($sql);
+                $stmt->execute([$id]);
+
+                // Balikin ke halaman Neraca sesuai tahun aktif
+                header("Location: " . url('/laporan/neraca?tahun=' . $tahun));
+                exit;
+
+            } catch (\Exception $e) {
+                die("Gagal menghapus data manual: " . $e->getMessage());
+            }
+        }
     }
 
     public function shu()

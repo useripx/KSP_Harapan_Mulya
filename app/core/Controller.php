@@ -9,6 +9,19 @@ class Controller {
     
     public function __construct() {
         $this->config = $GLOBALS['config'];
+        
+        // Force password change check
+        if (Auth::check() && isset($_SESSION['must_change_password']) && $_SESSION['must_change_password'] === true) {
+            $currentPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+            $baseUrl = parse_url($this->config['base_url'], PHP_URL_PATH);
+            $relativePath = str_replace($baseUrl, '', $currentPath);
+            $relativePath = '/' . ltrim($relativePath, '/');
+            
+            $excluded = ['/force-password', '/logout'];
+            if (!in_array($relativePath, $excluded)) {
+                $this->redirect('/force-password');
+            }
+        }
     }
     
     /**

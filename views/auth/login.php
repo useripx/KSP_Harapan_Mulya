@@ -207,8 +207,8 @@
                     </div>
                     <h5 class="fw-bold mb-2">Lupa Kata Sandi?</h5>
                     <p class="text-muted mb-4">Silahkan hubungi pihak <strong>Koperasi Harapan Mulya</strong> secara
-                        langsung, dan membawa Kartu Identitas (KTP,NIM, NIP, atau SIM) untuk melakukan reset atau
-                        pembuatan kata sandi baru.</p>
+                        langsung dengan membawa Kartu Identitas (KTP, NIP, atau SIM).<br><br>
+                        Atau jika Anda memiliki nomor WhatsApp <strong>Bu Refti</strong>, silakan hubungi beliau untuk proses penggantian kata sandi akun Anda.</p>
                     <button type="button" class="btn btn-primary px-4 w-100" data-bs-dismiss="modal">Saya
                         Mengerti</button>
                 </div>

@@ -277,6 +277,8 @@
             margin-left: var(--sidebar-width);
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         .main-content.expanded {
@@ -653,7 +655,7 @@
         <?php require_once __DIR__ . '/topbar.php'; ?>
 
         <!-- Content Area -->
-        <div class="container-fluid py-4 px-4">
+        <div class="container-fluid py-4 px-4 pb-5 flex-grow-1">
             <?php View::flash(); ?>
             <?= $content ?>
         </div>
@@ -756,34 +758,36 @@
         });
     </script>
 
-    <?php if (isset($_SESSION['must_change_password']) && $_SESSION['must_change_password'] === true && !isset($_SESSION['password_warning_shown']) && strpos($_SERVER['REQUEST_URI'], '/settings') === false): ?>
-    <div class="modal fade" id="passwordWarningModal" tabindex="-1" aria-hidden="true">
+
+    <?php 
+    // Pengingat Keamanan Bulanan (Setiap Tanggal 1)
+    if (Auth::check() && date('j') == '1' && (!isset($_SESSION['monthly_security_reminded']) || $_SESSION['monthly_security_reminded'] !== date('Y-m-d'))): 
+    ?>
+    <div class="modal fade" id="monthlySecurityModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-warning">
-                <div class="modal-header border-0 pb-0">
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body text-center p-4 pt-0">
-                    <i class="bi bi-shield-exclamation text-warning mb-3" style="font-size: 4rem;"></i>
-                    <h4 class="fw-bold">Peringatan Keamanan!</h4>
-                    <p class="mb-4 text-muted">Sandi Anda saat ini masih menggunakan Default ID Anggota/Username. Demi keamanan akun Anda, silakan segera ganti sandi Anda sekarang.</p>
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 1.25rem;">
+                <div class="modal-body text-center p-5">
+                    <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                        <i class="bi bi-shield-lock-fill fs-1"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Pengingat Keamanan Bulanan</h4>
+                    <p class="text-muted mb-4">Hari ini adalah tanggal <strong>1 <?= date('F Y') ?></strong>. Untuk menjaga keamanan akun Anda, kami menyarankan Anda untuk mengganti kata sandi secara berkala.<br><br>Gunakan kombinasi yang kuat dan jangan bagikan sandi Anda kepada siapapun.</p>
                     <div class="d-grid gap-2">
-                        <button type="button" class="btn btn-warning fw-bold shadow-sm" onclick="window.location.href='<?= url('/settings') ?>'">Ganti Sandi Sekarang</button>
-                        <button type="button" class="btn btn-light text-muted" data-bs-dismiss="modal">Nanti Saja</button>
+                        <button type="button" class="btn btn-primary py-2 fw-bold rounded-pill" onclick="window.location.href='<?= url('/settings') ?>'">Ganti Sandi Sekarang</button>
+                        <button type="button" class="btn btn-light py-2 text-muted rounded-pill" data-bs-dismiss="modal">Ingatkan Nanti</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var pwModal = new bootstrap.Modal(document.getElementById('passwordWarningModal'));
-        pwModal.show();
-    });
+        document.addEventListener('DOMContentLoaded', function() {
+            var mSModal = new bootstrap.Modal(document.getElementById('monthlySecurityModal'));
+            mSModal.show();
+        });
     </script>
     <?php 
-    // Tandai bahwa pop up sudah pernah ditampilkan di sesi ini
-    $_SESSION['password_warning_shown'] = true; 
+        $_SESSION['monthly_security_reminded'] = date('Y-m-d');
     endif; 
     ?>
 

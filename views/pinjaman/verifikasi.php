@@ -33,10 +33,7 @@
                     <div class="col-5 text-muted small">Tenor</div>
                     <div class="col-7 fw-medium"><?= $pinjaman['tenor_bulan'] ?> Bulan</div>
                 </div>
-                <div class="row mb-3">
-                    <div class="col-5 text-muted small">Metode Bunga</div>
-                    <div class="col-7 fw-medium"><?= e($pinjaman['metode']) ?></div>
-                </div>
+
                 <div class="row mb-0">
                     <div class="col-5 text-muted small">Tujuan</div>
                     <div class="col-7 small"><?= e($pinjaman['tujuan'] ?: '-') ?></div>

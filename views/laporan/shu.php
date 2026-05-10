@@ -68,17 +68,7 @@ $sosial = $shu * 0.05;
                     </table>
                 </div>
 
-                <div class="d-none d-print-flex justify-content-between mt-5 pt-5">
-                    <div class="text-center" style="width: 200px;">
-                        <p class="mb-5">Ketua Koperasi,</p>
-                        <p class="fw-bold border-bottom border-dark pb-1 mb-0">Bpk. Haryanto, SE</p>
-                    </div>
-                    <div class="text-center" style="width: 200px;">
-                        <p class="mb-1">Kediri, <?= date('d F Y') ?></p>
-                        <p class="mb-5">Sekretaris,</p>
-                        <p class="fw-bold border-bottom border-dark pb-1 mb-0"><?= e($_SESSION['user_name'] ?? 'Admin') ?></p>
-                    </div>
-                </div>
+                <?php require '_print_signature.php'; ?>
             </div>
         </div>
     </div>

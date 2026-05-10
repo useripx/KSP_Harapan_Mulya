@@ -103,9 +103,13 @@ $router->get('/logout', 'AuthController@logout');
 // Settings & Password management
 $router->get('/settings', 'AuthController@settings');
 $router->post('/settings/password/update', 'AuthController@updatePassword');
+$router->post('/settings/interest/update', 'AuthController@updateInterestRates');
+$router->get('/force-password', 'AuthController@showForcePassword');
+$router->post('/force-password', 'AuthController@updateForcePassword');
 
 // Profile route
 $router->get('/profile', 'ProfileController@index');
+$router->post('/profile/update', 'ProfileController@update'); // <--- INI RUTE BARU BUAT UPDATE GAJI & PROFIL
 
 // Protected routes - Dashboard
 $router->get('/dashboard', 'DashboardController@index');
@@ -146,17 +150,26 @@ $router->post('/simpanan/tarik/process', 'SimpananController@prosesTarik');
 $router->get('/simpanan/transfer', 'SimpananController@transfer');
 $router->post('/simpanan/transfer', 'SimpananController@prosesTransfer');
 
+// ============================================
 // Pinjaman routes
+// ============================================
 $router->get('/pinjaman', 'PinjamanController@index');
+
+// Rute Pengajuan Baru
 $router->get('/pinjaman/ajukan', 'PinjamanController@ajukan');
 $router->post('/pinjaman/store', 'PinjamanController@store');
 
-// ============================================
-// FIX: Rute Simulasi ditambahkan di sini (Harus di atas rute {id})
-// ============================================
+// Rute Simulasi (Khusus Anggota)
 $router->get('/pinjaman/simulasi', 'PinjamanController@simulasi');
-// ============================================
 
+// Rute Sub-Menu Transaksi Pinjaman (Dropdown)
+$router->get('/pinjaman/topup', 'PinjamanController@topup');
+$router->get('/pinjaman/darurat', 'PinjamanController@darurat');
+$router->get('/pinjaman/pernyataan', 'PinjamanController@pernyataan');
+$router->get('/pinjaman/pelunasan', 'PinjamanController@pelunasan');
+
+// Rute Dinamis {id} WAJIB ADA DI BAWAH rute statis di atas!
+$router->get('/pinjaman/cetaksurat/{id}', 'PinjamanController@cetakSurat');
 $router->get('/pinjaman/{id}', 'PinjamanController@detail');
 $router->get('/pinjaman/{id}/verifikasi', 'PinjamanController@verifikasi');
 $router->post('/pinjaman/{id}/verifikasi', 'PinjamanController@prosesVerifikasi');
@@ -181,7 +194,6 @@ $router->get('/laporan', 'LaporanController@index');
 $router->get('/laporan/simpanan', 'LaporanController@simpanan');
 $router->get('/laporan/pinjaman', 'LaporanController@pinjaman');
 $router->get('/laporan/angsuran', 'LaporanController@angsuran');
-$router->get('/laporan/tunggakan', 'LaporanController@tunggakan');
 $router->get('/laporan/kas', 'LaporanController@kas');
 $router->get('/laporan/neraca', 'LaporanController@neraca');
 $router->get('/laporan/laba-rugi', 'LaporanController@labaRugi');
@@ -191,6 +203,8 @@ $router->get('/laporan/shu', 'LaporanController@shu');
 $router->get('/api/anggota/search', 'AnggotaController@search');
 $router->get('/api/anggota/{id}/saldo', 'AnggotaController@getSaldo');
 $router->get('/api/pinjaman/{id}/jadwal', 'PinjamanController@getJadwal');
+$router->get('/api/settings/savings', 'AuthController@getSavingsConfig');
+$router->post('/settings/savings/update', 'AuthController@updateSavings');
 $router->post('/api/notifikasi/read', 'NotifikasiController@markAllAsRead');
 
 // 404 handler

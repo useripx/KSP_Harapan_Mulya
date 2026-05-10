@@ -34,58 +34,43 @@ $isAnggota = ($user['role'] === ROLE_ANGGOTA && $anggota);
                     <?php if ($isAnggota): ?>
                         <div class="col-md-6">
                             <label class="text-muted small fw-bold text-uppercase mb-1">No. Anggota</label>
-                            <p class="fw-semibold mb-0">
-                                <?= e($anggota['no_anggota']) ?>
-                            </p>
+                            <p class="fw-semibold mb-0"><?= e($anggota['no_anggota']) ?></p>
                         </div>
                         <div class="col-md-6">
                             <label class="text-muted small fw-bold text-uppercase mb-1">Tanggal Daftar</label>
-                            <p class="fw-semibold mb-0">
-                                <?= formatTanggalShort($anggota['tgl_daftar']) ?>
-                            </p>
+                            <p class="fw-semibold mb-0"><?= formatTanggalShort($anggota['tgl_daftar']) ?></p>
                         </div>
                         <div class="col-md-6">
                             <label class="text-muted small fw-bold text-uppercase mb-1">Nama Lengkap</label>
-                            <p class="fw-semibold mb-0">
-                                <?= e($anggota['nama']) ?>
-                            </p>
+                            <p class="fw-semibold mb-0"><?= e($anggota['nama']) ?></p>
                         </div>
                         <div class="col-md-6">
                             <label class="text-muted small fw-bold text-uppercase mb-1">Tipe Anggota</label>
-                            <p class="fw-semibold mb-0">
-                                <?= e($anggota['tipe']) ?>
-                            </p>
+                            <p class="fw-semibold mb-0"><?= e($anggota['tipe']) ?></p>
                         </div>
+                        
+                        <!-- INFO GAJI (Baru Ditambahkan) -->
                         <div class="col-md-6">
-                            <label class="text-muted small fw-bold text-uppercase mb-1">No. Identitas (KTP/NIM/NIP)</label>
-                            <p class="fw-semibold mb-0">
-                                <?= e($anggota['identitas_no'] ?: '-') ?>
+                            <label class="text-muted small fw-bold text-uppercase mb-1">Gaji / Penghasilan</label>
+                            <p class="fw-semibold mb-0 <?= empty($anggota['gaji']) ? 'text-danger' : 'text-success' ?>">
+                                <?= empty($anggota['gaji']) ? '<i class="bi bi-exclamation-circle me-1"></i> Belum Diisi' : formatRupiah($anggota['gaji']) ?>
                             </p>
                         </div>
+
                         <div class="col-md-6">
                             <label class="text-muted small fw-bold text-uppercase mb-1">No. HP / WhatsApp</label>
-                            <p class="fw-semibold mb-0">
-                                <?= e($anggota['no_hp'] ?: '-') ?>
-                            </p>
+                            <p class="fw-semibold mb-0"><?= e($anggota['no_hp'] ?: '-') ?></p>
                         </div>
-                        <div class="col-md-6">
-                            <label class="text-muted small fw-bold text-uppercase mb-1">Prodi / Unit</label>
-                            <p class="fw-semibold mb-0">
-                                <?= e($anggota['prodi_unit'] ?: '-') ?>
-                            </p>
+                        <div class="col-md-12">
+                            <label class="text-muted small fw-bold text-uppercase mb-1">Alamat Lengkap</label>
+                            <p class="fw-semibold mb-0 text-wrap"><?= e($anggota['alamat'] ?: '-') ?></p>
                         </div>
-                        <div class="col-md-6">
-                            <label class="text-muted small fw-bold text-uppercase mb-1">Alamat</label>
-                            <p class="fw-semibold mb-0 text-wrap">
-                                <?= e($anggota['alamat'] ?: '-') ?>
-                            </p>
-                        </div>
+
                     <?php else: ?>
+                        <!-- Info Akun Non-Anggota (Admin/Teller) -->
                         <div class="col-md-6">
                             <label class="text-muted small fw-bold text-uppercase mb-1">Username</label>
-                            <p class="fw-semibold mb-0">
-                                <?= e($user['username']) ?>
-                            </p>
+                            <p class="fw-semibold mb-0"><?= e($user['username']) ?></p>
                         </div>
                         <div class="col-md-6">
                             <label class="text-muted small fw-bold text-uppercase mb-1">Status Akun</label>
@@ -97,9 +82,7 @@ $isAnggota = ($user['role'] === ROLE_ANGGOTA && $anggota);
                         </div>
                         <div class="col-md-6">
                             <label class="text-muted small fw-bold text-uppercase mb-1">Email</label>
-                            <p class="fw-semibold mb-0">
-                                <?= e($user['email'] ?: '-') ?>
-                            </p>
+                            <p class="fw-semibold mb-0"><?= e($user['email'] ?: '-') ?></p>
                         </div>
                         <div class="col-md-6">
                             <label class="text-muted small fw-bold text-uppercase mb-1">Terakhir Login</label>
@@ -111,9 +94,17 @@ $isAnggota = ($user['role'] === ROLE_ANGGOTA && $anggota);
                 </div>
 
                 <div class="d-flex gap-2 mt-5 pt-4 border-top">
+                    <!-- Tombol Edit Data Anggota -->
+                    <?php if ($isAnggota): ?>
+                        <button type="button" class="btn btn-success shadow-sm" data-bs-toggle="modal" data-bs-target="#editProfilModal">
+                            <i class="bi bi-pencil-square me-2"></i> Lengkapi Data & Gaji
+                        </button>
+                    <?php endif; ?>
+
                     <a href="<?= url('/settings') ?>" class="btn btn-outline-primary shadow-sm">
-                        <i class="bi bi-shield-lock me-2"></i> Pengaturan Keamanan
+                        <i class="bi bi-shield-lock me-2"></i> Keamanan
                     </a>
+                    
                     <?php if ($user['role'] === ROLE_ADMIN): ?>
                         <a href="<?= url('/users') ?>" class="btn btn-secondary shadow-sm">
                             <i class="bi bi-people me-2"></i> Kelola User
@@ -124,3 +115,51 @@ $isAnggota = ($user['role'] === ROLE_ANGGOTA && $anggota);
         </div>
     </div>
 </div>
+
+<!-- ========================================== -->
+<!-- MODAL FORM EDIT PROFIL (POP-UP)            -->
+<!-- ========================================== -->
+<?php if ($isAnggota): ?>
+<div class="modal fade" id="editProfilModal" tabindex="-1" aria-labelledby="editProfilModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="<?= url('/profile/update') ?>" method="POST">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title fw-bold" id="editProfilModalLabel"><i class="bi bi-person-lines-fill me-2"></i> Lengkapi Profil</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    
+                    <div class="alert alert-light border shadow-sm mb-4">
+                        <i class="bi bi-info-circle-fill text-primary me-2"></i> 
+                        <small>Data gaji wajib diisi untuk keperluan verifikasi pengajuan pinjaman oleh Ketua Koperasi.</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Gaji Bersih / Penghasilan per Bulan <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light">Rp</span>
+                            <input type="number" name="gaji" class="form-control" value="<?= $anggota['gaji'] ?? '' ?>" required placeholder="Contoh: 5000000">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">No. HP / WhatsApp <span class="text-danger">*</span></label>
+                        <input type="text" name="no_hp" class="form-control" value="<?= e($anggota['no_hp'] ?? '') ?>" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Alamat Lengkap <span class="text-danger">*</span></label>
+                        <textarea name="alamat" class="form-control" rows="3" required><?= e($anggota['alamat'] ?? '') ?></textarea>
+                    </div>
+
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-success"><i class="bi bi-save me-2"></i>Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<?php endif; ?>

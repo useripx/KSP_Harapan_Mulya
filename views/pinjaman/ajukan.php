@@ -4,7 +4,7 @@
         <p class="text-muted small mb-0">Silakan lengkapi formulir pengajuan di bawah ini.</p>
     </div>
     <div class="d-flex flex-wrap gap-2 align-items-center">
-        <a href="javascript:history.back()" class="btn btn-outline-primary btn-sm shadow-sm rounded fw-semibold">
+        <a href="<?= url('/dashboard') ?>" class="btn btn-outline-primary btn-sm shadow-sm rounded fw-semibold px-3">
             <i class="bi bi-arrow-left me-1"></i> Kembali
         </a>
     </div>
@@ -85,17 +85,7 @@
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Metode Perhitungan Bunga</label>
-                        <select name="metode" class="form-select" required>
-                            <option value="FLAT" <?= old('metode') == 'FLAT' ? 'selected' : '' ?>>FLAT (Tetap)</option>
-                            <option value="MENURUN" disabled>MENURUN (Efective Rate) - Coming Soon</option>
-                            <option value="ANUITAS" disabled>ANUITAS - Coming Soon</option>
-                        </select>
-                        <?php if ($error = View::error('metode')): ?>
-                            <div class="text-danger small mt-1"><?= $error ?></div>
-                        <?php endif; ?>
-                    </div>
+                    <input type="hidden" name="metode" value="FLAT">
 
                     <div class="mb-3">
                         <label class="form-label">Tujuan Penggunaan</label>
@@ -144,7 +134,7 @@
                         </div>
                         <h6 class="mb-0 mt-1 fw-bold">Suku Bunga</h6>
                     </div>
-                    <p class="text-muted small ps-5">Bunga flat sebesar 1.5% per bulan dari sisa pokok pinjaman.</p>
+                    <p class="text-muted small ps-5">Bunga <?= e($settings['bunga_jangka_pendek']) ?>% untuk tenor 1 bulan, dan <?= e($settings['bunga_jangka_panjang']) ?>% per bulan untuk tenor di atas 1 bulan.</p>
                 </div>
                 
                 <div class="mb-4">

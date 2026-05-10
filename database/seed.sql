@@ -38,16 +38,16 @@ INSERT INTO users (id, name, email, username, password_hash, role, is_active, cr
 -- ================================================
 
 INSERT INTO anggota (id, user_id, no_anggota, nama, tipe, identitas_no, prodi_unit, no_hp, alamat, tgl_daftar, status, created_at) VALUES
-(1, 4, 'A001', 'Ahmad Rizki', 'MAHASISWA', '3578012345670001', 'Teknik Informatika', '081234567890', 'Jl. Merdeka No. 10, Surabaya', '2024-01-15', 'AKTIF', NOW()),
-(2, 5, 'A002', 'Siti Nurhaliza', 'DOSEN', '3578012345670002', 'Fakultas Ekonomi', '081234567891', 'Jl. Pahlawan No. 25, Surabaya', '2024-02-20', 'AKTIF', NOW()),
-(3, 6, 'A003', 'Budi Santoso', 'STAF', '3578012345670003', 'Administrasi', '081234567892', 'Jl. Pemuda No. 30, Surabaya', '2024-03-10', 'AKTIF', NOW()),
-(4, 7, 'A004', 'Dewi Lestari', 'MAHASISWA', '3578012345670004', 'Manajemen', '081234567893', 'Jl. Sudirman No. 15, Surabaya', '2024-04-05', 'AKTIF', NOW()),
-(5, 8, 'A005', 'Eko Prasetyo', 'UMUM', '3578012345670005', '-', '081234567894', 'Jl. Diponegoro No. 45, Surabaya', '2024-05-12', 'AKTIF', NOW()),
-(6, NULL, 'A006', 'Fitri Handayani', 'MAHASISWA', '3578012345670006', 'Teknik Sipil', '081234567895', 'Jl. Gatot Subroto No. 20, Surabaya', '2024-06-18', 'AKTIF', NOW()),
-(7, NULL, 'A007', 'Gilang Ramadhan', 'DOSEN', '3578012345670007', 'Fakultas Hukum', '081234567896', 'Jl. Ahmad Yani No. 12, Surabaya', '2024-07-22', 'AKTIF', NOW()),
-(8, NULL, 'A008', 'Hana Putri', 'MAHASISWA', '3578012345670008', 'Sistem Informasi', '081234567897', 'Jl. Basuki Rahmat No. 8, Surabaya', '2024-08-30', 'AKTIF', NOW()),
-(9, NULL, 'A009', 'Irfan Hakim', 'STAF', '3578012345670009', 'IT Support', '081234567898', 'Jl. Veteran No. 5, Surabaya', '2024-09-14', 'AKTIF', NOW()),
-(10, NULL, 'A010', 'Julia Rahayu', 'UMUM', '3578012345670010', '-', '081234567899', 'Jl. Raya Darmo No. 100, Surabaya', '2024-10-20', 'AKTIF', NOW());
+(1, 4, 'AR0001', 'Ahmad Rizki', 'KARYAWAN TETAP', '3578012345670001', 'Teknik Informatika', '081234567890', 'Jl. Merdeka No. 10, Surabaya', '2024-01-15', 'AKTIF', NOW()),
+(2, 5, 'SN0001', 'Siti Nurhaliza', 'DOSEN TETAP', '3578012345670002', 'Fakultas Ekonomi', '081234567891', 'Jl. Pahlawan No. 25, Surabaya', '2024-02-20', 'AKTIF', NOW()),
+(3, 6, 'BS0001', 'Budi Santoso', 'KARYAWAN TETAP', '3578012345670003', 'Administrasi', '081234567892', 'Jl. Pemuda No. 30, Surabaya', '2024-03-10', 'AKTIF', NOW()),
+(4, 7, 'DL0001', 'Dewi Lestari', 'KARYAWAN TETAP', '3578012345670004', 'Manajemen', '081234567893', 'Jl. Sudirman No. 15, Surabaya', '2024-04-05', 'AKTIF', NOW()),
+(5, 8, 'EP0001', 'Eko Prasetyo', 'KARYAWAN TETAP', '3578012345670005', '-', '081234567894', 'Jl. Diponegoro No. 45, Surabaya', '2024-05-12', 'AKTIF', NOW()),
+(6, NULL, 'FH0001', 'Fitri Handayani', 'KARYAWAN TETAP', '3578012345670006', 'Teknik Sipil', '081234567895', 'Jl. Gatot Subroto No. 20, Surabaya', '2024-06-18', 'AKTIF', NOW()),
+(7, NULL, 'GR0001', 'Gilang Ramadhan', 'DOSEN TETAP', '3578012345670007', 'Fakultas Hukum', '081234567896', 'Jl. Ahmad Yani No. 12, Surabaya', '2024-07-22', 'AKTIF', NOW()),
+(8, NULL, 'HP0001', 'Hana Putri', 'KARYAWAN TETAP', '3578012345670008', 'Sistem Informasi', '081234567897', 'Jl. Basuki Rahmat No. 8, Surabaya', '2024-08-30', 'AKTIF', NOW()),
+(9, NULL, 'IH0001', 'Irfan Hakim', 'KARYAWAN TETAP', '3578012345670009', 'IT Support', '081234567898', 'Jl. Veteran No. 5, Surabaya', '2024-09-14', 'AKTIF', NOW()),
+(10, NULL, 'JR0001', 'Julia Rahayu', 'KARYAWAN TETAP', '3578012345670010', '-', '081234567899', 'Jl. Raya Darmo No. 100, Surabaya', '2024-10-20', 'AKTIF', NOW());
 
 -- ================================================
 -- INSERT SIMPANAN TRANSAKSI (Sample)

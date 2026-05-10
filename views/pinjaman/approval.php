@@ -57,7 +57,7 @@
         <div class="card mb-4 border-<?= $creditScore['color'] ?>">
             <div
                 class="card-header bg-<?= $creditScore['color'] ?> text-white d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0"><i class="bi bi-robot me-2"></i>Hasil Analisa AI</h5>
+                <h5 class="card-title mb-0"><i class="bi bi-robot me-2"></i>Ringkasan Penilaian Anggota</h5>
                 <span class="badge bg-white text-<?= $creditScore['color'] ?> fs-6"><?= $creditScore['score'] ?>
                     Poin</span>
             </div>
@@ -113,7 +113,7 @@
                 <div class="mt-4 p-3 bg-success-subtle rounded border border-success-subtle small">
                     <p class="mb-0 text-success">
                         <strong>Informasi:</strong> Setelah disetujui, status pinjaman akan menjadi
-                        <strong>DISETUJUI</strong> dan dapat langsung dicairkan oleh kasir/teller untuk pembuatan jadwal
+                        <strong>DISETUJUI</strong> dan dapat langsung dicairkan oleh Validator untuk pembuatan jadwal
                         angsuran.
                     </p>
                 </div>

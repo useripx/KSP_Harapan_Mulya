@@ -9,3 +9,5 @@ Berisi file skrip SQL untuk mendefinisikan struktur database dan data awal (panc
 
 > [!NOTE]
 > **Penting**: Semua default user (`admin`, `teller1`, dll) menggunakan password `password123`. Jika login gagal, pastikan hash di kolom `password_hash` database sudah sesuai (BCRYPT).
+
+

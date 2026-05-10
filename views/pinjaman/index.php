@@ -18,11 +18,37 @@
 <div class="card shadow-sm border-0">
     <div class="card-header bg-white border-bottom pt-4 pb-3 d-flex justify-content-between align-items-center">
         <h5 class="card-title mb-0 fw-bold text-gray-800">Data Pinjaman</h5>
-        <div class="input-group input-group-sm shadow-sm" style="width: 250px;">
-            <span class="input-group-text bg-white border-end-0 text-muted">
-                <i class="bi bi-search"></i>
-            </span>
-            <input type="text" id="pinjamanSearchInput" class="form-control border-start-0 ps-0" placeholder="Cari Nama/ID/Tanggal...">
+        <div class="d-flex align-items-center gap-2">
+            <!-- Rows Per Page -->
+            <div class="d-flex align-items-center gap-2 me-2">
+                <span class="text-muted small" style="white-space: nowrap;">Tampil:</span>
+                <select id="pinjamanRowsPerPage" class="form-select form-select-sm shadow-sm" style="width: 70px;">
+                    <option value="5" selected>5</option>
+                    <option value="10">10</option>
+                    <option value="15">15</option>
+                    <option value="20">20</option>
+                    <option value="25">25</option>
+                </select>
+            </div>
+            <!-- Status Filter -->
+            <div class="d-flex align-items-center gap-2 me-2">
+                <span class="text-muted small" style="white-space: nowrap;">Status:</span>
+                <select id="pinjamanStatusFilter" class="form-select form-select-sm shadow-sm" style="width: 130px;">
+                    <option value="ALL">Semua</option>
+                    <option value="DIAJUKAN">Diajukan</option>
+                    <option value="DIVERIFIKASI">Diverifikasi</option>
+                    <option value="DISETUJUI">Disetujui</option>
+                    <option value="BERJALAN">Berjalan</option>
+                    <option value="LUNAS">Lunas</option>
+                </select>
+            </div>
+            <!-- Search Box -->
+            <div class="input-group input-group-sm shadow-sm" style="width: 240px;">
+                <span class="input-group-text bg-white border-end-0 text-muted">
+                    <i class="bi bi-search"></i>
+                </span>
+                <input type="text" id="pinjamanSearchInput" class="form-control border-start-0 ps-0" placeholder="Cari Nama/ID/Tanggal...">
+            </div>
         </div>
     </div>
     <div class="card-body p-0">
@@ -34,7 +60,6 @@
                         <th>Anggota</th>
                         <th class="text-end">Pokok</th>
                         <th>Tenor</th>
-                        <th>Status</th>
                         <th class="pe-4 text-center">Aksi</th>
                     </tr>
                 </thead>
@@ -45,7 +70,7 @@
                         </tr>
                     <?php else: ?>
                         <?php foreach ($pinjaman as $item): ?>
-                            <tr class="data-row">
+                            <tr class="data-row" data-status="<?= e($item['status']) ?>">
                                 <td class="align-middle ps-4">
                                     <?= formatTanggalShort($item['tgl_pengajuan']) ?>
                                 </td>
@@ -63,9 +88,6 @@
                                 <td class="align-middle">
                                     <?= $item['tenor_bulan'] ?> Bulan
                                 </td>
-                                <td class="align-middle">
-                                    <?= getStatusBadge($item['status'], 'pinjaman') ?>
-                                </td>
                                 <td class="align-middle pe-4 text-center">
                                     <a href="<?= url('/pinjaman/' . $item['id']) ?>" class="btn btn-primary btn-sm shadow-sm rounded">
                                         <i class="bi bi-eye-fill me-1"></i> Detail
@@ -78,8 +100,8 @@
             </table>
         </div>
         
-        <?php if (!empty($pinjaman) && count($pinjaman) > 5): ?>
-        <div class="d-flex justify-content-between align-items-center p-3 border-top bg-light rounded-bottom">
+        <?php if (!empty($pinjaman)): ?>
+        <div id="pinjaman-pagination-container" class="d-flex justify-content-between align-items-center p-3 border-top bg-light rounded-bottom">
             <div class="small fw-medium text-muted" id="page-info">
                 Menampilkan data...
             </div>
@@ -99,8 +121,9 @@
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     const searchInput = document.getElementById("pinjamanSearchInput");
+    const rowsSelect = document.getElementById("pinjamanRowsPerPage");
     const allRows = Array.from(document.querySelectorAll("#pinjamanTableBody .data-row"));
-    const rowsPerPage = 5;
+    let rowsPerPage = parseInt(rowsSelect.value);
     let currentPage = 1;
     let filteredRows = [...allRows];
 
@@ -141,18 +164,44 @@ document.addEventListener("DOMContentLoaded", function() {
 
         if (prevBtn) prevBtn.disabled = (currentPage === 1);
         if (nextBtn) nextBtn.disabled = (currentPage === totalPages);
+
+        const paginationContainer = document.getElementById("pinjaman-pagination-container");
+        if (paginationContainer) {
+            paginationContainer.style.display = (totalRows <= rowsPerPage) ? "none" : "flex";
+        }
     }
 
     // Fungsi Filter
-    if (searchInput) {
-        searchInput.addEventListener("input", function() {
-            const query = this.value.toLowerCase();
+    function applyFilters() {
+        const query = searchInput.value.toLowerCase();
+        const status = document.getElementById("pinjamanStatusFilter").value;
+        
+        filteredRows = allRows.filter(row => {
+            const rowText = row.innerText.toLowerCase();
+            const rowStatus = row.getAttribute("data-status");
             
-            filteredRows = allRows.filter(row => {
-                const text = row.innerText.toLowerCase();
-                return text.includes(query);
-            });
+            const matchSearch = rowText.includes(query);
+            const matchStatus = (status === "ALL" || rowStatus === status);
+            
+            return matchSearch && matchStatus;
+        });
 
+        currentPage = 1;
+        updateTable();
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener("input", applyFilters);
+    }
+
+    const statusFilter = document.getElementById("pinjamanStatusFilter");
+    if (statusFilter) {
+        statusFilter.addEventListener("change", applyFilters);
+    }
+
+    if (rowsSelect) {
+        rowsSelect.addEventListener("change", function() {
+            rowsPerPage = parseInt(this.value);
             currentPage = 1;
             updateTable();
         });

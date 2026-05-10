@@ -4,7 +4,7 @@
         <p class="text-muted small mb-0">Pilih jenis laporan yang ingin Anda lihat atau cetak.</p>
     </div>
     <div class="d-flex flex-wrap gap-2 align-items-center">
-        <a href="javascript:history.back()" class="btn btn-outline-primary btn-sm shadow-sm rounded fw-semibold">
+        <a href="<?= url('/dashboard') ?>" class="btn btn-outline-primary btn-sm shadow-sm rounded fw-semibold px-3">
             <i class="bi bi-arrow-left me-1"></i> Kembali
         </a>
     </div>
@@ -73,7 +73,7 @@
         </h5>
     </div>
 
-    <div class="col-md-3">
+    <div class="col-md-4">
         <a href="<?= url('/laporan/pinjaman') ?>" class="text-decoration-none h-100 d-block">
             <div class="card border-0 shadow-sm h-100 hover-shadow transition" style="border-left: 4px solid #0d6efd !important;">
                 <div class="card-body py-4 text-center">
@@ -87,7 +87,7 @@
         </a>
     </div>
 
-    <div class="col-md-3">
+    <div class="col-md-4">
         <a href="<?= url('/laporan/angsuran') ?>" class="text-decoration-none h-100 d-block">
             <div class="card border-0 shadow-sm h-100 hover-shadow transition" style="border-left: 4px solid #198754 !important;">
                 <div class="card-body py-4 text-center">
@@ -101,7 +101,7 @@
         </a>
     </div>
 
-    <div class="col-md-3">
+    <div class="col-md-4">
         <a href="<?= url('/laporan/simpanan') ?>" class="text-decoration-none h-100 d-block">
             <div class="card border-0 shadow-sm h-100 hover-shadow transition">
                 <div class="card-body py-4 text-center">
@@ -115,19 +115,6 @@
         </a>
     </div>
 
-    <div class="col-md-3">
-        <a href="<?= url('/laporan/tunggakan') ?>" class="text-decoration-none h-100 d-block">
-            <div class="card border-0 shadow-sm h-100 hover-shadow transition">
-                <div class="card-body py-4 text-center">
-                    <div class="bg-light p-3 rounded-circle d-inline-flex mb-3">
-                        <i class="bi bi-exclamation-triangle text-danger fs-4"></i>
-                    </div>
-                    <h6 class="fw-bold mb-1">Tunggakan</h6>
-                    <small class="text-muted">Monitor kredit macet</small>
-                </div>
-            </div>
-        </a>
-    </div>
 </div>
 
 <style>

@@ -6,7 +6,7 @@
 
 <!-- Statistics Cards -->
 <div class="row g-4 mb-5">
-    <div class="col-xl-3 col-md-6">
+    <div class="col-xl-4 col-md-4">
         <div class="card stat-card h-100">
             <div class="stat-icon-wrapper">
                 <i class="bi bi-wallet2"></i>
@@ -20,7 +20,7 @@
         </div>
     </div>
 
-    <div class="col-xl-3 col-md-6">
+    <div class="col-xl-4 col-md-4">
         <div class="card stat-card h-100">
             <div class="stat-icon-wrapper text-primary">
                 <i class="bi bi-people"></i>
@@ -34,7 +34,7 @@
         </div>
     </div>
 
-    <div class="col-xl-3 col-md-6">
+    <div class="col-xl-4 col-md-4">
         <div class="card stat-card h-100">
             <div class="stat-icon-wrapper text-info">
                 <i class="bi bi-cash-stack"></i>
@@ -47,18 +47,6 @@
         </div>
     </div>
 
-    <div class="col-xl-3 col-md-6">
-        <div class="card stat-card h-100">
-            <div class="stat-icon-wrapper text-danger">
-                <i class="bi bi-exclamation-circle"></i>
-            </div>
-            <div class="stat-label">Total Tunggakan</div>
-            <div class="stat-value text-danger"><?= number_format($stats['total_tunggakan']) ?></div>
-            <div class="stat-footer mt-2">
-                <span>Butuh perhatian</span>
-            </div>
-        </div>
-    </div>
 </div>
 
 <div class="row g-4">

@@ -15,7 +15,12 @@ $shu = $totalPendapatan - $totalBeban;
                 <li class="breadcrumb-item active">Laba Rugi</li>
             </ol>
         </nav>
-        <h2 class="page-title"><?= e($pageTitle) ?></h2>
+        <h2 class="page-title mb-0"><?= e($pageTitle) ?></h2>
+    </div>
+    <div>
+        <a href="<?= url('/laporan') ?>" class="btn btn-outline-primary btn-sm shadow-sm rounded fw-semibold px-3">
+            <i class="bi bi-arrow-left me-1"></i> Kembali
+        </a>
     </div>
 </div>
 
@@ -64,17 +69,7 @@ $shu = $totalPendapatan - $totalBeban;
                     <h3 class="mb-0 font-monospace fw-bolder"><?= formatRupiah($shu) ?></h3>
                 </div>
 
-                <div class="d-none d-print-flex justify-content-between mt-5 pt-5">
-                    <div class="text-center" style="width: 200px;">
-                        <p class="mb-5">Ketua Koperasi,</p>
-                        <p class="fw-bold border-bottom border-dark pb-1 mb-0">Bpk. Haryanto, SE</p>
-                    </div>
-                    <div class="text-center" style="width: 200px;">
-                        <p class="mb-1">Kediri, <?= date('d F Y') ?></p>
-                        <p class="mb-5">Bendahara,</p>
-                        <p class="fw-bold border-bottom border-dark pb-1 mb-0"><?= e($_SESSION['user_name'] ?? 'Admin') ?></p>
-                    </div>
-                </div>
+                <?php require '_print_signature.php'; ?>
             </div>
         </div>
     </div>

@@ -180,14 +180,13 @@ if (in_array($pinjaman['status'], ['DIVERIFIKASI', 'DISETUJUI'])) {
                         <div class="fw-medium"><?= $pinjaman['tenor_bulan'] ?> Bulan</div>
                     </div>
                     <div class="col-6">
-                        <label class="text-muted small d-block">Bunga / Bln</label>
-                        <div class="fw-medium"><?= formatPersen($pinjaman['bunga_persen_bln']) ?></div>
+                        <label class="text-muted small d-block">Bunga</label>
+                        <div class="fw-medium">
+                            <?= formatPersen($pinjaman['bunga_persen_bln']) ?>
+                        </div>
                     </div>
                 </div>
-                <div class="mb-3">
-                    <label class="text-muted small d-block">Metode Bunga</label>
-                    <div class="fw-medium"><?= e($pinjaman['metode']) ?></div>
-                </div>
+
                 <div class="mb-0">
                     <label class="text-muted small d-block">Tujuan</label>
                     <div class="fw-medium"><?= e($pinjaman['tujuan'] ?: '-') ?></div>

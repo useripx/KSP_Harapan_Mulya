@@ -20,7 +20,7 @@ $loans = $loans ?? [];
             </span>
             <input type="text" id="pinjamanSearchInput" class="form-control border-start-0 ps-0" placeholder="Cari Kode/Anggota/Status...">
         </div>
-        <a href="javascript:history.back()" class="btn btn-outline-primary btn-sm shadow-sm rounded fw-semibold">
+        <a href="<?= url('/laporan') ?>" class="btn btn-outline-primary btn-sm shadow-sm rounded fw-semibold px-3">
             <i class="bi bi-arrow-left me-1"></i> Kembali
         </a>
     </div>

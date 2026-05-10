@@ -3,4 +3,4 @@
  * header.php
  */
 ?>
-<!-- Empty as it's handled in main.php -->
+<!-- Hayo Cari Apa Kosong lo, semua pindah di main.php  -->
