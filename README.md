@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+
 <p>
     <strong>Aplikasi Manajemen Koperasi Modern dengan Integrasi AI, Analitik Lanjutan, dan Keamanan Tingkat Tinggi.</strong>
   </p>
@@ -21,11 +22,6 @@
 Sistem Koperasi Harapan Mulya adalah platform digital berbasis web yang dirancang khusus untuk mengelola seluruh ekosistem koperasi simpan pinjam secara transparan, otomatis, dan aman. Aplikasi ini menggunakan pola **MVC (Model-View-Controller)** murni tanpa framework besar, memastikan performa yang sangat cepat dan kode yang mudah dirawat.
 
 ## ✨ Fitur Unggulan
-
-### 🤖 Kecerdasan Buatan (AI)
-
-- **AI Asisten Anna**: Chatbot interaktif berbasis Llama 3 (via Groq API) yang siap membantu navigasi dan menjawab pertanyaan operasional.
-- **AI Credit Scoring**: Analisis kelayakan pinjaman otomatis (0-100 poin) yang membantu Manager membuat keputusan persetujuan dana.
 
 ### 💰 Modul Simpan Pinjam Dinamis
 
