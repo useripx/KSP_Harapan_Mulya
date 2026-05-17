@@ -205,7 +205,7 @@
                         <div class="col-md-7">
                             <div class="input-group">
                                 <input type="number" step="0.01" name="bunga_jangka_pendek" class="form-control" value="<?= e($settings['bunga_jangka_pendek'] ?? '1.00') ?>" required>
-                                <span class="input-group-text">% per bulan</span>
+                                <span class="input-group-text">% </span>
                             </div>
                         </div>
                     </div>
@@ -218,7 +218,7 @@
                         <div class="col-md-7">
                             <div class="input-group">
                                 <input type="number" step="0.01" name="bunga_jangka_panjang" class="form-control" value="<?= e($settings['bunga_jangka_panjang'] ?? '0.60') ?>" required>
-                                <span class="input-group-text">% per bulan</span>
+                                <span class="input-group-text">% </span>
                             </div>
                         </div>
                     </div>

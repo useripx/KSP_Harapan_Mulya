@@ -1,3 +1,4 @@
+
 <div align="center">
   <br>
   <i>Dikembangkan dengan ❤️ untuk digitalisasi dan efisiensi Koperasi Harapan Mulya.</i>
@@ -17,7 +18,7 @@
     <img src="https://img.shields.io/badge/MySQL-Database-4479A1?style=flat-square&logo=mysql&logoColor=white" alt="MySQL">
     <img src="https://img.shields.io/badge/Bootstrap-5.3-7952B3?style=flat-square&logo=bootstrap&logoColor=white" alt="Bootstrap">
     <img src="https://img.shields.io/badge/Architecture-MVC-2b5a9b?style=flat-square" alt="MVC">
-    <img src="https://img.shields.io/badge/Version-v23.0-success?style=flat-square" alt="Version">
+    <img src="https://img.shields.io/badge/Version-v24.0-success?style=flat-square" alt="Version">
   </p>
 </div>
 
@@ -109,6 +110,6 @@ Gunakan kredensial berikut untuk menguji *Role* yang berbeda dalam sistem:
 
 ## 📋 Changelog (Riwayat Pembaruan)
 
-Aplikasi ini terus berkembang pesat. Untuk melihat daftar lengkap pembaruan sistem mulai dari versi awal hingga **v23**, silakan baca [CHANGELOG.md](changelog.md).
+Aplikasi ini terus berkembang pesat. Untuk melihat daftar lengkap pembaruan sistem mulai dari versi awal hingga **v24**, silakan baca [CHANGELOG.md](changelog.md).
 
 ---

@@ -335,4 +335,47 @@ class LaporanController extends Controller
             'shuBersih' => $shuBersih
         ]);
     }
+
+    /**
+     * Memastikan hanya Manager (ROLE_KETUA) yang dapat mengakses halaman Pembukuan BAU
+     */
+    private function requireManagerOnly()
+    {
+        if (Auth::role() !== ROLE_KETUA) {
+            $this->redirect('/laporan', 'Akses ditolak. Menu ini hanya dapat diakses oleh Manager.', 'error');
+        }
+    }
+
+    public function pembukuan()
+    {
+        $this->requireManagerOnly();
+        $this->view('laporan/pembukuan', [
+            'pageTitle' => 'Pembukuan BAU'
+        ]);
+    }
+
+    public function pembukuanBuat()
+    {
+        $this->requireManagerOnly();
+        $this->view('laporan/pembukuan_buat', [
+            'pageTitle' => 'Buat Laporan BAU'
+        ]);
+    }
+
+    public function pembukuanLihat()
+    {
+        $this->requireManagerOnly();
+        $this->view('laporan/pembukuan_lihat', [
+            'pageTitle' => 'Daftar Laporan BAU'
+        ]);
+    }
+
+    public function pembukuanKirim()
+    {
+        $this->requireManagerOnly();
+        $this->view('laporan/pembukuan_kirim', [
+            'pageTitle' => 'Kirim Laporan ke BAU'
+        ]);
+    }
 }
+

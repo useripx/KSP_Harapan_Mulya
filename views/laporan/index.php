@@ -20,7 +20,7 @@
     
     <div class="col-md-4">
         <a href="<?= url('/laporan/neraca') ?>" class="text-decoration-none h-100 d-block">
-            <div class="card border-0 shadow-sm h-100 hover-shadow transition">
+            <div class="card border-0 shadow-sm h-100 hover-shadow transition" style="border-left: 4px solid #0d6efd !important;">
                 <div class="card-body py-4">
                     <div class="d-flex align-items-center mb-3">
                         <div class="bg-primary-subtle p-3 rounded-3 me-3">
@@ -36,7 +36,7 @@
 
     <div class="col-md-4">
         <a href="<?= url('/laporan/laba-rugi') ?>" class="text-decoration-none h-100 d-block">
-            <div class="card border-0 shadow-sm h-100 hover-shadow transition">
+            <div class="card border-0 shadow-sm h-100 hover-shadow transition" style="border-left: 4px solid #198754 !important;">
                 <div class="card-body py-4">
                     <div class="d-flex align-items-center mb-3">
                         <div class="bg-success-subtle p-3 rounded-3 me-3">
@@ -52,7 +52,7 @@
 
     <div class="col-md-4">
         <a href="<?= url('/laporan/kas') ?>" class="text-decoration-none h-100 d-block">
-            <div class="card border-0 shadow-sm h-100 hover-shadow transition">
+            <div class="card border-0 shadow-sm h-100 hover-shadow transition" style="border-left: 4px solid #0dcaf0 !important;">
                 <div class="card-body py-4">
                     <div class="d-flex align-items-center mb-3">
                         <div class="bg-info-subtle p-3 rounded-3 me-3">
@@ -66,6 +66,31 @@
         </a>
     </div>
 
+    <?php if (Auth::role() === ROLE_KETUA): ?>
+    <!-- Cetak BAU (Khusus Manager) -->
+    <div class="col-12 mt-5">
+        <h5 class="fw-bold mb-3 d-flex align-items-center">
+            <i class="bi bi-file-earmark-bar-graph me-2" style="color: #6610f2;"></i> Cetak BAU
+        </h5>
+    </div>
+    
+    <div class="col-md-4">
+        <a href="<?= url('/laporan/pembukuan') ?>" class="text-decoration-none h-100 d-block">
+            <div class="card border-0 shadow-sm h-100 hover-shadow transition" style="border-left: 4px solid #6610f2 !important;">
+                <div class="card-body py-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="p-3 rounded-3 me-3" style="background-color: #f1e6ff; color: #6610f2;">
+                            <i class="bi bi-journal-bookmark fs-4"></i>
+                        </div>
+                        <h6 class="card-title mb-0 fw-bold">Pembukuan</h6>
+                    </div>
+                    <p class="card-text text-muted small">Kelola penyusunan, peninjauan, dan pengiriman berkas laporan kepada pihak BAU.</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    <?php endif; ?>
+
     <!-- Operasional -->
     <div class="col-12 mt-5">
         <h5 class="fw-bold mb-3 d-flex align-items-center">
@@ -76,12 +101,14 @@
     <div class="col-md-4">
         <a href="<?= url('/laporan/pinjaman') ?>" class="text-decoration-none h-100 d-block">
             <div class="card border-0 shadow-sm h-100 hover-shadow transition" style="border-left: 4px solid #0d6efd !important;">
-                <div class="card-body py-4 text-center">
-                    <div class="bg-primary-subtle p-3 rounded-circle d-inline-flex mb-3">
-                        <i class="bi bi-journal-text text-primary fs-4"></i>
+                <div class="card-body py-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-primary-subtle p-3 rounded-3 me-3 text-primary">
+                            <i class="bi bi-journal-text fs-4"></i>
+                        </div>
+                        <h6 class="card-title mb-0 fw-bold">Riwayat Pinjaman</h6>
                     </div>
-                    <h6 class="fw-bold mb-1">Riwayat Pinjaman</h6>
-                    <small class="text-muted">History semua pengajuan</small>
+                    <p class="card-text text-muted small">History dan log semua pengajuan pinjaman anggota.</p>
                 </div>
             </div>
         </a>
@@ -90,12 +117,14 @@
     <div class="col-md-4">
         <a href="<?= url('/laporan/angsuran') ?>" class="text-decoration-none h-100 d-block">
             <div class="card border-0 shadow-sm h-100 hover-shadow transition" style="border-left: 4px solid #198754 !important;">
-                <div class="card-body py-4 text-center">
-                    <div class="bg-success-subtle p-3 rounded-circle d-inline-flex mb-3">
-                        <i class="bi bi-receipt-cutoff text-success fs-4"></i>
+                <div class="card-body py-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-success-subtle p-3 rounded-3 me-3 text-success">
+                            <i class="bi bi-receipt-cutoff fs-4"></i>
+                        </div>
+                        <h6 class="card-title mb-0 fw-bold">Riwayat Pembayaran</h6>
                     </div>
-                    <h6 class="fw-bold mb-1">Riwayat Pembayaran</h6>
-                    <small class="text-muted">History angsuran masuk</small>
+                    <p class="card-text text-muted small">History dan log pembayaran angsuran masuk anggota.</p>
                 </div>
             </div>
         </a>
@@ -103,19 +132,23 @@
 
     <div class="col-md-4">
         <a href="<?= url('/laporan/simpanan') ?>" class="text-decoration-none h-100 d-block">
-            <div class="card border-0 shadow-sm h-100 hover-shadow transition">
-                <div class="card-body py-4 text-center">
-                    <div class="bg-light p-3 rounded-circle d-inline-flex mb-3">
-                        <i class="bi bi-wallet2 text-dark fs-4"></i>
+            <div class="card border-0 shadow-sm h-100 hover-shadow transition" style="border-left: 4px solid #6c757d !important;">
+                <div class="card-body py-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-light p-3 rounded-3 me-3 text-dark border">
+                            <i class="bi bi-wallet2 fs-4"></i>
+                        </div>
+                        <h6 class="card-title mb-0 fw-bold">Log Simpanan</h6>
                     </div>
-                    <h6 class="fw-bold mb-1">Log Simpanan</h6>
-                    <small class="text-muted">History setor & tarik</small>
+                    <p class="card-text text-muted small">History dan log setor & tarik simpanan anggota.</p>
                 </div>
             </div>
         </a>
     </div>
 
+
 </div>
+
 
 <style>
     .transition {

@@ -199,6 +199,12 @@ $router->get('/laporan/neraca', 'LaporanController@neraca');
 $router->get('/laporan/laba-rugi', 'LaporanController@labaRugi');
 $router->get('/laporan/shu', 'LaporanController@shu');
 
+// Laporan -> Pembukuan BAU & Sub-Menu (Fokus Manager)
+$router->get('/laporan/pembukuan', 'LaporanController@pembukuan');
+$router->get('/laporan/pembukuan/buat', 'LaporanController@pembukuanBuat');
+$router->get('/laporan/pembukuan/lihat', 'LaporanController@pembukuanLihat');
+$router->get('/laporan/pembukuan/kirim', 'LaporanController@pembukuanKirim');
+
 // API routes (untuk AJAX)
 $router->get('/api/anggota/search', 'AnggotaController@search');
 $router->get('/api/anggota/{id}/saldo', 'AnggotaController@getSaldo');
@@ -206,6 +212,11 @@ $router->get('/api/pinjaman/{id}/jadwal', 'PinjamanController@getJadwal');
 $router->get('/api/settings/savings', 'AuthController@getSavingsConfig');
 $router->post('/settings/savings/update', 'AuthController@updateSavings');
 $router->post('/api/notifikasi/read', 'NotifikasiController@markAllAsRead');
+
+// Routes detail dokumen
+$router->get('/anggota/dokumen/(\d+)/(\w+)', 'AnggotaController@lihatDokumen');
+$router->post('/anggota/dokumen/(\d+)/upload', 'AnggotaController@uploadDokumen');
+$router->post('/anggota/dokumen/(\d+)/delete', 'AnggotaController@deleteDokumen');
 
 // 404 handler
 $router->setNotFound(function () {

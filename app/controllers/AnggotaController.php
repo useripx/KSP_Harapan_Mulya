@@ -120,11 +120,17 @@ class AnggotaController extends Controller
         $stmt->execute([$id]);
         $totalPinjaman = $stmt->fetchColumn();
 
+        // Ambil data dokumen agar muncul di view detail
+        $stmtDokumen = $db->prepare("SELECT jenis_dokumen, nama_file FROM anggota_dokumen WHERE anggota_id = ?");
+        $stmtDokumen->execute([$id]);
+        $listDokumen = $stmtDokumen->fetchAll(PDO::FETCH_KEY_PAIR);
+
         $this->view('anggota/detail', [
             'pageTitle' => 'Detail Anggota',
             'anggota' => $anggota,
             'saldo' => $saldo,
-            'totalPinjaman' => $totalPinjaman
+            'totalPinjaman' => $totalPinjaman,
+            'listDokumen' => $listDokumen
         ]);
     }
 
@@ -135,9 +141,16 @@ class AnggotaController extends Controller
             $this->redirect('/anggota', 'Anggota tidak ditemukan', 'error');
         }
 
+        // Ambil data dokumen agar form upload tahu mana file yang sudah diisi/belum
+        $db = db();
+        $stmtDokumen = $db->prepare("SELECT jenis_dokumen, nama_file FROM anggota_dokumen WHERE anggota_id = ?");
+        $stmtDokumen->execute([$id]);
+        $listDokumen = $stmtDokumen->fetchAll(PDO::FETCH_KEY_PAIR);
+
         $this->view('anggota/edit', [
             'pageTitle' => 'Edit Anggota',
-            'anggota' => $anggota
+            'anggota' => $anggota,
+            'listDokumen' => $listDokumen
         ]);
     }
 
@@ -191,10 +204,82 @@ class AnggotaController extends Controller
         }
     }
 
+    public function lihatDokumen($id, $jenisDokumen) {
+        $anggota = $this->anggotaModel->find($id);
+        
+        if (!$anggota) {
+            $this->redirect('/anggota', 'Anggota tidak ditemukan', 'error');
+        }
+
+        // Ambil data file dari tabel anggota_dokumen
+        $db = db();
+        $stmt = $db->prepare("SELECT nama_file FROM anggota_dokumen WHERE anggota_id = ? AND jenis_dokumen = ?");
+        $stmt->execute([$id, $jenisDokumen]);
+        $namaFile = $stmt->fetchColumn(); // Mengambil string nama file langsung
+
+        // Set Label untuk halaman preview
+        $labelDokumen = 'Dokumen';
+        if ($jenisDokumen === 'ktp') $labelDokumen = 'KTP Anggota';
+        if ($jenisDokumen === 'perjanjian') $labelDokumen = 'Surat Perjanjian';
+        if ($jenisDokumen === 'pengajuan') $labelDokumen = 'Form Pengajuan';
+
+        return $this->view('anggota/view_dokumen', [
+            'pageTitle' => 'Lihat ' . $labelDokumen,
+            'anggota' => $anggota,
+            'namaFile' => $namaFile ? $namaFile : '', // Jika false/kosong ganti string kosong
+            'labelDokumen' => $labelDokumen
+        ]);
+    }
+
+    // METHOD UNTUK MEMPROSES UPLOAD DOKUMEN BARU (DARI HALAMAN EDIT)
+    public function uploadDokumen($id)
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect("/anggota/{$id}/edit");
+        }
+
+        $jenisDokumen = $_POST['jenis_dokumen'] ?? '';
+        
+        if (!isset($_FILES['berkas_dokumen']) || $_FILES['berkas_dokumen']['error'] !== UPLOAD_ERR_OK) {
+            $this->redirect("/anggota/{$id}/edit", 'Gagal: Berkas dokumen tidak valid.', 'error');
+        }
+
+        $fileTmpPath = $_FILES['berkas_dokumen']['tmp_name'];
+        $fileName = $_FILES['berkas_dokumen']['name'];
+        $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'pdf'];
+        if (!in_array($fileExtension, $allowedExtensions)) {
+            $this->redirect("/anggota/{$id}/edit", 'Gagal: Format harus JPG, PNG, atau PDF.', 'error');
+        }
+
+        $anggota = $this->anggotaModel->find($id);
+        if (!$anggota) {
+            $this->redirect('/anggota', 'Anggota tidak ditemukan', 'error');
+        }
+
+        $cleanNoAnggota = str_replace(' ', '_', $anggota['no_anggota']);
+        $newFileName = $jenisDokumen . '_' . $cleanNoAnggota . '_' . time() . '.' . $fileExtension;
+
+        $uploadFileDir = APP_PATH . '/../public/uploads/dokumen/';
+        if (!is_dir($uploadFileDir)) {
+            mkdir($uploadFileDir, 0755, true);
+        }
+
+        if (move_uploaded_file($fileTmpPath, $uploadFileDir . $newFileName)) {
+            $db = db();
+            $stmt = $db->prepare("INSERT INTO anggota_dokumen (anggota_id, jenis_dokumen, nama_file) VALUES (?, ?, ?)");
+            $stmt->execute([$id, $jenisDokumen, $newFileName]);
+
+            $this->redirect("/anggota/{$id}/edit", 'Dokumen berhasil diunggah.', 'success');
+        } else {
+            $this->redirect("/anggota/{$id}/edit", 'Gagal menyimpan berkas ke server.', 'error');
+        }
+    }
+
     /**
      * API: Search members by name or number
      */
-    // Pastikan hanya ada satu fungsi search() di AnggotaController.php
     public function search() {
         $q = $_GET['q'] ?? '';
         $db = db();
@@ -214,6 +299,7 @@ class AnggotaController extends Controller
         echo json_encode($results);
         exit;
     }
+
     public function search_ajax() {
         $q = $_GET['q'] ?? '';
         $db = db();
@@ -241,5 +327,37 @@ class AnggotaController extends Controller
             'saldo' => $saldo,
             'saldo_formatted' => formatRupiah($saldo)
         ]);
+    }
+    
+    // METHOD UNTUK MENGHAPUS DOKUMEN DAN FILE FISIKNYA
+    public function deleteDokumen($id)
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect("/anggota/{$id}/edit");
+        }
+
+        $jenisDokumen = $_POST['jenis_dokumen'] ?? '';
+
+        $db = db();
+        // 1. Cari nama file di database terlebih dahulu sebelum dihapus
+        $stmt = $db->prepare("SELECT nama_file FROM anggota_dokumen WHERE anggota_id = ? AND jenis_dokumen = ?");
+        $stmt->execute([$id, $jenisDokumen]);
+        $namaFile = $stmt->fetchColumn();
+
+        if ($namaFile) {
+            // 2. Hapus file fisik dari folder penyimpanan server (public/uploads/dokumen/)
+            $filePath = APP_PATH . '/../public/uploads/dokumen/' . $namaFile;
+            if (file_exists($filePath)) {
+                unlink($filePath); // Menghapus file asli secara permanen
+            }
+
+            // 3. Hapus baris data rekaman dari tabel database
+            $stmtDelete = $db->prepare("DELETE FROM anggota_dokumen WHERE anggota_id = ? AND jenis_dokumen = ?");
+            $stmtDelete->execute([$id, $jenisDokumen]);
+
+            $this->redirect("/anggota/{$id}/edit", 'Dokumen kelengkapan berhasil dihapus.', 'success');
+        } else {
+            $this->redirect("/anggota/{$id}/edit", 'Gagal: Data dokumen tidak ditemukan.', 'error');
+        }
     }
 }

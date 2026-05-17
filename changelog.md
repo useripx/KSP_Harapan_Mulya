@@ -4,6 +4,19 @@ Seluruh riwayat perubahan sistem Koperasi Harapan Mulya dicatat secara mendetail
 
 ---
 
+## [Update v24] - 2026-05-17
+### **Modul Pembukuan BAU & Manajemen Dokumen Anggota**
+
+#### **1. Integrasi UI/UX Pelaporan Pembukuan BAU**
+- **Kalender Pop-up Premium (Windows 11 Style)**: Implementasi UI pembuatan laporan melalui kalender pop-up terintegrasi penuh di halaman dashboard, menghilangkan kebutuhan form halaman terpisah.
+- **Dropdown Tahun Dinamis**: Pilihan navigasi kalender yang di-generate via JavaScript secara dinamis mendukung mundur hingga tahun 1926 dan maju hingga tahun 2126.
+- **Penyelarasan Desain Dashboard**: Standardisasi antarmuka kartu laporan dengan gaya *rounded-rect*, aksen *border-left* warna, dan *widget loading glassmorphism* untuk *feedback* interaksi yang instan.
+
+#### **2. Modul Manajemen Berkas Anggota (Backend & UI)**
+- **Struktur Database Baru (`anggota_dokumen`)**: Tabel khusus relasi dengan skema *ON DELETE CASCADE* untuk memisahkan berkas fisik (KTP, Perjanjian, Pengajuan) dari tabel profil utama.
+- **Sistem Upload Interaktif (Inline)**: Modifikasi fungsi `AnggotaController` (pada modul `detail()` dan `edit()`) untuk mendeteksi ketersediaan berkas dan memunculkan *form multi-part* upload secara dinamis.
+- **Manajemen File Tersentralisasi**: Pembuatan direktori `public/uploads/dokumen/` dan logika enkripsi *rename file* otomatis (`{jenis}_{nomor_anggota}_{timestamp}`) agar sistem lebih aman.
+
 ## [Update v23] - 2026-05-10
 ### **Fitur Konfigurasi Simpanan Dinamis (Role Validator)**
 
