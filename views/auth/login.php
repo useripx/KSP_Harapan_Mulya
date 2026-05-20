@@ -21,8 +21,10 @@
             --primary-dark: #1d4ed8;
             --foreground: #0f172a;
             --muted: #64748b;
+            --muted-foreground: #64748b;
             --border: #e2e8f0;
             --radius: 0.75rem;
+            --card: #ffffff;
         }
 
         body {
@@ -68,20 +70,21 @@
         }
 
         .login-header h1 {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 800;
-            letter-spacing: -0.04em;
+            letter-spacing: -0.03em;
             margin-bottom: 8px;
             color: var(--foreground);
         }
 
         .login-header p {
-            font-size: 15px;
+            font-size: 14px;
             color: var(--muted);
+            margin-bottom: 0;
         }
 
         .form-label {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             margin-bottom: 8px;
             color: var(--foreground);
@@ -90,8 +93,8 @@
         .form-control {
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            padding: 12px 16px;
-            font-size: 15px;
+            padding: 11px 16px;
+            font-size: 14px;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             background-color: #f8fafc;
         }
@@ -107,12 +110,12 @@
             border: none;
             border-radius: var(--radius);
             padding: 12px;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 700;
             width: 100%;
             margin-top: 24px;
-            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.1);
-            transition: all 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.1), 0 2px 4px -1px rgba(37, 99, 235, 0.06);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .btn-primary:hover {
@@ -151,7 +154,92 @@
         .password-toggle:hover {
             color: var(--primary);
         }
+
+        /* Premium Custom SweetAlert2 Override Styles */
+        .swal2-popup.modern-swal-popup {
+            background: var(--card) !important;
+            color: var(--foreground) !important;
+            border-radius: 1.25rem !important;
+            border: 1px solid var(--border) !important;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.12), 0 0 1px 1px var(--border) !important;
+            padding: 2.25rem 1.75rem !important;
+            font-family: 'Inter', sans-serif !important;
+        }
+
+        .swal2-title.modern-swal-title {
+            color: var(--foreground) !important;
+            font-size: 1.5rem !important;
+            font-weight: 700 !important;
+            letter-spacing: -0.03em !important;
+            margin-bottom: 0.5rem !important;
+        }
+
+        .swal2-html-container.modern-swal-html {
+            color: var(--muted-foreground) !important;
+            font-size: 0.95rem !important;
+            line-height: 1.6 !important;
+            font-weight: 500 !important;
+        }
+
+        .swal2-confirm.modern-swal-confirm-btn {
+            background: linear-gradient(to bottom right, var(--primary), var(--primary-dark)) !important;
+            color: #ffffff !important;
+            border: none !important;
+            border-radius: 0.75rem !important;
+            padding: 10px 24px !important;
+            font-size: 14px !important;
+            font-weight: 600 !important;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.15) !important;
+            transition: all 0.2s !important;
+        }
+
+        .swal2-confirm.modern-swal-confirm-btn:hover {
+            transform: translateY(-1px) !important;
+            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.25) !important;
+            opacity: 0.95 !important;
+        }
+
+        .swal2-confirm.modern-swal-confirm-btn:focus {
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3) !important;
+        }
+
+        /* Glassmorphic Backdrop blur with saturate */
+        .swal2-backdrop-show {
+            backdrop-filter: blur(8px) saturate(140%) !important;
+            -webkit-backdrop-filter: blur(8px) saturate(140%) !important;
+            background-color: rgba(15, 23, 42, 0.25) !important;
+        }
+
+        /* Custom SweetAlert2 Icons */
+        .swal2-icon.swal2-success {
+            border-color: #10b981 !important;
+            color: #10b981 !important;
+        }
+        .swal2-icon.swal2-success [class^='swal2-success-line'] {
+            background-color: #10b981 !important;
+        }
+        .swal2-icon.swal2-success .swal2-success-ring {
+            border: 4px solid rgba(16, 185, 129, 0.2) !important;
+        }
+        .swal2-icon.swal2-error {
+            border-color: #ef4444 !important;
+            color: #ef4444 !important;
+        }
+        .swal2-icon.swal2-error [class^='swal2-x-mark-line'] {
+            background-color: #ef4444 !important;
+        }
+        .swal2-icon.swal2-warning {
+            border-color: #f59e0b !important;
+            color: #f59e0b !important;
+        }
+        .swal2-icon.swal2-info {
+            border-color: #3b82f6 !important;
+            color: #3b82f6 !important;
+        }
     </style>
+
+    <!-- SweetAlert2 JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>

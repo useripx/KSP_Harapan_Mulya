@@ -640,7 +640,92 @@
         .password-toggle:hover {
             color: var(--primary);
         }
+
+        /* Premium Custom SweetAlert2 Override Styles */
+        .swal2-popup.modern-swal-popup {
+            background: var(--card) !important;
+            color: var(--foreground) !important;
+            border-radius: 1.25rem !important;
+            border: 1px solid var(--border) !important;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.12), 0 0 1px 1px var(--border) !important;
+            padding: 2.25rem 1.75rem !important;
+            font-family: 'Inter', sans-serif !important;
+        }
+
+        .swal2-title.modern-swal-title {
+            color: var(--foreground) !important;
+            font-size: 1.5rem !important;
+            font-weight: 700 !important;
+            letter-spacing: -0.03em !important;
+            margin-bottom: 0.5rem !important;
+        }
+
+        .swal2-html-container.modern-swal-html {
+            color: var(--muted-foreground) !important;
+            font-size: 0.95rem !important;
+            line-height: 1.6 !important;
+            font-weight: 500 !important;
+        }
+
+        .swal2-confirm.modern-swal-confirm-btn {
+            background: linear-gradient(to bottom right, var(--primary), #1d4ed8) !important;
+            color: var(--primary-foreground) !important;
+            border: none !important;
+            border-radius: 0.75rem !important;
+            padding: 10px 24px !important;
+            font-size: 14px !important;
+            font-weight: 600 !important;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.15) !important;
+            transition: all 0.2s !important;
+        }
+
+        .swal2-confirm.modern-swal-confirm-btn:hover {
+            transform: translateY(-1px) !important;
+            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.25) !important;
+            opacity: 0.95 !important;
+        }
+
+        .swal2-confirm.modern-swal-confirm-btn:focus {
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3) !important;
+        }
+
+        /* Glassmorphic Backdrop blur with saturate */
+        .swal2-backdrop-show {
+            backdrop-filter: blur(8px) saturate(140%) !important;
+            -webkit-backdrop-filter: blur(8px) saturate(140%) !important;
+            background-color: rgba(15, 23, 42, 0.25) !important;
+        }
+
+        /* Custom SweetAlert2 Icons */
+        .swal2-icon.swal2-success {
+            border-color: #10b981 !important;
+            color: #10b981 !important;
+        }
+        .swal2-icon.swal2-success [class^='swal2-success-line'] {
+            background-color: #10b981 !important;
+        }
+        .swal2-icon.swal2-success .swal2-success-ring {
+            border: 4px solid rgba(16, 185, 129, 0.2) !important;
+        }
+        .swal2-icon.swal2-error {
+            border-color: #ef4444 !important;
+            color: #ef4444 !important;
+        }
+        .swal2-icon.swal2-error [class^='swal2-x-mark-line'] {
+            background-color: #ef4444 !important;
+        }
+        .swal2-icon.swal2-warning {
+            border-color: #f59e0b !important;
+            color: #f59e0b !important;
+        }
+        .swal2-icon.swal2-info {
+            border-color: #3b82f6 !important;
+            color: #3b82f6 !important;
+        }
     </style>
+
+    <!-- SweetAlert2 JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <?= $additionalCSS ?? '' ?>
 </head>
