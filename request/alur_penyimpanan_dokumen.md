@@ -1,31 +1,40 @@
-# 🛠️ Alur Penyimpanan Berkas Kelengkapan Anggota (KTP, KK, Form Pengajuan)
+# 🛠️ Alur Penyimpanan Berkas KSP & Integrasi Google Drive + Auto-PDF
 
-Dokumen ini menjelaskan secara rinci alur kerja (workflow) langkah-demi-langkah penyimpanan, penayangan, dan penghapusan berkas fisik kelengkapan anggota seperti **KTP**, **KK (Kartu Keluarga)**, dan **Form Pengajuan Pinjaman** dalam sistem Informasi Koperasi Harapan Mulya.
+Dokumen ini menjelaskan secara rinci alur kerja (workflow) langkah-demi-langkah penyimpanan, penayangan, konversi otomatis, dan sinkronisasi Google Drive untuk berkas kelengkapan anggota seperti **KTP**, **KK (Kartu Keluarga)**, **Form Pengajuan Pinjaman**, dan **Surat Perjanjian** dalam sistem Informasi Koperasi Harapan Mulya.
+
+---
+
+## 📸 Infografis Arsitektur Pipeline
+
+Berikut adalah visualisasi tingkat tinggi alur pemrosesan dokumen dari validator hingga ke Google Drive cloud:
+
+![Pipeline Penyimpanan Berkas KSP](file:///c:/laragon/www/Ksp_Koperasinat/image/doc_upload_flow.png)
 
 ---
 
 ## 📂 1. Arsitektur Penyimpanan & Database
 
-Sistem memisahkan penyimpanan fisik berkas dari pencatatan informasi di database untuk menjaga keamanan, efisiensi, dan performa aplikasi.
+Sistem mengadopsi model **Cloud Storage Hybrid**, di mana penyimpanan fisik dilakukan di Google Drive untuk keandalan dan kapasitas tak terbatas, sedangkan database lokal menyimpan referensi metadata berkas.
 
-### A. Folder Fisik Server
-* **Direktori Utama:** `public/uploads/dokumen/`
-* **Keamanan:** Folder ini dilindungi oleh hak akses standar (`0755`) untuk memastikan hanya server web yang dapat menulis dan mengeksekusi berkas di dalamnya.
+### A. Folder Fisik Lokal (Temporary)
+* **Direktori Utama:** `public/uploads/temp/`
+* **Fungsi:** Menyimpan file unggahan sementara selama proses konversi ke PDF berlangsung. Setelah sukses diunggah ke Google Drive, berkas di folder ini akan segera dihapus (`unlink()`) demi menjaga space hosting lokal.
 
-### B. Tabel Database (`anggota_dokumen`)
-Relasi antara data profil anggota dengan berkas fisiknya dikelola melalui tabel relasional berikut:
+### B. Skema Tabel Database (`anggota_dokumen`)
+Relasi data anggota dengan berkas di Google Drive dikelola melalui tabel `anggota_dokumen` dengan penyesuaian kolom `drive_file_id`:
 
 | Nama Kolom | Tipe Data | Deskripsi |
 | :--- | :--- | :--- |
-| `anggota_id` | INT (FK) | Relasi ke tabel `anggota` dengan skema `ON DELETE CASCADE` (jika anggota dihapus, berkas otomatis ikut terhapus). |
-| `jenis_dokumen` | VARCHAR / ENUM | Menentukan kategori dokumen (`ktp`, `perjanjian`, `pengajuan`, dll). |
-| `nama_file` | VARCHAR | Nama berkas unik yang tersimpan di server (`{jenis}_{no_anggota}_{timestamp}.{ext}`). |
+| `anggota_id` | INT (FK) | Relasi ke tabel `anggota` dengan skema `ON DELETE CASCADE`. |
+| `jenis_dokumen` | VARCHAR / ENUM | Kategori dokumen (`ktp`, `kk`, `pengajuan`, `perjanjian`). |
+| `nama_file` | VARCHAR | Nama berkas standar: `{jenis}_{no_anggota}_{nama}.pdf`. |
+| `drive_file_id`| VARCHAR | **ID File Google Drive** murni sebagai referensi download/view. |
 
 ---
 
-## 🔄 2. Langkah-Demi-Langkah Alur Penyimpanan (Upload Flow)
+## 🔄 2. Langkah-Demi-Langkah Alur Penyimpanan (Upload & Convert Flow)
 
-Proses pengunggahan dokumen kelengkapan dilakukan melalui halaman **Edit Anggota** (`/anggota/{id}/edit`). Berikut adalah alur prosesnya dari hulu ke hilir di backend (`AnggotaController@uploadDokumen`):
+Proses pengunggahan dokumen dilakukan oleh Validator melalui menu Edit Profil Anggota. Berikut adalah alur proses backend (`AnggotaController@uploadDokumen`):
 
 ```mermaid
 graph TD
@@ -33,89 +42,77 @@ graph TD
     B -- Tidak --> C[Redirect kembali ke halaman Edit]
     B -- Ya --> D{Berkas Valid & UPLOAD_ERR_OK?}
     D -- Tidak --> E[Redirect dengan pesan Gagal]
-    D -- Ya --> F[Ekstrak Metadata: nama asli, path temp, ekstensi]
-    F --> G{Ekstrak Ekstensi JPG/JPEG/PNG/PDF?}
-    G -- Tidak --> H[Redirect dengan pesan error Format]
-    G -- Ya --> I[Cari detail data Anggota berdasarkan ID]
-    I --> J[Enkripsi & Sanitasi Nama Berkas Baru]
-    J --> K{Folder public/uploads/dokumen/ sudah ada?}
-    K -- Tidak --> L[Buat folder otomatis via mkdir 0755]
-    K -- Ya --> M[Pindahkan file dari temp ke folder tujuan]
-    M --> N{Pindahan Fisik Berhasil?}
-    N -- Tidak --> O[Redirect dengan error Server]
-    N -- Ya --> P[Insert log berkas ke tabel anggota_dokumen]
-    P --> Q[Redirect ke halaman Edit dengan notifikasi Sukses]
+    D -- Ya --> F[Pindahkan file ke temp/ lokal]
+    F --> G{Format Berkas PDF?}
+    G -- Tidak --> H[Konversi Gambar PNG/JPG ke format PDF]
+    G -- Ya --> I[Standardisasi Nama File ke PDF]
+    H --> J[Dapatkan Nama: jenis_noanggota_namaanggota.pdf]
+    I --> J
+    J --> K[Inisialisasi Google Drive API Client]
+    K --> L{Folder Root KSP sudah ada?}
+    L -- Tidak --> M[Buat Folder 'KSP' di Drive]
+    L -- Ya --> N{Folder Anggota A0001_Nama sudah ada?}
+    M --> N
+    N -- Tidak --> O[Buat Folder 'A0001_Nama' di Drive]
+    N -- Ya --> P{Pilih Subfolder sesuai Jenis Berkas?}
+    O --> P
+    P -- KTP/KK --> Q[Subfolder 'profil']
+    P -- Form/Surat --> R[Subfolder 'pinjaman']
+    Q --> S[Upload File PDF ke Subfolder Terpilih di Drive]
+    R --> S
+    S --> T[Simpan nama_file & drive_file_id ke Database]
+    T --> U[Hapus File Temp dari Disk Server Hosting]
+    U --> V[Redirect dengan Notifikasi Sukses SweetAlert2]
 ```
 
-### Langkah Detail Backend:
+### Penjelasan Detail Tiap Tahap:
 
-1. **Verifikasi Request POST:**
-   Sistem memastikan bahwa permintaan dikirim melalui metode `POST`. Jika diakses tidak sah, pengguna langsung dilempar kembali.
-2. **Validasi Ketersediaan Berkas:**
-   Backend membaca global array `$_FILES['berkas_dokumen']` dan memeriksa apakah status error bernilai `UPLOAD_ERR_OK` (file sukses dikirim oleh browser).
-3. **Pemeriksaan Format Berkas (Ekstensi):**
-   * Ekstensi diekstrak menggunakan `pathinfo($fileName, PATHINFO_EXTENSION)` dan diubah ke huruf kecil (`strtolower`).
-   * **Format yang diizinkan:** `.jpg`, `.jpeg`, `.png`, dan `.pdf`.
-   * Jika di luar format tersebut, sistem menolak pengunggahan dan menampilkan alert SweetAlert2.
-4. **Pencarian Data Anggota:**
-   Sistem memuat data profil anggota berdasarkan `anggota_id` untuk mendapatkan informasi Nomor Anggota (`no_anggota`).
-5. **Sanitasi & Enkripsi Nama Berkas (Penamaan Unik):**
-   Untuk mencegah duplikasi nama file sejenis dan potensi eksploitasi keamanan, nama berkas dienkripsi dengan format berikut:
-   $$\text{Nama Berkas} = \text{jenis\_dokumen} + \text{"\_"} + \text{no\_anggota\_sanitized} + \text{"\_"} + \text{timestamp} + \text{"."} + \text{ekstensi}$$
-   * *Contoh:* Jika anggota dengan Nomor Anggota `A001` mengunggah `KTP` pada timestamp saat itu, nama file menjadi: `ktp_A001_1779075104491.pdf`.
-6. **Pembuatan Folder Otomatis (Autocreate Folder):**
-   Sistem memeriksa apakah direktori `public/uploads/dokumen/` telah dibuat di server web. Jika belum, sistem mengeksekusi perintah pembuatan folder secara dinamis dengan hak akses `0755` (`mkdir($uploadFileDir, 0755, true)`).
-7. **Pemindahan Berkas Fisik ke Server:**
-   File dipindahkan dari folder temporer PHP ke folder resmi server menggunakan fungsi `move_uploaded_file()`.
-8. **Pencatatan Database:**
-   Setelah berkas fisik tersimpan, query `INSERT INTO anggota_dokumen (anggota_id, jenis_dokumen, nama_file)` dieksekusi untuk merekam relasi berkas tersebut.
+1. **Konversi Format Otomatis:**
+   * Jika file yang dikirim adalah format gambar (`.jpg`, `.jpeg`, `.png`), sistem memanggil parser (misal FPDF/Imagick) untuk mengubahnya menjadi file `.pdf` murni agar seragam.
+2. **Standardisasi Nama Berkas:**
+   * File diubah menjadi lowercase dan disesuaikan penamaannya: `{jenis}_{no_anggota}_{nama_anggota}.pdf` (Contoh: `ktp_a0001_budi_santoso.pdf`).
+3. **Pengecekan Folder Bertingkat di Google Drive:**
+   * **Root Level:** Mengecek folder bernama `KSP` di Drive. Jika tidak ada, folder dibuat.
+   * **Member Level:** Mengecek folder `{no_anggota}_{nama_anggota}` di bawah folder `KSP`.
+   * **Sub-folder Level:**
+     * File KTP & KK diarahkan ke subfolder `profil`.
+     * File Form Pengajuan & Surat Perjanjian diarahkan ke subfolder `pinjaman`.
+4. **Pembersihan Hosting:**
+   * Begitu Google Drive API mengembalikan `drive_file_id`, file lokal di server dihapus demi mengoptimalkan disk space.
 
 ---
 
-## 🗑️ 3. Langkah-Demi-Langkah Alur Penghapusan (Delete Flow)
+## 🗑️ 3. Langkah-Demi-Langkah Alur Penghapusan (Delete & Sync Flow)
 
-Penghapusan berkas kelengkapan dapat dipicu oleh admin (`AnggotaController@deleteDokumen`) untuk memperbarui berkas lama. Proses ini menjamin kebersihan memori server:
+Jika admin menghapus berkas, sistem akan mensinkronisasikannya secara penuh ke Google Drive untuk menghindari berkas sampah (orphan files):
 
-1. **Verifikasi POST Request:** Sistem hanya menerima perintah hapus lewat `POST` demi keamanan.
-2. **Pencarian Nama Berkas di Database:**
-   Sistem mengambil nama file berdasarkan `anggota_id` dan `jenis_dokumen` dari tabel `anggota_dokumen`.
-3. **Penghapusan Berkas Fisik (Server Disk Cleanup):**
-   * Sistem memeriksa keberadaan berkas fisik di server (`public/uploads/dokumen/{nama_file}`).
-   * Jika berkas fisik ada, fungsi PHP `unlink($filePath)` dijalankan untuk **menghapus berkas dari disk server secara permanen**.
-4. **Penghapusan Rekaman Database:**
-   Query `DELETE FROM anggota_dokumen WHERE anggota_id = ? AND jenis_dokumen = ?` dieksekusi agar database kembali bersih.
+1. **Ambil Data Database:** Sistem membaca `drive_file_id` dari tabel `anggota_dokumen` berdasarkan `anggota_id` dan `jenis_dokumen`.
+2. **Hapus Berkas dari Google Drive:**
+   * Sistem mengirimkan request `delete` ke Google Drive API menggunakan `drive_file_id` yang terdaftar.
+   * File akan terhapus secara permanen atau dipindahkan ke Sampah (Trash) di Google Drive.
+3. **Hapus Rekaman Database:** Query `DELETE FROM anggota_dokumen WHERE anggota_id = ? AND jenis_dokumen = ?` dieksekusi setelah penghapusan cloud berhasil.
 
 ---
 
-## 👁️ 4. Alur Penayangan Dokumen (View/Preview Flow)
+## 👁️ 4. Alur Penayangan Dokumen (Preview/View Flow)
 
-Saat admin ingin memvalidasi berkas anggota, mereka mengklik tombol "Lihat Dokumen" di halaman **Detail Anggota** (`/anggota/{id}`):
+Untuk meminimalkan bandwidth server lokal, penayangan pratinjau (preview) dokumen memanfaatkan viewer Google Drive secara aman:
 
-1. Rute `/anggota/dokumen/{id}/{jenis_dokumen}` mendeteksi permintaan peninjauan berkas.
-2. Sistem mencari nama file di tabel database `anggota_dokumen`.
-3. Informasi diteruskan ke template view `views/anggota/view_dokumen.php`.
-4. Jika berkas berformat gambar (`.jpg`/`.png`), antarmuka memunculkan elemen HTML `<img>`. Jika berkas berformat dokumen `.pdf`, antarmuka memunculkan elemen `<embed>` bergaya interaktif untuk mempermudah pemeriksaan dokumen oleh Validator/Manager tanpa perlu mengunduh file terlebih dahulu.
+1. **Permintaan Preview:** Admin mengklik "Lihat Dokumen" pada data anggota.
+2. **Kueri Database:** Mendapatkan `drive_file_id` berkas terkait.
+3. **Generasi Secure URL:**
+   * Sistem menghasilkan URL pratinjau yang aman (misalnya memanfaatkan link `https://drive.google.com/file/d/{drive_file_id}/preview` atau tautan unduhan yang dialirkan via proxy stream di PHP controller).
+4. **Rendisi Antarmuka:** Dokumen langsung dirender dalam elemen `<iframe src="..." width="100%" height="600px">` atau `<embed>` interaktif yang nyaman dibaca oleh Validator.
 
 ---
 
-## 📝 5. Cara Menambahkan Berkas Baru (Misalnya: KK / Kartu Keluarga)
+## 📝 5. Panduan Pengembangan & Pengujian
 
-Jika ke depan Anda ingin secara khusus menambahkan dokumen baru seperti **KK (Kartu Keluarga)**, ikuti 3 langkah mudah ini:
-
-### Langkah A - Daftarkan Label Baru di `AnggotaController.php`
-Buka file `app/controllers/AnggotaController.php`, cari fungsi `lihatDokumen` (sekitar baris 238) dan daftarkan penamaan barunya:
-```php
-if ($jenisDokumen === 'kk') $labelDokumen = 'Kartu Keluarga';
+### Prasyarat Library (Composer Dependencies)
+```bash
+composer require google/apiclient:^2.15
+composer require dompdf/dompdf
 ```
 
-### Langkah B - Tambahkan Form Input Baru di `views/anggota/edit.php`
-Tambahkan form input untuk Kartu Keluarga di halaman pengeditan agar admin dapat memilih berkas KK untuk diunggah:
-```html
-<input type="hidden" name="jenis_dokumen" value="kk">
-```
-
-### Langkah C - Hubungkan Tombol Aksi di halaman `views/anggota/detail.php`
-Tambahkan tombol pratinjau KK di halaman detail profil anggota agar Validator/Manager dapat mengkliknya langsung:
-```html
-<a href="<?= url('/anggota/dokumen/' . $anggota['id'] . '/kk') ?>" class="btn btn-sm btn-info">Lihat KK</a>
-```
+### Kunci Sukses Keamanan
+* File kredensial Google Service Account (`google-credentials.json`) disimpan di folder luar webroot (misal `/storage/app/`) dan terdaftar di `.gitignore` untuk mencegah kebocoran kunci keamanan.
