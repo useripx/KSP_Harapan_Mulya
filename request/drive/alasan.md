@@ -22,7 +22,7 @@ Dokumen ini disusun untuk menjelaskan latar belakang teknis transisi arsitektur 
 Berikut visualisasi perbedaan alur kerja antara ketiga metode tersebut untuk memahami mengapa metode **Google Apps Script Proxy** jauh lebih unggul dan efisien:
 
 ```mermaid
-graph TD
+flowchart TD
     %% Styling
     classDef oauth fill:#eff6ff,stroke:#3b82f6,stroke-width:2px,color:#1e3a8a,rx:8px,ry:8px;
     classDef service fill:#fdf2f8,stroke:#ec4899,stroke-width:2px,color:#701a75,rx:8px,ry:8px;
@@ -48,6 +48,10 @@ graph TD
         GAS -->|3. Simpan di Drive atas nama Gmail Pribadi| DriveC[(Google Drive Koperasi 15GB)]
         noteC[✅ Solusi: Kuota 15GB gratis aktif & super cepat tanpa SDK berat!]
     end
+
+    %% Invisible connections to force vertical stacking (Portrait Layout)
+    M1 ~~~ M2
+    M2 ~~~ M3
 
     class OAuth,PHP_A oauth;
     class PHP_B,SDK service;
