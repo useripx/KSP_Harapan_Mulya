@@ -114,8 +114,11 @@ class DashboardController extends Controller
     {
         $db = db();
 
-        // Get selected year from query param or default to current year
-        $selectedYear = isset($_GET['year']) ? (int)$_GET['year'] : (int)date('Y');
+        // Get selected year from query param or session or default to current year
+        $selectedYear = isset($_GET['year']) ? (int)$_GET['year'] : ($_SESSION['dashboard_selected_year'] ?? (int)date('Y'));
+        if (isset($_GET['year'])) {
+            $_SESSION['dashboard_selected_year'] = (int)$_GET['year'];
+        }
 
         // Get available years for the filter
         $yearsResult = $db->query("
@@ -149,41 +152,41 @@ class DashboardController extends Controller
                 a.nama,
                 a.tgl_daftar,
                 -- Years active up to selected year
-                (? - YEAR(a.tgl_daftar) + 1) as years_active,
+                (:selectedYear - YEAR(a.tgl_daftar) + 1) as years_active,
                 -- Cumulative Dummy Data (Amount per year * years_active)
-                (500000 + (a.id * 10000)) * (? - YEAR(a.tgl_daftar) + 1) as simpanan_wajib,
-                (100000 + (a.id * 5000)) * (? - YEAR(a.tgl_daftar) + 1) as simpanan_pokok,
-                (250000 + (a.id * 2000)) * (? - YEAR(a.tgl_daftar) + 1) as simpanan_sukarela,
-                (150000 + (a.id * 1500)) * (? - YEAR(a.tgl_daftar) + 1) as simpanan_belanja,
-                (50000 + (a.id * 1000)) * (? - YEAR(a.tgl_daftar) + 1) as simpanan_dana_sosial,
+                (500000 + (a.id * 10000)) * (:selectedYear - YEAR(a.tgl_daftar) + 1) as simpanan_wajib,
+                (100000 + (a.id * 5000)) * (:selectedYear - YEAR(a.tgl_daftar) + 1) as simpanan_pokok,
+                (65000 + COALESCE(k.simpanan_sukarela_tambahan, 0)) as simpanan_sukarela,
+                (150000 + (a.id * 1500)) * (:selectedYear - YEAR(a.tgl_daftar) + 1) as simpanan_belanja,
+                (50000 + (a.id * 1000)) * (:selectedYear - YEAR(a.tgl_daftar) + 1) as simpanan_dana_sosial,
                 -- Data Simpanan Baru (Dinamis dari Konfigurasi Validator)
-                COALESCE(k.simpanan_motor, 0) * (? - YEAR(a.tgl_daftar) + 1) as simpanan_motor,
-                COALESCE(k.simpanan_mobil, 0) * (? - YEAR(a.tgl_daftar) + 1) as simpanan_mobil,
+                COALESCE(k.simpanan_motor, 0) * (:selectedYear - YEAR(a.tgl_daftar) + 1) as simpanan_motor,
+                COALESCE(k.simpanan_mobil, 0) * (:selectedYear - YEAR(a.tgl_daftar) + 1) as simpanan_mobil,
                 (
                     ((500000 + (a.id * 10000)) + 
                      (100000 + (a.id * 5000)) + 
-                     (250000 + (a.id * 2000)) + 
                      (150000 + (a.id * 1500)) + 
                      (50000 + (a.id * 1000)) +
                      COALESCE(k.simpanan_motor, 0) +
-                     COALESCE(k.simpanan_mobil, 0)) * (? - YEAR(a.tgl_daftar) + 1)
+                     COALESCE(k.simpanan_mobil, 0)) * (:selectedYear - YEAR(a.tgl_daftar) + 1)
+                    + (65000 + COALESCE(k.simpanan_sukarela_tambahan, 0))
                 ) as total
             FROM anggota a
             LEFT JOIN konfigurasi_simpanan_anggota k ON a.id = k.anggota_id
             WHERE a.status = 'AKTIF'
-            AND YEAR(a.tgl_daftar) <= ?
-            GROUP BY a.id, a.no_anggota, a.nama, a.tgl_daftar, k.simpanan_motor, k.simpanan_mobil
+            AND YEAR(a.tgl_daftar) <= :selectedYear
+            GROUP BY a.id, a.no_anggota, a.nama, a.tgl_daftar, k.simpanan_motor, k.simpanan_mobil, k.simpanan_sukarela_tambahan
             ORDER BY total DESC
         ";
 
+        $db->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
         $stmt = $db->prepare($sql);
-        // Bind parameters: selectedYear (10 times)
+        // Bind parameters using named placeholder
         $stmt->execute([
-            $selectedYear, $selectedYear, $selectedYear, $selectedYear, 
-            $selectedYear, $selectedYear, $selectedYear, $selectedYear,
-            $selectedYear, $selectedYear
+            ':selectedYear' => $selectedYear
         ]);
         $ringkasanAnggota = $stmt->fetchAll();
+        $db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 
         // Get Member Savings Config Summary (For the second table)
         $configSummary = $db->query("

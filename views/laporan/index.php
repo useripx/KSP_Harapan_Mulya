@@ -67,10 +67,10 @@
     </div>
 
     <?php if (Auth::role() === ROLE_KETUA): ?>
-    <!-- Cetak BAU (Khusus Manager) -->
+    <!-- Lapor BAU (Khusus Manager) -->
     <div class="col-12 mt-5">
         <h5 class="fw-bold mb-3 d-flex align-items-center">
-            <i class="bi bi-file-earmark-bar-graph me-2" style="color: #6610f2;"></i> Cetak BAU
+            <i class="bi bi-file-earmark-bar-graph me-2" style="color: #6610f2;"></i> Lapor BAU
         </h5>
     </div>
     

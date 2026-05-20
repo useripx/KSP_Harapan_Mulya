@@ -791,6 +791,39 @@
     endif; 
     ?>
 
+    <!-- Modal Logout Premium -->
+    <div class="modal fade" id="logoutConfirmModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 380px;">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 1.25rem; background-color: var(--card) !important;">
+                <div class="modal-body text-center p-5">
+                    <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-4" 
+                         style="width: 80px; height: 80px; background-color: rgba(239, 68, 68, 0.1); color: var(--destructive, #ef4444);">
+                        <i class="bi bi-box-arrow-right fs-1" style="transform: translateX(2px);"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2 text-dark" style="color: var(--foreground) !important;">Konfirmasi Keluar</h5>
+                    <p class="text-muted small mb-4">Apakah Anda yakin ingin keluar dari sistem Koperasi Harapan Mulya?</p>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-light w-50 py-2 fw-semibold rounded-pill" data-bs-dismiss="modal" 
+                                style="background-color: var(--secondary); color: var(--foreground); border: 1px solid var(--border);">
+                            Batal
+                        </button>
+                        <a href="<?= url('/logout') ?>" class="btn btn-danger w-50 py-2 fw-semibold rounded-pill" 
+                           style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border: none; color: white !important;">
+                            Ya, Keluar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showLogoutModal() {
+            var logoutModal = new bootstrap.Modal(document.getElementById('logoutConfirmModal'));
+            logoutModal.show();
+        }
+    </script>
+
     <?= $additionalJS ?? '' ?>
 </body>
 

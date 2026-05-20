@@ -55,7 +55,7 @@ $uri = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
                     <span>Dashboard</span>
                 </a>
             </li>
-            <?php if (in_array($userRole, [ROLE_ADMIN, ROLE_TELLER])): ?>
+            <?php if (in_array($userRole, [ROLE_ADMIN, ROLE_TELLER, ROLE_KETUA])): ?>
                 <li>
                     <a href="<?= url('/anggota') ?>" class="<?= View::isActive('/anggota') ?>">
                         <i class="bi bi-people"></i>
@@ -206,7 +206,7 @@ $uri = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
                 </li>
             <?php endif; ?>
             <li>
-                <a href="<?= url('/logout') ?>" onclick="return confirm('Apakah Anda yakin ingin logout?')">
+                <a href="#" onclick="event.preventDefault(); showLogoutModal();">
                     <i class="bi bi-box-arrow-right"></i>
                     <span>Logout</span>
                 </a>

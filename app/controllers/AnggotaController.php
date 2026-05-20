@@ -125,12 +125,29 @@ class AnggotaController extends Controller
         $stmtDokumen->execute([$id]);
         $listDokumen = $stmtDokumen->fetchAll(PDO::FETCH_KEY_PAIR);
 
+        // Kalkulasi Simpanan Sukarela Saat Ini
+        $tahun = (int)date('Y');
+        $bulan = (int)date('m');
+        $tglDaftar = strtotime($anggota['tgl_daftar']);
+        $tahunDaftar = (int)date('Y', $tglDaftar);
+        $bulanDaftar = (int)date('m', $tglDaftar);
+        $monthsActive = max((($tahun - $tahunDaftar) * 12) + ($bulan - $bulanDaftar) + 1, 1);
+        $sukarelaDasar = 65000;
+
+        $stmtKonf = $db->prepare("SELECT simpanan_sukarela_tambahan FROM konfigurasi_simpanan_anggota WHERE anggota_id = ?");
+        $stmtKonf->execute([$id]);
+        $konf = $stmtKonf->fetch();
+        $sukarelaTambahan = $konf ? (float)$konf['simpanan_sukarela_tambahan'] : 0.0;
+
+        $simpanan_sukarela_saat_ini = $sukarelaDasar + $sukarelaTambahan;
+
         $this->view('anggota/detail', [
             'pageTitle' => 'Detail Anggota',
             'anggota' => $anggota,
             'saldo' => $saldo,
             'totalPinjaman' => $totalPinjaman,
-            'listDokumen' => $listDokumen
+            'listDokumen' => $listDokumen,
+            'simpanan_sukarela_saat_ini' => $simpanan_sukarela_saat_ini
         ]);
     }
 
