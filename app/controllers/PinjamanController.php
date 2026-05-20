@@ -62,11 +62,30 @@ class PinjamanController extends Controller
         $jadwal = $this->pinjamanModel->getJadwal($id);
         $summary = $this->pinjamanModel->getSummary($id);
 
+        // Kalkulasi Simpanan Sukarela
+        $tahun = (int)date('Y');
+        $bulan = (int)date('m');
+        $tglDaftar = strtotime($pinjaman['tgl_daftar']);
+        $tahunDaftar = (int)date('Y', $tglDaftar);
+        $bulanDaftar = (int)date('m', $tglDaftar);
+        $monthsActive = max((($tahun - $tahunDaftar) * 12) + ($bulan - $bulanDaftar) + 1, 1);
+        $sukarelaDasar = 65000;
+        
+        // Ambil saldo tambahan dari tabel konfigurasi
+        $db = db();
+        $stmtKonf = $db->prepare("SELECT simpanan_sukarela_tambahan FROM konfigurasi_simpanan_anggota WHERE anggota_id = ?");
+        $stmtKonf->execute([$pinjaman['anggota_id']]);
+        $konf = $stmtKonf->fetch();
+        $sukarelaTambahan = $konf ? (float)$konf['simpanan_sukarela_tambahan'] : 0.0;
+        
+        $simpanan_sukarela_saat_ini = $sukarelaDasar + $sukarelaTambahan;
+
         $this->view('pinjaman/detail', [
             'pageTitle' => 'Detail Pinjaman #' . $id,
             'pinjaman' => $pinjaman,
             'jadwal' => $jadwal,
-            'summary' => $summary
+            'summary' => $summary,
+            'simpanan_sukarela_saat_ini' => $simpanan_sukarela_saat_ini
         ]);
     }
 
@@ -602,5 +621,58 @@ class PinjamanController extends Controller
         if (!$ketemu) {
             die("File cetak_surat_pdf.php benar-benar tidak ditemukan di folder mana pun. Pastikan nama filenya tidak ada typo (seperti .php.php)!");
         }
+    }
+
+    // ==========================================
+    // FUNGSI AJAX TAMBAH SIMPANAN SUKARELA
+    // ==========================================
+    public function tambahSukarela()
+    {
+        if (!$this->isPost()) {
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+            exit;
+        }
+
+        header('Content-Type: application/json');
+        
+        if (!in_array(Auth::role(), [ROLE_ADMIN, ROLE_TELLER, ROLE_KETUA])) {
+            echo json_encode(['success' => false, 'message' => 'Akses ditolak.']);
+            exit;
+        }
+
+        $data = $this->post();
+        $anggotaId = $data['anggota_id'] ?? null;
+        $tambahan = isset($data['tambahan']) ? (float)$data['tambahan'] : null;
+
+        if (!$anggotaId || $tambahan === null) {
+            echo json_encode(['success' => false, 'message' => 'Data tidak lengkap.']);
+            exit;
+        }
+
+        try {
+            $db = db();
+            // Cek apakah anggota sudah punya row di konfigurasi
+            $stmt = $db->prepare("SELECT id FROM konfigurasi_simpanan_anggota WHERE anggota_id = ?");
+            $stmt->execute([$anggotaId]);
+            $exists = $stmt->fetch();
+
+            if ($exists) {
+                // Update
+                $upd = $db->prepare("UPDATE konfigurasi_simpanan_anggota SET simpanan_sukarela_tambahan = simpanan_sukarela_tambahan + ? WHERE anggota_id = ?");
+                $upd->execute([$tambahan, $anggotaId]);
+            } else {
+                // Insert
+                $ins = $db->prepare("INSERT INTO konfigurasi_simpanan_anggota (anggota_id, simpanan_motor, simpanan_mobil, simpanan_sukarela_tambahan) VALUES (?, 0, 0, ?)");
+                $ins->execute([$anggotaId, $tambahan]);
+            }
+
+            echo json_encode([
+                'success' => true, 
+                'message' => 'Saldo Simpanan Sukarela berhasil ditambahkan!'
+            ]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'Terjadi kesalahan: ' . $e->getMessage()]);
+        }
+        exit;
     }
 }

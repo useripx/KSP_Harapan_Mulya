@@ -236,7 +236,8 @@ class Auth {
         $stmt->execute([$username, $username, $username]);
         $user = $stmt->fetch();
         
-        if ($user && self::verifyPassword($password, $user['password_hash'])) {
+        $hash = $user['password_hash'] ?? $user['password'] ?? '';
+        if ($user && self::verifyPassword($password, $hash)) {
             self::login($user);
             return true;
         }

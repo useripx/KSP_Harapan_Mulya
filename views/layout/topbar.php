@@ -160,8 +160,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     <hr class="dropdown-divider">
                 </li>
                 <li>
-                    <a class="dropdown-item text-danger" href="<?= url('/logout') ?>"
-                        onclick="return confirm('Apakah Anda yakin ingin logout?')">
+                    <a class="dropdown-item text-danger" href="#"
+                        onclick="event.preventDefault(); showLogoutModal();">
                         <i class="bi bi-box-arrow-right me-2"></i>
                         Logout
                     </a>

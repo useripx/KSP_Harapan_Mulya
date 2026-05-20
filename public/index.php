@@ -22,6 +22,11 @@ define('ROOT_PATH', dirname(__DIR__));
 define('APP_PATH', ROOT_PATH . '/app');
 define('PUBLIC_PATH', ROOT_PATH . '/public');
 
+// Load Composer Autoload jika ada
+if (file_exists(ROOT_PATH . '/vendor/autoload.php')) {
+    require_once ROOT_PATH . '/vendor/autoload.php';
+}
+
 // Load configuration
 $configFile = APP_PATH . '/config/app.php';
 if (!file_exists($configFile)) {
@@ -203,12 +208,16 @@ $router->get('/laporan/shu', 'LaporanController@shu');
 $router->get('/laporan/pembukuan', 'LaporanController@pembukuan');
 $router->get('/laporan/pembukuan/buat', 'LaporanController@pembukuanBuat');
 $router->get('/laporan/pembukuan/lihat', 'LaporanController@pembukuanLihat');
+$router->get('/laporan/pembukuan/cetak-anggota', 'LaporanController@cetakAnggotaPembukuan');
+$router->get('/laporan/pembukuan/excel-anggota', 'LaporanController@excelAnggotaPembukuan');
+$router->get('/api/laporan/pembukuan/ringkasan', 'LaporanController@apiRingkasanAnggota');
 $router->get('/laporan/pembukuan/kirim', 'LaporanController@pembukuanKirim');
 
 // API routes (untuk AJAX)
 $router->get('/api/anggota/search', 'AnggotaController@search');
 $router->get('/api/anggota/{id}/saldo', 'AnggotaController@getSaldo');
 $router->get('/api/pinjaman/{id}/jadwal', 'PinjamanController@getJadwal');
+$router->post('/api/pinjaman/sukarela/tambah', 'PinjamanController@tambahSukarela');
 $router->get('/api/settings/savings', 'AuthController@getSavingsConfig');
 $router->post('/settings/savings/update', 'AuthController@updateSavings');
 $router->post('/api/notifikasi/read', 'NotifikasiController@markAllAsRead');

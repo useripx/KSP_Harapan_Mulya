@@ -370,6 +370,242 @@ class LaporanController extends Controller
         ]);
     }
 
+    public function cetakAnggotaPembukuan()
+    {
+        $this->requireManagerOnly();
+        
+        $tahun = isset($_GET['tahun']) ? (int)$_GET['tahun'] : (int)date('Y');
+        $bulan = isset($_GET['bulan']) ? (int)$_GET['bulan'] : (int)date('m');
+        $_SESSION['dashboard_selected_year'] = $tahun;
+        $_SESSION['dashboard_selected_month'] = $bulan;
+
+        $db = db();
+        
+        // Query Ringkasan Anggota (kumulatif simpanan kumulatif bulanan)
+        $sql = "
+            SELECT
+                a.no_anggota,
+                a.nama,
+                a.tgl_daftar,
+                GREATEST((:tahun - YEAR(a.tgl_daftar)) * 12 + (:bulan - MONTH(a.tgl_daftar)) + 1, 1) as months_active,
+                (50000 + (a.id * 1000)) * GREATEST((:tahun - YEAR(a.tgl_daftar)) * 12 + (:bulan - MONTH(a.tgl_daftar)) + 1, 1) as simpanan_wajib,
+                (10000 + (a.id * 500)) * GREATEST((:tahun - YEAR(a.tgl_daftar)) * 12 + (:bulan - MONTH(a.tgl_daftar)) + 1, 1) as simpanan_pokok,
+                (65000 + COALESCE(k.simpanan_sukarela_tambahan, 0)) as simpanan_sukarela,
+                (15000 + (a.id * 150)) * GREATEST((:tahun - YEAR(a.tgl_daftar)) * 12 + (:bulan - MONTH(a.tgl_daftar)) + 1, 1) as simpanan_belanja,
+                (5000 + (a.id * 100)) * GREATEST((:tahun - YEAR(a.tgl_daftar)) * 12 + (:bulan - MONTH(a.tgl_daftar)) + 1, 1) as simpanan_dana_sosial,
+                COALESCE(k.simpanan_motor, 0) * GREATEST((:tahun - YEAR(a.tgl_daftar)) * 12 + (:bulan - MONTH(a.tgl_daftar)) + 1, 1) as simpanan_motor,
+                COALESCE(k.simpanan_mobil, 0) * GREATEST((:tahun - YEAR(a.tgl_daftar)) * 12 + (:bulan - MONTH(a.tgl_daftar)) + 1, 1) as simpanan_mobil,
+                (
+                    ((50000 + (a.id * 1000)) + 
+                     (10000 + (a.id * 500)) + 
+                     (15000 + (a.id * 150)) + 
+                     (5000 + (a.id * 100)) +
+                     COALESCE(k.simpanan_motor, 0) +
+                     COALESCE(k.simpanan_mobil, 0)) * GREATEST((:tahun - YEAR(a.tgl_daftar)) * 12 + (:bulan - MONTH(a.tgl_daftar)) + 1, 1)
+                    + (65000 + COALESCE(k.simpanan_sukarela_tambahan, 0))
+                ) as total
+            FROM anggota a
+            LEFT JOIN konfigurasi_simpanan_anggota k ON a.id = k.anggota_id
+            WHERE a.status = 'AKTIF'
+            AND (YEAR(a.tgl_daftar) < :tahun OR (YEAR(a.tgl_daftar) = :tahun AND MONTH(a.tgl_daftar) <= :bulan))
+            GROUP BY a.id, a.no_anggota, a.nama, a.tgl_daftar, k.simpanan_motor, k.simpanan_mobil, k.simpanan_sukarela_tambahan
+            ORDER BY total DESC
+        ";
+
+        $db->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
+        $stmt = $db->prepare($sql);
+        $stmt->execute([
+            'tahun' => $tahun,
+            'bulan' => $bulan
+        ]);
+        $ringkasanAnggota = $stmt->fetchAll();
+
+        // Render printable view without main layout wrapping
+        $this->viewOnly('laporan/cetak_anggota', [
+            'pageTitle' => 'Cetak Ringkasan Anggota',
+            'ringkasanAnggota' => $ringkasanAnggota,
+            'tahun' => $tahun,
+            'bulan' => $bulan
+        ]);
+    }
+
+    public function excelAnggotaPembukuan()
+    {
+        $this->requireManagerOnly();
+        
+        $tahun = isset($_GET['tahun']) ? (int)$_GET['tahun'] : (int)date('Y');
+        $bulan = isset($_GET['bulan']) ? (int)$_GET['bulan'] : (int)date('m');
+        $_SESSION['dashboard_selected_year'] = $tahun;
+        $_SESSION['dashboard_selected_month'] = $bulan;
+
+        $db = db();
+        
+        $sql = "
+            SELECT
+                a.no_anggota,
+                a.nama,
+                a.tgl_daftar,
+                GREATEST((:tahun - YEAR(a.tgl_daftar)) * 12 + (:bulan - MONTH(a.tgl_daftar)) + 1, 1) as months_active,
+                (50000 + (a.id * 1000)) * GREATEST((:tahun - YEAR(a.tgl_daftar)) * 12 + (:bulan - MONTH(a.tgl_daftar)) + 1, 1) as simpanan_wajib,
+                (10000 + (a.id * 500)) * GREATEST((:tahun - YEAR(a.tgl_daftar)) * 12 + (:bulan - MONTH(a.tgl_daftar)) + 1, 1) as simpanan_pokok,
+                (65000 + COALESCE(k.simpanan_sukarela_tambahan, 0)) as simpanan_sukarela,
+                (15000 + (a.id * 150)) * GREATEST((:tahun - YEAR(a.tgl_daftar)) * 12 + (:bulan - MONTH(a.tgl_daftar)) + 1, 1) as simpanan_belanja,
+                (5000 + (a.id * 100)) * GREATEST((:tahun - YEAR(a.tgl_daftar)) * 12 + (:bulan - MONTH(a.tgl_daftar)) + 1, 1) as simpanan_dana_sosial,
+                COALESCE(k.simpanan_motor, 0) * GREATEST((:tahun - YEAR(a.tgl_daftar)) * 12 + (:bulan - MONTH(a.tgl_daftar)) + 1, 1) as simpanan_motor,
+                COALESCE(k.simpanan_mobil, 0) * GREATEST((:tahun - YEAR(a.tgl_daftar)) * 12 + (:bulan - MONTH(a.tgl_daftar)) + 1, 1) as simpanan_mobil,
+                (
+                    ((50000 + (a.id * 1000)) + 
+                     (10000 + (a.id * 500)) + 
+                     (15000 + (a.id * 150)) + 
+                     (5000 + (a.id * 100)) +
+                     COALESCE(k.simpanan_motor, 0) +
+                     COALESCE(k.simpanan_mobil, 0)) * GREATEST((:tahun - YEAR(a.tgl_daftar)) * 12 + (:bulan - MONTH(a.tgl_daftar)) + 1, 1)
+                    + (65000 + COALESCE(k.simpanan_sukarela_tambahan, 0))
+                ) as total
+            FROM anggota a
+            LEFT JOIN konfigurasi_simpanan_anggota k ON a.id = k.anggota_id
+            WHERE a.status = 'AKTIF'
+            AND (YEAR(a.tgl_daftar) < :tahun OR (YEAR(a.tgl_daftar) = :tahun AND MONTH(a.tgl_daftar) <= :bulan))
+            GROUP BY a.id, a.no_anggota, a.nama, a.tgl_daftar, k.simpanan_motor, k.simpanan_mobil, k.simpanan_sukarela_tambahan
+            ORDER BY total DESC
+        ";
+
+        $db->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
+        $stmt = $db->prepare($sql);
+        $stmt->execute([
+            'tahun' => $tahun,
+            'bulan' => $bulan
+        ]);
+        $ringkasanAnggota = $stmt->fetchAll();
+
+        // Mendapatkan nama bulan dalam Bahasa Indonesia untuk berkas excel
+        $namaBulanList = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni',
+            7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+        $namaBulan = $namaBulanList[$bulan] ?? date('F', mktime(0, 0, 0, $bulan, 10));
+        $fileName = 'Ringkasan_Data_Anggota_' . $namaBulan . '_' . $tahun . '.xlsx';
+
+        // Load Helper XLSXWriter
+        require_once APP_PATH . '/helpers/xlsxwriter.class.php';
+        
+        $writer = new \XLSXWriter();
+        $writer->setAuthor('Manager KSP');
+        
+        // Define Column Widths & Header Formats
+        $header = [
+            'NO' => 'integer',
+            'NO. ANGGOTA' => 'string',
+            'NAMA ANGGOTA' => 'string',
+            'TOTAL KESELURUHAN' => '#,##0'
+        ];
+        // Suppress default header row because we want custom title rows above it
+        $writer->writeSheetHeader('Laporan Bulanan', $header, ['widths' => [8, 20, 35, 25], 'suppress_row' => true]);
+
+        // Title Rows
+        $writer->writeSheetRow('Laporan Bulanan', ['RINGKASAN DATA ANGGOTA & SALDO', '', '', ''], ['font-style' => 'bold', 'font-size' => 14, 'halign' => 'center']);
+        $writer->markMergedCell('Laporan Bulanan', 0, 0, 0, 3);
+        
+        $writer->writeSheetRow('Laporan Bulanan', ['Bulan Buku Laporan Keuangan: ' . strtoupper($namaBulan) . ' ' . $tahun, '', '', ''], ['halign' => 'center']);
+        $writer->markMergedCell('Laporan Bulanan', 1, 0, 1, 3);
+        
+        $writer->writeSheetRow('Laporan Bulanan', ['', '', '', '']); // Blank row
+        
+        // Manual Header Row
+        $writer->writeSheetRow('Laporan Bulanan', ['NO', 'NO. ANGGOTA', 'NAMA ANGGOTA', 'TOTAL KESELURUHAN'], ['font-style' => 'bold', 'halign' => 'center', 'border' => 'left,right,top,bottom']);
+
+        $no = 1;
+        $totalAll = 0;
+        $rowIndex = 4; // Data starts at row index 4 (0-based)
+
+        foreach ($ringkasanAnggota as $row) {
+            $totalAll += (float)$row['total'];
+            $writer->writeSheetRow('Laporan Bulanan', [
+                $no++,
+                $row['no_anggota'],
+                $row['nama'],
+                (float)$row['total']
+            ], ['border' => 'left,right,top,bottom']);
+            $rowIndex++;
+        }
+
+        // Baris Total
+        $writer->writeSheetRow('Laporan Bulanan', [
+            'TOTAL KESELURUHAN',
+            '',
+            '',
+            $totalAll
+        ], ['font-style' => 'bold', 'halign' => 'center', 'border' => 'left,right,top,bottom']);
+        $writer->markMergedCell('Laporan Bulanan', $rowIndex, 0, $rowIndex, 2);
+
+        // Membersihkan semua output buffer yang tertinggal agar file XLSX (ZIP) tidak corrupt
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="' . $fileName . '"');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+
+        $writer->writeToStdOut();
+        exit;
+    }
+
+    public function apiRingkasanAnggota()
+    {
+        $this->requireManagerOnly();
+        
+        $tahun = isset($_GET['tahun']) ? (int)$_GET['tahun'] : (int)date('Y');
+        $bulan = isset($_GET['bulan']) ? (int)$_GET['bulan'] : (int)date('m');
+        
+        $db = db();
+        
+        $sql = "
+            SELECT
+                a.no_anggota,
+                a.nama,
+                a.tgl_daftar,
+                GREATEST((:tahun - YEAR(a.tgl_daftar)) * 12 + (:bulan - MONTH(a.tgl_daftar)) + 1, 1) as months_active,
+                (50000 + (a.id * 1000)) * GREATEST((:tahun - YEAR(a.tgl_daftar)) * 12 + (:bulan - MONTH(a.tgl_daftar)) + 1, 1) as simpanan_wajib,
+                (10000 + (a.id * 500)) * GREATEST((:tahun - YEAR(a.tgl_daftar)) * 12 + (:bulan - MONTH(a.tgl_daftar)) + 1, 1) as simpanan_pokok,
+                (65000 + COALESCE(k.simpanan_sukarela_tambahan, 0)) as simpanan_sukarela,
+                (15000 + (a.id * 150)) * GREATEST((:tahun - YEAR(a.tgl_daftar)) * 12 + (:bulan - MONTH(a.tgl_daftar)) + 1, 1) as simpanan_belanja,
+                (5000 + (a.id * 100)) * GREATEST((:tahun - YEAR(a.tgl_daftar)) * 12 + (:bulan - MONTH(a.tgl_daftar)) + 1, 1) as simpanan_dana_sosial,
+                COALESCE(k.simpanan_motor, 0) * GREATEST((:tahun - YEAR(a.tgl_daftar)) * 12 + (:bulan - MONTH(a.tgl_daftar)) + 1, 1) as simpanan_motor,
+                COALESCE(k.simpanan_mobil, 0) * GREATEST((:tahun - YEAR(a.tgl_daftar)) * 12 + (:bulan - MONTH(a.tgl_daftar)) + 1, 1) as simpanan_mobil,
+                (
+                    ((50000 + (a.id * 1000)) + 
+                     (10000 + (a.id * 500)) + 
+                     (15000 + (a.id * 150)) + 
+                     (5000 + (a.id * 100)) +
+                     COALESCE(k.simpanan_motor, 0) +
+                     COALESCE(k.simpanan_mobil, 0)) * GREATEST((:tahun - YEAR(a.tgl_daftar)) * 12 + (:bulan - MONTH(a.tgl_daftar)) + 1, 1)
+                    + (65000 + COALESCE(k.simpanan_sukarela_tambahan, 0))
+                ) as total
+            FROM anggota a
+            LEFT JOIN konfigurasi_simpanan_anggota k ON a.id = k.anggota_id
+            WHERE a.status = 'AKTIF'
+            AND (YEAR(a.tgl_daftar) < :tahun OR (YEAR(a.tgl_daftar) = :tahun AND MONTH(a.tgl_daftar) <= :bulan))
+            GROUP BY a.id, a.no_anggota, a.nama, a.tgl_daftar, k.simpanan_motor, k.simpanan_mobil, k.simpanan_sukarela_tambahan
+            ORDER BY total DESC
+        ";
+
+        $db->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
+        $stmt = $db->prepare($sql);
+        $stmt->execute([
+            'tahun' => $tahun,
+            'bulan' => $bulan
+        ]);
+        $ringkasanAnggota = $stmt->fetchAll();
+        
+        successResponse('Success', [
+            'ringkasan' => $ringkasanAnggota,
+            'tahun' => $tahun,
+            'bulan' => $bulan
+        ]);
+    }
+
     public function pembukuanKirim()
     {
         $this->requireManagerOnly();

@@ -65,11 +65,25 @@
 
         <!-- Simulated Loading Widget (Glassmorphism Overlay) -->
         <div id="simulatedOverlay" class="d-none simulated-overlay d-flex align-items-center justify-content-center text-center">
-            <div class="glass-loading-card p-5 shadow-lg border rounded-3 bg-white">
-                <!-- Premium Loading Bar -->
-                <div class="spinner-grow text-primary mb-3" style="width: 3.5rem; height: 3.5rem; color: #4f46e5 !important;" role="status"></div>
-                <h5 class="fw-bold mb-2">Mengirim Laporan ke BAU...</h5>
-                <p class="text-muted small mb-0" id="loadingStep">Mengompresi berkas laporan pembukuan...</p>
+            <div class="glass-loading-card p-5 shadow-lg border rounded-3 bg-white" style="width: 100%; max-width: 440px;">
+                <!-- Loading State -->
+                <div id="loadingState">
+                    <div class="spinner-grow text-primary mb-3" style="width: 3.5rem; height: 3.5rem; color: #4f46e5 !important;" role="status"></div>
+                    <h5 class="fw-bold mb-2">Mengirim Laporan ke BAU...</h5>
+                    <p class="text-muted small mb-0" id="loadingStep">Mengompresi berkas laporan pembukuan...</p>
+                </div>
+                
+                <!-- Success State inside Modal -->
+                <div id="successModalState" class="d-none">
+                    <div class="rounded-circle d-inline-flex align-items-center justify-content-center bg-success bg-opacity-10 text-success mb-3" style="width: 72px; height: 72px;">
+                        <i class="bi bi-check-circle-fill" style="font-size: 40px;"></i>
+                    </div>
+                    <h4 class="fw-bold text-dark mb-2">Laporan Berhasil Terkirim!</h4>
+                    <p class="text-muted small mb-4" id="successModalText"></p>
+                    <button type="button" class="btn btn-primary w-100 fw-bold rounded py-2" style="background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%); border: none;" onclick="closeSuccessModal()">
+                        Oke
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -165,10 +179,18 @@
         const successWidget = document.getElementById('successWidget');
         const successDetailText = document.getElementById('successDetailText');
         
+        const loadingState = document.getElementById('loadingState');
+        const successModalState = document.getElementById('successModalState');
+        const successModalText = document.getElementById('successModalText');
+        
         // Ambil data form
         const select = document.getElementById('pilihLaporan');
         const selectedText = select.options[select.selectedIndex].text;
         const penerima = document.getElementById('penerimaBAU').value;
+
+        // Reset state modal
+        loadingState.classList.remove('d-none');
+        successModalState.classList.add('d-none');
 
         // 1. Matikan tombol dan tampilkan overlay loading
         btnSubmit.disabled = true;
@@ -186,7 +208,10 @@
 
         // 3. Penyelesaian & Selesai
         setTimeout(() => {
-            overlay.classList.add('d-none');
+            // Sembunyikan spinner/loading dan tunjukkan status sukses di dalam modal
+            loadingState.classList.add('d-none');
+            successModalState.classList.remove('d-none');
+            
             btnSubmit.disabled = false;
 
             // Update status di localStorage menjadi 'Terkirim ke BAU'
@@ -200,12 +225,20 @@
                 }
             }
 
-            // Isi pesan sukses secara dinamis
-            successDetailText.innerText = `Berkas "${selectedText}" telah sukses dikirimkan secara elektronik kepada petugas ${penerima} pada Bagian Administrasi Umum (BAU) Koperasi.`;
-            
-            // Tampilkan widget sukses
-            successWidget.classList.remove('d-none');
+            // Isi pesan sukses secara dinamis untuk modal dan widget
+            const detailMsg = `Berkas "${selectedText}" telah sukses dikirimkan secara elektronik kepada petugas ${penerima} pada Bagian Administrasi Umum (BAU) Koperasi.`;
+            successModalText.innerText = detailMsg;
+            successDetailText.innerText = detailMsg;
             
         }, 2400);
+    }
+
+    function closeSuccessModal() {
+        const overlay = document.getElementById('simulatedOverlay');
+        overlay.classList.add('d-none');
+        
+        // Tampilkan juga widget sukses persisten di halaman
+        const successWidget = document.getElementById('successWidget');
+        successWidget.classList.remove('d-none');
     }
 </script>

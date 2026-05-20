@@ -17,3 +17,5 @@ progress/dokumentasi_foto/video/
 *.zip
 *.rar
 *.exe
+storage/app/google-credentials.json
+storage/app/google-apps-script-config.json

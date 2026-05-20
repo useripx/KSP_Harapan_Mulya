@@ -12,7 +12,7 @@ class Pinjaman extends Model
      */
     public function findWithAnggota($id)
     {
-        $sql = "SELECT p.*, a.nama, a.no_anggota, a.tipe as anggota_tipe, a.identitas_no, a.no_hp,
+        $sql = "SELECT p.*, a.nama, a.no_anggota, a.tipe as anggota_tipe, a.identitas_no, a.no_hp, a.tgl_daftar,
                        u1.name as verifikasi_oleh_nama,
                        u2.name as approve_oleh_nama,
                        u3.name as cair_oleh_nama

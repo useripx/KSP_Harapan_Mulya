@@ -111,9 +111,8 @@
         <div class="row receipt-footer mt-4">
             <div class="col-7">
                 <h6 class="fw-bold text-success mb-2">Koperasi Harapan Mulya</h6>
-                <div class="small text-muted mb-1">Jl. Ahmad Dahlan No.76, Mojoroto, Kediri</div>
-                <div class="small text-muted mb-1">Jawa Timur, Indonesia 64112</div>
-                <div class="small text-muted">Telepon: (0354) 123456 | Email: info@harapanmulya.id</div>
+                <div class="small text-muted mb-1">Jl. KH. Achmad Dahlan 76 Kediri.</div>
+                <div class="small text-muted">Telepon: (0354) 771576</div>
             </div>
             <div class="col-5 text-end">
                 <div class="signature-box mt-2">
