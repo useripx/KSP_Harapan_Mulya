@@ -10,7 +10,21 @@
         <p class="text-muted small mb-0">No. Anggota: <?= e($anggota['no_anggota']) ?></p>
     </div>
     <div class="card-body text-center bg-light py-4">
-        <?php if (!empty($namaFile)): ?>
+        <?php if (!empty($driveFileId)): ?>
+            <div class="ratio ratio-16x9 mx-auto shadow-sm rounded mb-4" style="max-width: 900px; height: 600px;">
+                <iframe src="https://drive.google.com/file/d/<?= $driveFileId ?>/preview" width="100%" height="600px" class="border-0 shadow-sm rounded" allow="autoplay"></iframe>
+            </div>
+            
+            <div class="mt-4">
+                <a href="https://drive.google.com/uc?export=download&id=<?= $driveFileId ?>" target="_blank" class="btn btn-primary fw-semibold btn-sm shadow-sm rounded-pill px-3">
+                    <i class="bi bi-download me-1"></i> Download File (Google Drive)
+                </a>
+                <a href="https://drive.google.com/file/d/<?= $driveFileId ?>/view?usp=drivesdk" target="_blank" class="btn btn-outline-secondary fw-semibold btn-sm ms-2 shadow-sm rounded-pill px-3">
+                    <i class="bi bi-box-arrow-up-right me-1"></i> Buka di Tab Baru
+                </a>
+            </div>
+
+        <?php elseif (!empty($namaFile)): ?>
             <?php 
                 $ext = pathinfo(trim($namaFile), PATHINFO_EXTENSION);
                 $fileUrl = url('/uploads/dokumen/' . trim($namaFile));
@@ -27,8 +41,8 @@
             <?php endif; ?>
             
             <div class="mt-4">
-                <a href="<?= $fileUrl ?>" download class="btn btn-primary fw-semibold btn-sm">
-                    <i class="bi bi-download me-1"></i> Download File Asli
+                <a href="<?= $fileUrl ?>" download class="btn btn-primary fw-semibold btn-sm shadow-sm rounded-pill px-3">
+                    <i class="bi bi-download me-1"></i> Download File Lokal
                 </a>
             </div>
 

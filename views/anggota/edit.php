@@ -127,6 +127,36 @@
                     
                     <div class="list-group-item px-0 py-3">
                         <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div><i class="bi bi-people me-2 text-secondary"></i> Kartu Keluarga</div>
+                            <?php if (!empty($listDokumen['kk'])): ?>
+                                <div class="d-flex gap-1">
+                                    <a href="<?= url('/anggota/dokumen/' . $anggota['id'] . '/kk') ?>" class="btn btn-sm btn-outline-primary py-0 px-2 rounded-pill">
+                                        <i class="bi bi-eye me-1"></i>Buka
+                                    </a>
+                                    <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/delete') ?>" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus Kartu Keluarga ini?')">
+                                        <?= View::csrf() ?>
+                                        <input type="hidden" name="jenis_dokumen" value="kk">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-2 rounded-pill">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            <?php else: ?>
+                                <span class="text-danger small italic">Belum diupload</span>
+                            <?php endif; ?>
+                        </div>
+                        <?php if (empty($listDokumen['kk'])): ?>
+                            <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/upload') ?>" method="POST" enctype="multipart/form-data" class="d-flex gap-1 mt-1">
+                                <?= View::csrf() ?>
+                                <input type="hidden" name="jenis_dokumen" value="kk">
+                                <input type="file" name="berkas_dokumen" class="form-control form-control-sm" accept="image/*,application/pdf" required>
+                                <button type="submit" class="btn btn-sm btn-primary py-0 px-2"><i class="bi bi-upload"></i></button>
+                            </form>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <div class="list-group-item px-0 py-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
                             <div><i class="bi bi-file-earmark-text me-2 text-secondary"></i> Surat Perjanjian</div>
                             <?php if (!empty($listDokumen['perjanjian'])): ?>
                                 <div class="d-flex gap-1">

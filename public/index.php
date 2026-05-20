@@ -22,6 +22,11 @@ define('ROOT_PATH', dirname(__DIR__));
 define('APP_PATH', ROOT_PATH . '/app');
 define('PUBLIC_PATH', ROOT_PATH . '/public');
 
+// Load Composer Autoload jika ada
+if (file_exists(ROOT_PATH . '/vendor/autoload.php')) {
+    require_once ROOT_PATH . '/vendor/autoload.php';
+}
+
 // Load configuration
 $configFile = APP_PATH . '/config/app.php';
 if (!file_exists($configFile)) {

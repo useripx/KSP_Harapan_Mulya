@@ -37,6 +37,13 @@ Sistem Koperasi Harapan Mulya adalah platform digital berbasis web yang dirancan
 - **Top-Up & Autodebet**: Integrasi potong saldo otomatis dan pengajuan penambahan plafon pinjaman.
 - **Kalkulator & Simulasi**: Simulasi angsuran dan bunga secara *real-time* sebelum pengajuan.
 
+### ☁️ Integrasi Google Drive Cloud & Auto-PDF (Bypass Kuota 0 Byte)
+
+- **Konversi Gambar ke PDF Otomatis**: Secara otonom mengemas unggahan JPG/PNG menjadi dokumen PDF berstandar A4 dengan aspek rasio tetap di tengah halaman menggunakan pustaka FPDF.
+- **Bypass Kuota via Apps Script Proxy**: Memanfaatkan **Google Apps Script Web App** sebagai jembatan tangguh untuk melewati limitasi kuota 0 byte akun robot (Service Account), menyimpan file secara langsung menggunakan kuota 15 GB gratis milik akun Gmail pribadi Anda.
+- **Struktur Hirarki Rapi**: Mengelola berkas secara teratur dalam struktur direktori otomatis: `KSP/` ➔ `{no_anggota}_{nama}/` ➔ `profil/` atau `pinjaman/`.
+- **Robust Local Offline Fallback**: Dilengkapi pertahanan otomatis di mana kegagalan transmisi cloud akan mengalihkan penyimpanan file ke server lokal secara transparan tanpa memutus jalannya aplikasi.
+
 ### 🛡️ Keamanan & Aksesibilitas
 
 - **Sistem Role-Based Access (RBAC)**: Pemisahan tegas hak akses antara Anggota, Validator (Admin), BAU (Keuangan), dan Manager (Ketua).
@@ -61,7 +68,7 @@ Sistem Koperasi Harapan Mulya adalah platform digital berbasis web yang dirancan
 | **Frontend Framework**  | Bootstrap 5.3.8                    |
 | **Iconography**         | Bootstrap Icons (Bi-icons)         |
 | **Modul Interaktif**    | Vanilla JavaScript, SweetAlert2    |
-| **Integrasi Eksternal** | -                                  |
+| **Integrasi Eksternal** | Google Drive via Google Apps Script Web App Proxy |
 
 ---
 

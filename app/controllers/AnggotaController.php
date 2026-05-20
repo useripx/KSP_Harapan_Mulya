@@ -214,8 +214,34 @@ class AnggotaController extends Controller
             $this->redirect('/anggota');
 
         try {
+            $db = db();
+            // 1. Ambil semua berkas anggota dari Google Drive sebelum menghapus record anggota
+            $stmtDocs = $db->prepare("SELECT drive_file_id, nama_file FROM anggota_dokumen WHERE anggota_id = ?");
+            $stmtDocs->execute([$id]);
+            $docs = $stmtDocs->fetchAll();
+
+            if (count($docs) > 0) {
+                try {
+                    require_once APP_PATH . '/services/GoogleDriveService.php';
+                    $drive = new GoogleDriveService();
+                    foreach ($docs as $doc) {
+                        if (!empty($doc['drive_file_id'])) {
+                            $drive->deleteFile($doc['drive_file_id']);
+                        }
+                        // Hapus file fisik lokal jika tertinggal
+                        $filePath = APP_PATH . '/../public/uploads/dokumen/' . $doc['nama_file'];
+                        if (file_exists($filePath)) {
+                            unlink($filePath);
+                        }
+                    }
+                } catch (Exception $ex) {
+                    error_log("Gagal menghapus berkas Google Drive saat menghapus anggota ID {$id}: " . $ex->getMessage());
+                }
+            }
+
+            // 2. Hapus data anggota (cascade secara DDL akan menghapus baris anggota_dokumen)
             $this->anggotaModel->delete($id);
-            $this->redirect('/anggota', 'Anggota berhasil dihapus.', 'success');
+            $this->redirect('/anggota', 'Anggota dan berkas kelengkapannya berhasil dihapus.', 'success');
         } catch (Exception $e) {
             $this->redirect('/anggota', 'Gagal menghapus anggota: ' . $e->getMessage(), 'error');
         }
@@ -228,27 +254,32 @@ class AnggotaController extends Controller
             $this->redirect('/anggota', 'Anggota tidak ditemukan', 'error');
         }
 
-        // Ambil data file dari tabel anggota_dokumen
+        // Ambil data file & ID Drive dari tabel anggota_dokumen
         $db = db();
-        $stmt = $db->prepare("SELECT nama_file FROM anggota_dokumen WHERE anggota_id = ? AND jenis_dokumen = ?");
+        $stmt = $db->prepare("SELECT nama_file, drive_file_id FROM anggota_dokumen WHERE anggota_id = ? AND jenis_dokumen = ?");
         $stmt->execute([$id, $jenisDokumen]);
-        $namaFile = $stmt->fetchColumn(); // Mengambil string nama file langsung
+        $doc = $stmt->fetch();
+
+        $namaFile = $doc ? $doc['nama_file'] : '';
+        $driveFileId = $doc ? $doc['drive_file_id'] : '';
 
         // Set Label untuk halaman preview
         $labelDokumen = 'Dokumen';
         if ($jenisDokumen === 'ktp') $labelDokumen = 'KTP Anggota';
+        if ($jenisDokumen === 'kk') $labelDokumen = 'Kartu Keluarga';
         if ($jenisDokumen === 'perjanjian') $labelDokumen = 'Surat Perjanjian';
         if ($jenisDokumen === 'pengajuan') $labelDokumen = 'Form Pengajuan';
 
         return $this->view('anggota/view_dokumen', [
             'pageTitle' => 'Lihat ' . $labelDokumen,
             'anggota' => $anggota,
-            'namaFile' => $namaFile ? $namaFile : '', // Jika false/kosong ganti string kosong
+            'namaFile' => $namaFile,
+            'driveFileId' => $driveFileId,
             'labelDokumen' => $labelDokumen
         ]);
     }
 
-    // METHOD UNTUK MEMPROSES UPLOAD DOKUMEN BARU (DARI HALAMAN EDIT)
+    // METHOD UNTUK MEMPROSES UPLOAD DOKUMEN BARU (DARI HALAMAN EDIT DENGAN CONVERT PDF & GOOGLE DRIVE)
     public function uploadDokumen($id)
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -275,23 +306,209 @@ class AnggotaController extends Controller
             $this->redirect('/anggota', 'Anggota tidak ditemukan', 'error');
         }
 
-        $cleanNoAnggota = str_replace(' ', '_', $anggota['no_anggota']);
-        $newFileName = $jenisDokumen . '_' . $cleanNoAnggota . '_' . time() . '.' . $fileExtension;
+        // Standardisasi nama berkas: jenis_noanggota_namaanggota.pdf (tanpa spasi, huruf kecil semua)
+        $noAnggotaClean = str_replace(' ', '_', strtolower($anggota['no_anggota']));
+        $namaClean = str_replace(' ', '_', strtolower($anggota['nama']));
+        $newFileName = "{$jenisDokumen}_{$noAnggotaClean}_{$namaClean}.pdf";
 
-        $uploadFileDir = APP_PATH . '/../public/uploads/dokumen/';
-        if (!is_dir($uploadFileDir)) {
-            mkdir($uploadFileDir, 0755, true);
+        // Tentukan direktori sementara lokal
+        $tempDir = APP_PATH . '/../public/uploads/temp/';
+        if (!is_dir($tempDir)) {
+            mkdir($tempDir, 0755, true);
         }
+        $finalLocalPath = $tempDir . $newFileName;
 
-        if (move_uploaded_file($fileTmpPath, $uploadFileDir . $newFileName)) {
+        try {
+            // 1. Konversi jika berupa gambar
+            if (in_array($fileExtension, ['jpg', 'jpeg', 'png'])) {
+                $this->convertImageToPDF($fileTmpPath, $finalLocalPath, $fileExtension);
+            } else {
+                if (!move_uploaded_file($fileTmpPath, $finalLocalPath)) {
+                    throw new Exception("Gagal memindahkan berkas unggahan ke direktori sementara lokal.");
+                }
+            }
+
+            $driveUploaded = false;
+            $driveFileId = null;
+
+            try {
+                // 2. Hubungkan ke Google Drive API
+                require_once APP_PATH . '/services/GoogleDriveService.php';
+                $drive = new GoogleDriveService();
+
+                // Cek/buat folder utama 'KSP'
+                $rootId = $drive->getOrCreateFolder('KSP');
+
+                // Cek/buat folder Anggota: noanggota_nama
+                $folderNameAnggota = "{$anggota['no_anggota']}_{$anggota['nama']}";
+                $anggotaFolderId = $drive->getOrCreateFolder($folderNameAnggota, $rootId);
+
+                // Tentukan Subfolder berdasarkan jenis dokumen
+                if (in_array($jenisDokumen, ['ktp', 'kk'])) {
+                    $subFolderId = $drive->getOrCreateFolder('profil', $anggotaFolderId);
+                } else {
+                    $subFolderId = $drive->getOrCreateFolder('pinjaman', $anggotaFolderId);
+                }
+
+                $db = db();
+                // Cek apakah dokumen jenis ini sudah ada untuk menghapusnya dari Google Drive (agar tidak menjadi sampah yatim piatu)
+                $stmtExist = $db->prepare("SELECT drive_file_id, nama_file FROM anggota_dokumen WHERE anggota_id = ? AND jenis_dokumen = ?");
+                $stmtExist->execute([$id, $jenisDokumen]);
+                $oldDoc = $stmtExist->fetch(PDO::FETCH_ASSOC);
+
+                if ($oldDoc) {
+                    if (!empty($oldDoc['drive_file_id'])) {
+                        $drive->deleteFile($oldDoc['drive_file_id']);
+                    }
+                    if (!empty($oldDoc['nama_file'])) {
+                        $oldLocalPath = APP_PATH . '/../public/uploads/dokumen/' . $oldDoc['nama_file'];
+                        if (file_exists($oldLocalPath)) {
+                            unlink($oldLocalPath);
+                        }
+                    }
+                    // Hapus record lama
+                    $stmtDel = $db->prepare("DELETE FROM anggota_dokumen WHERE anggota_id = ? AND jenis_dokumen = ?");
+                    $stmtDel->execute([$id, $jenisDokumen]);
+                }
+
+                // 3. Unggah Berkas PDF Baru ke Google Drive
+                $driveFileId = $drive->uploadFile($finalLocalPath, $newFileName, $subFolderId);
+                $driveUploaded = true;
+
+            } catch (Exception $driveEx) {
+                // Catat log error Google Drive
+                error_log("Google Drive upload failed, falling back to local storage: " . $driveEx->getMessage());
+                $driveUploaded = false;
+                $driveFileId = null;
+            }
+
             $db = db();
-            $stmt = $db->prepare("INSERT INTO anggota_dokumen (anggota_id, jenis_dokumen, nama_file) VALUES (?, ?, ?)");
-            $stmt->execute([$id, $jenisDokumen, $newFileName]);
+            if ($driveUploaded) {
+                // 4. Simpan Referensi ke Database
+                $stmtInsert = $db->prepare("INSERT INTO anggota_dokumen (anggota_id, jenis_dokumen, nama_file, drive_file_id) VALUES (?, ?, ?, ?)");
+                $stmtInsert->execute([$id, $jenisDokumen, $newFileName, $driveFileId]);
 
-            $this->redirect("/anggota/{$id}/edit", 'Dokumen berhasil diunggah.', 'success');
-        } else {
-            $this->redirect("/anggota/{$id}/edit", 'Gagal menyimpan berkas ke server.', 'error');
+                // 5. Bersihkan Berkas Fisik Lokal di Server
+                if (file_exists($finalLocalPath)) {
+                    unlink($finalLocalPath);
+                }
+
+                $this->redirect("/anggota/{$id}/edit", 'Dokumen kelengkapan berhasil diunggah dan disimpan ke Google Drive!', 'success');
+            } else {
+                // LOCAL FALLBACK
+                $destDir = APP_PATH . '/../public/uploads/dokumen/';
+                if (!is_dir($destDir)) {
+                    mkdir($destDir, 0755, true);
+                }
+                $finalDestPath = $destDir . $newFileName;
+
+                // Pastikan untuk menghapus file lama jika ada di DB lokal
+                $stmtExist = $db->prepare("SELECT nama_file, drive_file_id FROM anggota_dokumen WHERE anggota_id = ? AND jenis_dokumen = ?");
+                $stmtExist->execute([$id, $jenisDokumen]);
+                $oldDoc = $stmtExist->fetch(PDO::FETCH_ASSOC);
+
+                if ($oldDoc) {
+                    if (!empty($oldDoc['nama_file'])) {
+                        $oldLocalPath = $destDir . $oldDoc['nama_file'];
+                        if (file_exists($oldLocalPath)) {
+                            unlink($oldLocalPath);
+                        }
+                    }
+                    if (!empty($oldDoc['drive_file_id'])) {
+                        try {
+                            require_once APP_PATH . '/services/GoogleDriveService.php';
+                            $drive = new GoogleDriveService();
+                            $drive->deleteFile($oldDoc['drive_file_id']);
+                        } catch (Exception $e) {
+                            // Abaikan error Google Drive saat fallback
+                        }
+                    }
+                    // Hapus record lama
+                    $stmtDel = $db->prepare("DELETE FROM anggota_dokumen WHERE anggota_id = ? AND jenis_dokumen = ?");
+                    $stmtDel->execute([$id, $jenisDokumen]);
+                }
+
+                // Pindahkan file dari temp ke folder dokumen permanen
+                if (!rename($finalLocalPath, $finalDestPath)) {
+                    if (copy($finalLocalPath, $finalDestPath)) {
+                        unlink($finalLocalPath);
+                    } else {
+                        throw new Exception("Gagal memindahkan file ke penyimpanan lokal permanen.");
+                    }
+                }
+
+                // Simpan Referensi ke Database dengan drive_file_id = NULL
+                $stmtInsert = $db->prepare("INSERT INTO anggota_dokumen (anggota_id, jenis_dokumen, nama_file, drive_file_id) VALUES (?, ?, ?, NULL)");
+                $stmtInsert->execute([$id, $jenisDokumen, $newFileName]);
+
+                $this->redirect("/anggota/{$id}/edit", 'Dokumen berhasil disimpan secara lokal (Penyimpanan Google Drive penuh/tidak tersedia).', 'success');
+            }
+
+        } catch (Exception $e) {
+            // Bersihkan jika ada berkas yang tersisa saat terjadi error
+            if (file_exists($finalLocalPath)) {
+                unlink($finalLocalPath);
+            }
+            $this->redirect("/anggota/{$id}/edit", 'Gagal memproses berkas: ' . $e->getMessage(), 'error');
         }
+    }
+
+    /**
+     * Konversi Gambar ke berkas PDF secara proporsional menggunakan FPDF
+     */
+    private function convertImageToPDF($sourceImagePath, $outputPDFPath, $imageType) {
+        if (!class_exists('FPDF')) {
+            if (class_exists('Fpdf\\Fpdf')) {
+                class_alias('Fpdf\\Fpdf', 'FPDF');
+            } else {
+                $fallbackPath = APP_PATH . '/../vendor/fpdf/fpdf/fpdf.php';
+                if (file_exists($fallbackPath)) {
+                    require_once $fallbackPath;
+                } else {
+                    // Try to load modern composer path if composer autoloader hasn't fired it
+                    $modernPath = APP_PATH . '/../vendor/fpdf/fpdf/src/Fpdf/Fpdf.php';
+                    if (file_exists($modernPath)) {
+                        require_once $modernPath;
+                        class_alias('Fpdf\\Fpdf', 'FPDF');
+                    } else {
+                        throw new Exception("Pustaka FPDF tidak ditemukan. Silakan jalankan 'composer require fpdf/fpdf' di terminal Laragon Anda.");
+                    }
+                }
+            }
+        }
+
+        $pdf = new FPDF();
+        $pdf->AddPage();
+        
+        $size = getimagesize($sourceImagePath);
+        if ($size === false) {
+            throw new Exception("Gagal membaca dimensi gambar sumber.");
+        }
+        $originalWidth = $size[0];
+        $originalHeight = $size[1];
+        
+        // Lebar halaman A4 efektif = 190mm (210mm - 20mm margin)
+        // Tinggi halaman A4 efektif = 277mm (297mm - 20mm margin)
+        $targetWidth = 190;
+        $targetHeight = ($originalHeight / $originalWidth) * $targetWidth;
+        
+        if ($targetHeight > 277) {
+            $targetHeight = 277;
+            $targetWidth = ($originalWidth / $originalHeight) * $targetHeight;
+        }
+
+        // Render di tengah halaman secara horizontal
+        $x = 10 + (190 - $targetWidth) / 2;
+        $y = 10;
+
+        // FPDF requires image format type if the file extension is not known (like .tmp)
+        $type = strtoupper($imageType);
+        if ($type === 'JPG') {
+            $type = 'JPEG';
+        }
+
+        $pdf->Image($sourceImagePath, $x, $y, $targetWidth, $targetHeight, $type);
+        $pdf->Output('F', $outputPDFPath);
     }
 
     /**
@@ -346,7 +563,7 @@ class AnggotaController extends Controller
         ]);
     }
     
-    // METHOD UNTUK MENGHAPUS DOKUMEN DAN FILE FISIKNYA
+    // METHOD UNTUK MENGHAPUS DOKUMEN DAN SINKRONISASI DENGAN GOOGLE DRIVE
     public function deleteDokumen($id)
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -355,26 +572,37 @@ class AnggotaController extends Controller
 
         $jenisDokumen = $_POST['jenis_dokumen'] ?? '';
 
-        $db = db();
-        // 1. Cari nama file di database terlebih dahulu sebelum dihapus
-        $stmt = $db->prepare("SELECT nama_file FROM anggota_dokumen WHERE anggota_id = ? AND jenis_dokumen = ?");
-        $stmt->execute([$id, $jenisDokumen]);
-        $namaFile = $stmt->fetchColumn();
+        try {
+            $db = db();
+            // 1. Cari record berkas di database
+            $stmt = $db->prepare("SELECT nama_file, drive_file_id FROM anggota_dokumen WHERE anggota_id = ? AND jenis_dokumen = ?");
+            $stmt->execute([$id, $jenisDokumen]);
+            $doc = $stmt->fetch();
 
-        if ($namaFile) {
-            // 2. Hapus file fisik dari folder penyimpanan server (public/uploads/dokumen/)
-            $filePath = APP_PATH . '/../public/uploads/dokumen/' . $namaFile;
-            if (file_exists($filePath)) {
-                unlink($filePath); // Menghapus file asli secara permanen
+            if ($doc) {
+                // 2. Hapus berkas dari Google Drive jika drive_file_id tersedia
+                if (!empty($doc['drive_file_id'])) {
+                    require_once APP_PATH . '/services/GoogleDriveService.php';
+                    $drive = new GoogleDriveService();
+                    $drive->deleteFile($doc['drive_file_id']);
+                }
+
+                // Hapus juga berkas fisik lokal jika tertinggal
+                $filePath = APP_PATH . '/../public/uploads/dokumen/' . $doc['nama_file'];
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+
+                // 3. Hapus baris data rekaman dari tabel database
+                $stmtDelete = $db->prepare("DELETE FROM anggota_dokumen WHERE anggota_id = ? AND jenis_dokumen = ?");
+                $stmtDelete->execute([$id, $jenisDokumen]);
+
+                $this->redirect("/anggota/{$id}/edit", 'Dokumen kelengkapan berhasil dihapus dari sistem dan Google Drive.', 'success');
+            } else {
+                $this->redirect("/anggota/{$id}/edit", 'Gagal: Data dokumen tidak ditemukan.', 'error');
             }
-
-            // 3. Hapus baris data rekaman dari tabel database
-            $stmtDelete = $db->prepare("DELETE FROM anggota_dokumen WHERE anggota_id = ? AND jenis_dokumen = ?");
-            $stmtDelete->execute([$id, $jenisDokumen]);
-
-            $this->redirect("/anggota/{$id}/edit", 'Dokumen kelengkapan berhasil dihapus.', 'success');
-        } else {
-            $this->redirect("/anggota/{$id}/edit", 'Gagal: Data dokumen tidak ditemukan.', 'error');
+        } catch (Exception $e) {
+            $this->redirect("/anggota/{$id}/edit", 'Terjadi kesalahan saat menghapus berkas: ' . $e->getMessage(), 'error');
         }
     }
 }

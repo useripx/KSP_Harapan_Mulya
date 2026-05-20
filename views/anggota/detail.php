@@ -102,6 +102,17 @@
                     </div>
                     
                     <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                        <div><i class="bi bi-people me-2 text-secondary"></i> Kartu Keluarga</div>
+                        <?php if (!empty($listDokumen['kk'])): ?>
+                            <a href="<?= url('/anggota/dokumen/' . $anggota['id'] . '/kk') ?>" class="btn btn-sm btn-outline-primary py-0 px-2 rounded-pill">
+                                <i class="bi bi-eye me-1"></i>Buka
+                            </a>
+                        <?php else: ?>
+                            <span class="text-danger small italic">Belum diupload</span>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
                         <div><i class="bi bi-file-earmark-text me-2 text-secondary"></i> Surat Perjanjian</div>
                         <?php if (!empty($listDokumen['perjanjian'])): ?>
                             <a href="<?= url('/anggota/dokumen/' . $anggota['id'] . '/perjanjian') ?>" class="btn btn-sm btn-outline-primary py-0 px-2 rounded-pill">

@@ -4,6 +4,20 @@ Seluruh riwayat perubahan sistem Koperasi Harapan Mulya dicatat secara mendetail
 
 ---
 
+## [Update v25] - 2026-05-20
+### **Bypass Kuota Google Drive via Google Apps Script Proxy & Auto-PDF**
+
+#### **1. Integrasi Google Apps Script Web App (Bypass Kuota 0 Byte)**
+- **Bypass Kuota Cloud**: Migrasi backend Google Drive dari otentikasi offline Service Account (yang dibatasi kuota 0 byte oleh Google untuk akun personal) ke **Google Apps Script Web App Proxy** yang memanfaatkan kuota 15 GB gratis milik akun Gmail pribadi (`koperasiharapanmulyaunp@gmail.com`).
+- **Driver GoogleDriveService Baru**: Menulis ulang [GoogleDriveService.php](file:///c:/laragon/www/Ksp_Koperasinat/app/services/GoogleDriveService.php) menggunakan client cURL PHP ringan asinkron yang mendukung redirect HTTP 302 otomatis, pengiriman data Base64 berkas, pengelolaan folder berjenjang dinamis, dan penghapusan sinkron.
+- **Kompatibilitas Penuh Tanpa Refactoring Controller**: Menjaga 100% signature method service agar controller `AnggotaController.php` tetap bekerja secara lancar tanpa ada modifikasi baris kode sedikit pun.
+- **Konfigurasi Mandiri**: Membuat [google-apps-script-config.json](file:///c:/laragon/www/Ksp_Koperasinat/storage/app/google-apps-script-config.json) untuk memetakan endpoint URL jembatan Apps Script dan Token Pengaman (`api_key`) secara terpisah dan aman dari Git.
+
+#### **2. Standar Dokumentasi & Kerapian Lingkungan**
+- **Dokumentasi Panduan Langkah Dari 0**: Membuat panduan premium [proses.md](file:///c:/laragon/www/Ksp_Koperasinat/request/drive/proses.md) yang mengupas deployment Google Apps Script, otorisasi di mode Incognito, visualisasi alur sequence diagram, dan penanganan bug otentikasi Google.
+- **Log Walkthrough Baru**: Menambahkan lembar walkthrough Bagian 2 di [walk-20-05.md](file:///c:/laragon/www/Ksp_Koperasinat/request/walkhtrough/walk-20-05.md) yang selaras dengan format historis.
+- **Pembersihan Repositori Otomatis**: Menghapus seluruh berkas pengujian dan uji coba sementara (`test_gdrive_flow.php`, `e2e_test_upload.php`, `diagnose_gdrive.php`, `cookie.txt`, dll.) agar lingkungan pengembangan bersih dan siap masuk ke repositori utama.
+
 ## [Update v24] - 2026-05-17
 ### **Modul Pembukuan BAU & Manajemen Dokumen Anggota**
 
