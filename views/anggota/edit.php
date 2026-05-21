@@ -131,10 +131,12 @@
                             <input type="file" name="berkas_dokumen" class="form-control form-control-sm" accept="image/*,application/pdf" required>
                             <button type="submit" class="btn btn-sm btn-primary py-0 px-2 shadow-sm rounded-3" title="Unggah Dokumen"><i class="bi bi-upload"></i></button>
                         </form>
+                        <?php if (empty($listDokumen['ktp'])): ?>
                         <div class="text-muted mt-1 d-flex align-items-center gap-1" style="font-size: 0.7rem; opacity: 0.85;">
                             <i class="bi bi-info-circle"></i>
-                            <span><?= !empty($listDokumen['ktp']) ? 'Unggah baru akan mengarsipkan berkas lama ke KSP_Trash.' : 'Format dokumen: JPG, PNG, atau PDF.' ?></span>
+                            <span>Format dokumen: JPG, PNG, atau PDF.</span>
                         </div>
+                        <?php endif; ?>
                     </div>
                     
                     <!-- DOKUMEN 2: KK -->
@@ -172,10 +174,12 @@
                             <input type="file" name="berkas_dokumen" class="form-control form-control-sm" accept="image/*,application/pdf" required>
                             <button type="submit" class="btn btn-sm btn-primary py-0 px-2 shadow-sm rounded-3" title="Unggah Dokumen"><i class="bi bi-upload"></i></button>
                         </form>
+                        <?php if (empty($listDokumen['kk'])): ?>
                         <div class="text-muted mt-1 d-flex align-items-center gap-1" style="font-size: 0.7rem; opacity: 0.85;">
                             <i class="bi bi-info-circle"></i>
-                            <span><?= !empty($listDokumen['kk']) ? 'Unggah baru akan mengarsipkan berkas lama ke KSP_Trash.' : 'Format dokumen: JPG, PNG, atau PDF.' ?></span>
+                            <span>Format dokumen: JPG, PNG, atau PDF.</span>
                         </div>
+                        <?php endif; ?>
                     </div>
                     
                     <!-- DOKUMEN 3: SURAT PERJANJIAN -->
@@ -213,10 +217,12 @@
                             <input type="file" name="berkas_dokumen" class="form-control form-control-sm" accept="image/*,application/pdf" required>
                             <button type="submit" class="btn btn-sm btn-primary py-0 px-2 shadow-sm rounded-3" title="Unggah Dokumen"><i class="bi bi-upload"></i></button>
                         </form>
+                        <?php if (empty($listDokumen['perjanjian'])): ?>
                         <div class="text-muted mt-1 d-flex align-items-center gap-1" style="font-size: 0.7rem; opacity: 0.85;">
                             <i class="bi bi-info-circle"></i>
-                            <span><?= !empty($listDokumen['perjanjian']) ? 'Unggah baru akan mengarsipkan berkas lama ke KSP_Trash.' : 'Format dokumen: JPG, PNG, atau PDF.' ?></span>
+                            <span>Format dokumen: JPG, PNG, atau PDF.</span>
                         </div>
+                        <?php endif; ?>
                     </div>
                     
                     <!-- DOKUMEN 4: FORM PENGAJUAN -->
@@ -254,10 +260,12 @@
                             <input type="file" name="berkas_dokumen" class="form-control form-control-sm" accept="image/*,application/pdf" required>
                             <button type="submit" class="btn btn-sm btn-primary py-0 px-2 shadow-sm rounded-3" title="Unggah Dokumen"><i class="bi bi-upload"></i></button>
                         </form>
+                        <?php if (empty($listDokumen['pengajuan'])): ?>
                         <div class="text-muted mt-1 d-flex align-items-center gap-1" style="font-size: 0.7rem; opacity: 0.85;">
                             <i class="bi bi-info-circle"></i>
-                            <span><?= !empty($listDokumen['pengajuan']) ? 'Unggah baru akan mengarsipkan berkas lama ke KSP_Trash.' : 'Format dokumen: JPG, PNG, atau PDF.' ?></span>
+                            <span>Format dokumen: JPG, PNG, atau PDF.</span>
                         </div>
+                        <?php endif; ?>
                     </div>
 
                 </div>
