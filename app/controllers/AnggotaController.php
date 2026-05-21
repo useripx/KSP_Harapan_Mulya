@@ -358,7 +358,7 @@ class AnggotaController extends Controller
 
                 if ($oldDoc) {
                     $waktuHapus = date('d-m-Y_H-i');
-                    $archiveFolderName = "{$anggota['no_anggota']}_{$anggota['nama']}_{$waktuHapus}";
+                    $archiveFolderName = "{$anggota['no_anggota']}_{$anggota['nama']}";
                     $subFolder = in_array($jenisDokumen, ['ktp', 'kk']) ? 'profil' : 'pinjaman';
 
                     if (!empty($oldDoc['drive_file_id'])) {
@@ -371,7 +371,11 @@ class AnggotaController extends Controller
                             if (!is_dir($localTrashDir)) {
                                 mkdir($localTrashDir, 0755, true);
                             }
-                            rename($oldLocalPath, $localTrashDir . $oldDoc['nama_file']);
+                            $originalName = $oldDoc['nama_file'];
+                            $ext = pathinfo($originalName, PATHINFO_EXTENSION);
+                            $filenameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
+                            $newArchivedName = "{$filenameWithoutExt}_{$waktuHapus}.{$ext}";
+                            rename($oldLocalPath, $localTrashDir . $newArchivedName);
                         }
                     }
                     // Hapus record lama
@@ -417,7 +421,7 @@ class AnggotaController extends Controller
 
                 if ($oldDoc) {
                     $waktuHapus = date('d-m-Y_H-i');
-                    $archiveFolderName = "{$anggota['no_anggota']}_{$anggota['nama']}_{$waktuHapus}";
+                    $archiveFolderName = "{$anggota['no_anggota']}_{$anggota['nama']}";
                     $subFolder = in_array($jenisDokumen, ['ktp', 'kk']) ? 'profil' : 'pinjaman';
 
                     if (!empty($oldDoc['nama_file'])) {
@@ -427,7 +431,11 @@ class AnggotaController extends Controller
                             if (!is_dir($localTrashDir)) {
                                 mkdir($localTrashDir, 0755, true);
                             }
-                            rename($oldLocalPath, $localTrashDir . $oldDoc['nama_file']);
+                            $originalName = $oldDoc['nama_file'];
+                            $ext = pathinfo($originalName, PATHINFO_EXTENSION);
+                            $filenameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
+                            $newArchivedName = "{$filenameWithoutExt}_{$waktuHapus}.{$ext}";
+                            rename($oldLocalPath, $localTrashDir . $newArchivedName);
                         }
                     }
                     if (!empty($oldDoc['drive_file_id'])) {
@@ -602,7 +610,7 @@ class AnggotaController extends Controller
 
             if ($doc) {
                 $waktuHapus = date('d-m-Y_H-i');
-                $archiveFolderName = "{$anggota['no_anggota']}_{$anggota['nama']}_{$waktuHapus}";
+                $archiveFolderName = "{$anggota['no_anggota']}_{$anggota['nama']}";
                 $subFolder = in_array($jenisDokumen, ['ktp', 'kk']) ? 'profil' : 'pinjaman';
 
                 // 2. Arsipkan berkas dari Google Drive jika drive_file_id tersedia
@@ -619,7 +627,11 @@ class AnggotaController extends Controller
                     if (!is_dir($localTrashDir)) {
                         mkdir($localTrashDir, 0755, true);
                     }
-                    rename($filePath, $localTrashDir . $doc['nama_file']);
+                    $originalName = $doc['nama_file'];
+                    $ext = pathinfo($originalName, PATHINFO_EXTENSION);
+                    $filenameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
+                    $newArchivedName = "{$filenameWithoutExt}_{$waktuHapus}.{$ext}";
+                    rename($filePath, $localTrashDir . $newArchivedName);
                 }
 
                 // 3. Hapus baris data rekaman dari tabel database
