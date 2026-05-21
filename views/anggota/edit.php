@@ -110,7 +110,7 @@
                                     <a href="<?= url('/anggota/dokumen/' . $anggota['id'] . '/ktp') ?>" class="btn btn-xs btn-outline-primary py-0 px-2 rounded-pill d-flex align-items-center gap-1" style="font-size: 0.75rem;">
                                         <i class="bi bi-eye"></i> Buka
                                     </a>
-                                    <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/delete') ?>" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin mengarsipkan KTP lama Anda ke folder KSP_Trash?')">
+                                    <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/delete') ?>" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus Dokumen KTP <?= e(addslashes($anggota['nama'])) ?>?')">
                                         <?= View::csrf() ?>
                                         <input type="hidden" name="jenis_dokumen" value="ktp">
                                         <button type="submit" class="btn btn-xs btn-outline-danger py-0 px-2 rounded-pill d-flex align-items-center" style="font-size: 0.75rem;" title="Arsipkan ke KSP_Trash">
@@ -153,7 +153,7 @@
                                     <a href="<?= url('/anggota/dokumen/' . $anggota['id'] . '/kk') ?>" class="btn btn-xs btn-outline-primary py-0 px-2 rounded-pill d-flex align-items-center gap-1" style="font-size: 0.75rem;">
                                         <i class="bi bi-eye"></i> Buka
                                     </a>
-                                    <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/delete') ?>" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin mengarsipkan Kartu Keluarga lama Anda ke folder KSP_Trash?')">
+                                    <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/delete') ?>" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus Dokumen KK <?= e(addslashes($anggota['nama'])) ?>?')">
                                         <?= View::csrf() ?>
                                         <input type="hidden" name="jenis_dokumen" value="kk">
                                         <button type="submit" class="btn btn-xs btn-outline-danger py-0 px-2 rounded-pill d-flex align-items-center" style="font-size: 0.75rem;" title="Arsipkan ke KSP_Trash">
@@ -196,7 +196,7 @@
                                     <a href="<?= url('/anggota/dokumen/' . $anggota['id'] . '/perjanjian') ?>" class="btn btn-xs btn-outline-primary py-0 px-2 rounded-pill d-flex align-items-center gap-1" style="font-size: 0.75rem;">
                                         <i class="bi bi-eye"></i> Buka
                                     </a>
-                                    <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/delete') ?>" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin mengarsipkan Surat Perjanjian lama Anda ke folder KSP_Trash?')">
+                                    <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/delete') ?>" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus Dokumen Surat Perjanjian <?= e(addslashes($anggota['nama'])) ?>?')">
                                         <?= View::csrf() ?>
                                         <input type="hidden" name="jenis_dokumen" value="perjanjian">
                                         <button type="submit" class="btn btn-xs btn-outline-danger py-0 px-2 rounded-pill d-flex align-items-center" style="font-size: 0.75rem;" title="Arsipkan ke KSP_Trash">
@@ -239,7 +239,7 @@
                                     <a href="<?= url('/anggota/dokumen/' . $anggota['id'] . '/pengajuan') ?>" class="btn btn-xs btn-outline-primary py-0 px-2 rounded-pill d-flex align-items-center gap-1" style="font-size: 0.75rem;">
                                         <i class="bi bi-eye"></i> Buka
                                     </a>
-                                    <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/delete') ?>" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin mengarsipkan Form Pengajuan lama Anda ke folder KSP_Trash?')">
+                                    <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/delete') ?>" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus Dokumen Form Pengajuan <?= e(addslashes($anggota['nama'])) ?>?')">
                                         <?= View::csrf() ?>
                                         <input type="hidden" name="jenis_dokumen" value="pengajuan">
                                         <button type="submit" class="btn btn-xs btn-outline-danger py-0 px-2 rounded-pill d-flex align-items-center" style="font-size: 0.75rem;" title="Arsipkan ke KSP_Trash">
