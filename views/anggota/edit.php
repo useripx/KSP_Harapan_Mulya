@@ -110,7 +110,7 @@
                                     <a href="<?= url('/anggota/dokumen/' . $anggota['id'] . '/ktp') ?>" class="btn btn-xs btn-outline-primary py-0 px-2 rounded-pill d-flex align-items-center gap-1" style="font-size: 0.75rem;">
                                         <i class="bi bi-eye"></i> Buka
                                     </a>
-                                    <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/delete') ?>" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus Dokumen KTP <?= e(addslashes($anggota['nama'])) ?>?')">
+                                    <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/delete') ?>" method="POST" onsubmit="confirmDelete(event, 'KTP', '<?= e(addslashes($anggota['nama'])) ?>')">
                                         <?= View::csrf() ?>
                                         <input type="hidden" name="jenis_dokumen" value="ktp">
                                         <button type="submit" class="btn btn-xs btn-outline-danger py-0 px-2 rounded-pill d-flex align-items-center" style="font-size: 0.75rem;" title="Arsipkan ke KSP_Trash">
@@ -125,7 +125,7 @@
                             <?php endif; ?>
                         </div>
                         <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/upload') ?>" method="POST" enctype="multipart/form-data" class="d-flex gap-1 mt-2"
-                              <?php if (!empty($listDokumen['ktp'])): ?>onsubmit="return confirm('Dokumen KTP sudah ada. Apakah Anda yakin ingin menimpa dokumen ini? Dokumen lama akan otomatis dipindahkan ke arsip KSP_Trash.')"<?php endif; ?>>
+                              <?php if (!empty($listDokumen['ktp'])): ?>onsubmit="confirmOverwrite(event, 'KTP')"<?php endif; ?>>
                             <?= View::csrf() ?>
                             <input type="hidden" name="jenis_dokumen" value="ktp">
                             <input type="file" name="berkas_dokumen" class="form-control form-control-sm" accept="image/*,application/pdf" required>
@@ -153,7 +153,7 @@
                                     <a href="<?= url('/anggota/dokumen/' . $anggota['id'] . '/kk') ?>" class="btn btn-xs btn-outline-primary py-0 px-2 rounded-pill d-flex align-items-center gap-1" style="font-size: 0.75rem;">
                                         <i class="bi bi-eye"></i> Buka
                                     </a>
-                                    <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/delete') ?>" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus Dokumen KK <?= e(addslashes($anggota['nama'])) ?>?')">
+                                    <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/delete') ?>" method="POST" onsubmit="confirmDelete(event, 'KK', '<?= e(addslashes($anggota['nama'])) ?>')">
                                         <?= View::csrf() ?>
                                         <input type="hidden" name="jenis_dokumen" value="kk">
                                         <button type="submit" class="btn btn-xs btn-outline-danger py-0 px-2 rounded-pill d-flex align-items-center" style="font-size: 0.75rem;" title="Arsipkan ke KSP_Trash">
@@ -168,7 +168,7 @@
                             <?php endif; ?>
                         </div>
                         <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/upload') ?>" method="POST" enctype="multipart/form-data" class="d-flex gap-1 mt-2"
-                              <?php if (!empty($listDokumen['kk'])): ?>onsubmit="return confirm('Dokumen Kartu Keluarga sudah ada. Apakah Anda yakin ingin menimpa dokumen ini? Dokumen lama akan otomatis dipindahkan ke arsip KSP_Trash.')"<?php endif; ?>>
+                              <?php if (!empty($listDokumen['kk'])): ?>onsubmit="confirmOverwrite(event, 'Kartu Keluarga')"<?php endif; ?>>
                             <?= View::csrf() ?>
                             <input type="hidden" name="jenis_dokumen" value="kk">
                             <input type="file" name="berkas_dokumen" class="form-control form-control-sm" accept="image/*,application/pdf" required>
@@ -196,7 +196,7 @@
                                     <a href="<?= url('/anggota/dokumen/' . $anggota['id'] . '/perjanjian') ?>" class="btn btn-xs btn-outline-primary py-0 px-2 rounded-pill d-flex align-items-center gap-1" style="font-size: 0.75rem;">
                                         <i class="bi bi-eye"></i> Buka
                                     </a>
-                                    <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/delete') ?>" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus Dokumen Surat Perjanjian <?= e(addslashes($anggota['nama'])) ?>?')">
+                                    <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/delete') ?>" method="POST" onsubmit="confirmDelete(event, 'Surat Perjanjian', '<?= e(addslashes($anggota['nama'])) ?>')">
                                         <?= View::csrf() ?>
                                         <input type="hidden" name="jenis_dokumen" value="perjanjian">
                                         <button type="submit" class="btn btn-xs btn-outline-danger py-0 px-2 rounded-pill d-flex align-items-center" style="font-size: 0.75rem;" title="Arsipkan ke KSP_Trash">
@@ -211,7 +211,7 @@
                             <?php endif; ?>
                         </div>
                         <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/upload') ?>" method="POST" enctype="multipart/form-data" class="d-flex gap-1 mt-2"
-                              <?php if (!empty($listDokumen['perjanjian'])): ?>onsubmit="return confirm('Dokumen Surat Perjanjian sudah ada. Apakah Anda yakin ingin menimpa dokumen ini? Dokumen lama akan otomatis dipindahkan ke arsip KSP_Trash.')"<?php endif; ?>>
+                              <?php if (!empty($listDokumen['perjanjian'])): ?>onsubmit="confirmOverwrite(event, 'Surat Perjanjian')"<?php endif; ?>>
                             <?= View::csrf() ?>
                             <input type="hidden" name="jenis_dokumen" value="perjanjian">
                             <input type="file" name="berkas_dokumen" class="form-control form-control-sm" accept="image/*,application/pdf" required>
@@ -239,7 +239,7 @@
                                     <a href="<?= url('/anggota/dokumen/' . $anggota['id'] . '/pengajuan') ?>" class="btn btn-xs btn-outline-primary py-0 px-2 rounded-pill d-flex align-items-center gap-1" style="font-size: 0.75rem;">
                                         <i class="bi bi-eye"></i> Buka
                                     </a>
-                                    <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/delete') ?>" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus Dokumen Form Pengajuan <?= e(addslashes($anggota['nama'])) ?>?')">
+                                    <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/delete') ?>" method="POST" onsubmit="confirmDelete(event, 'Form Pengajuan', '<?= e(addslashes($anggota['nama'])) ?>')">
                                         <?= View::csrf() ?>
                                         <input type="hidden" name="jenis_dokumen" value="pengajuan">
                                         <button type="submit" class="btn btn-xs btn-outline-danger py-0 px-2 rounded-pill d-flex align-items-center" style="font-size: 0.75rem;" title="Arsipkan ke KSP_Trash">
@@ -254,7 +254,7 @@
                             <?php endif; ?>
                         </div>
                         <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/upload') ?>" method="POST" enctype="multipart/form-data" class="d-flex gap-1 mt-2"
-                              <?php if (!empty($listDokumen['pengajuan'])): ?>onsubmit="return confirm('Dokumen Form Pengajuan sudah ada. Apakah Anda yakin ingin menimpa dokumen ini? Dokumen lama akan otomatis dipindahkan ke arsip KSP_Trash.')"<?php endif; ?>>
+                              <?php if (!empty($listDokumen['pengajuan'])): ?>onsubmit="confirmOverwrite(event, 'Form Pengajuan')"<?php endif; ?>>
                             <?= View::csrf() ?>
                             <input type="hidden" name="jenis_dokumen" value="pengajuan">
                             <input type="file" name="berkas_dokumen" class="form-control form-control-sm" accept="image/*,application/pdf" required>
@@ -273,3 +273,45 @@
         </div>
     </div>
 </div>
+
+<script>
+function confirmDelete(event, docType, memberName) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    Swal.fire({
+        title: 'Konfirmasi Hapus',
+        html: `Apakah Anda yakin ingin menghapus Dokumen <strong>${docType} ${memberName}</strong>?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            form.submit();
+        }
+    });
+}
+
+function confirmOverwrite(event, docType) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    Swal.fire({
+        title: 'Konfirmasi Unggah',
+        html: `Dokumen <strong>${docType}</strong> sudah ada.<br>Apakah Anda yakin ingin menimpa dokumen ini?<br><small class="text-muted">Dokumen lama akan otomatis dipindahkan ke folder KSP_Trash.</small>`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3b82f6',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: 'Ya, Timpa!',
+        cancelButtonText: 'Batal',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            form.submit();
+        }
+    });
+}
+</script>
