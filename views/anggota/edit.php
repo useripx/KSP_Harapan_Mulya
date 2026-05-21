@@ -90,129 +90,174 @@
     <div class="col-lg-4">
         <div class="card shadow-sm border-0 mb-4">
             <div class="card-body">
-                <h6 class="card-title text-muted mb-3">
-                    <i class="bi bi-folder-fill me-2 text-warning"></i>Dokumen Kelengkapan
+                <h6 class="card-title text-muted mb-3 d-flex align-items-center">
+                    <i class="bi bi-folder-fill me-2 text-warning fs-5"></i>
+                    <span>Dokumen Kelengkapan</span>
                 </h6>
                 <div class="list-group list-group-flush small">
                     
+                    <!-- DOKUMEN 1: KTP -->
                     <div class="list-group-item px-0 py-3">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <div><i class="bi bi-card-heading me-2 text-secondary"></i> KTP Anggota</div>
+                            <div class="fw-semibold text-secondary d-flex align-items-center">
+                                <i class="bi bi-card-heading me-2 text-primary fs-6"></i> KTP Anggota
+                            </div>
                             <?php if (!empty($listDokumen['ktp'])): ?>
-                                <div class="d-flex gap-1">
-                                    <a href="<?= url('/anggota/dokumen/' . $anggota['id'] . '/ktp') ?>" class="btn btn-sm btn-outline-primary py-0 px-2 rounded-pill">
-                                        <i class="bi bi-eye me-1"></i>Buka
+                                <div class="d-flex gap-1 align-items-center">
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1 me-1" style="font-size: 0.65rem;">
+                                        <i class="bi bi-check-circle-fill me-1"></i>Terunggah
+                                    </span>
+                                    <a href="<?= url('/anggota/dokumen/' . $anggota['id'] . '/ktp') ?>" class="btn btn-xs btn-outline-primary py-0 px-2 rounded-pill d-flex align-items-center gap-1" style="font-size: 0.75rem;">
+                                        <i class="bi bi-eye"></i> Buka
                                     </a>
-                                    <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/delete') ?>" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokumen KTP ini?')">
+                                    <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/delete') ?>" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin mengarsipkan KTP lama Anda ke folder KSP_Trash?')">
                                         <?= View::csrf() ?>
                                         <input type="hidden" name="jenis_dokumen" value="ktp">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-2 rounded-pill">
+                                        <button type="submit" class="btn btn-xs btn-outline-danger py-0 px-2 rounded-pill d-flex align-items-center" style="font-size: 0.75rem;" title="Arsipkan ke KSP_Trash">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </form>
                                 </div>
                             <?php else: ?>
-                                <span class="text-danger small italic">Belum diupload</span>
+                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2 py-1" style="font-size: 0.65rem;">
+                                    <i class="bi bi-x-circle-fill me-1"></i>Belum diupload
+                                </span>
                             <?php endif; ?>
                         </div>
-                        <?php if (empty($listDokumen['ktp'])): ?>
-                            <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/upload') ?>" method="POST" enctype="multipart/form-data" class="d-flex gap-1 mt-1">
-                                <?= View::csrf() ?>
-                                <input type="hidden" name="jenis_dokumen" value="ktp">
-                                <input type="file" name="berkas_dokumen" class="form-control form-control-sm" accept="image/*,application/pdf" required>
-                                <button type="submit" class="btn btn-sm btn-primary py-0 px-2"><i class="bi bi-upload"></i></button>
-                            </form>
-                        <?php endif; ?>
+                        <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/upload') ?>" method="POST" enctype="multipart/form-data" class="d-flex gap-1 mt-2"
+                              <?php if (!empty($listDokumen['ktp'])): ?>onsubmit="return confirm('Dokumen KTP sudah ada. Apakah Anda yakin ingin menimpa dokumen ini? Dokumen lama akan otomatis dipindahkan ke arsip KSP_Trash.')"<?php endif; ?>>
+                            <?= View::csrf() ?>
+                            <input type="hidden" name="jenis_dokumen" value="ktp">
+                            <input type="file" name="berkas_dokumen" class="form-control form-control-sm" accept="image/*,application/pdf" required>
+                            <button type="submit" class="btn btn-sm btn-primary py-0 px-2 shadow-sm rounded-3" title="Unggah Dokumen"><i class="bi bi-upload"></i></button>
+                        </form>
+                        <div class="text-muted mt-1 d-flex align-items-center gap-1" style="font-size: 0.7rem; opacity: 0.85;">
+                            <i class="bi bi-info-circle"></i>
+                            <span><?= !empty($listDokumen['ktp']) ? 'Unggah baru akan mengarsipkan berkas lama ke KSP_Trash.' : 'Format dokumen: JPG, PNG, atau PDF.' ?></span>
+                        </div>
                     </div>
                     
+                    <!-- DOKUMEN 2: KK -->
                     <div class="list-group-item px-0 py-3">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <div><i class="bi bi-people me-2 text-secondary"></i> Kartu Keluarga</div>
+                            <div class="fw-semibold text-secondary d-flex align-items-center">
+                                <i class="bi bi-people me-2 text-primary fs-6"></i> Kartu Keluarga
+                            </div>
                             <?php if (!empty($listDokumen['kk'])): ?>
-                                <div class="d-flex gap-1">
-                                    <a href="<?= url('/anggota/dokumen/' . $anggota['id'] . '/kk') ?>" class="btn btn-sm btn-outline-primary py-0 px-2 rounded-pill">
-                                        <i class="bi bi-eye me-1"></i>Buka
+                                <div class="d-flex gap-1 align-items-center">
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1 me-1" style="font-size: 0.65rem;">
+                                        <i class="bi bi-check-circle-fill me-1"></i>Terunggah
+                                    </span>
+                                    <a href="<?= url('/anggota/dokumen/' . $anggota['id'] . '/kk') ?>" class="btn btn-xs btn-outline-primary py-0 px-2 rounded-pill d-flex align-items-center gap-1" style="font-size: 0.75rem;">
+                                        <i class="bi bi-eye"></i> Buka
                                     </a>
-                                    <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/delete') ?>" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus Kartu Keluarga ini?')">
+                                    <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/delete') ?>" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin mengarsipkan Kartu Keluarga lama Anda ke folder KSP_Trash?')">
                                         <?= View::csrf() ?>
                                         <input type="hidden" name="jenis_dokumen" value="kk">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-2 rounded-pill">
+                                        <button type="submit" class="btn btn-xs btn-outline-danger py-0 px-2 rounded-pill d-flex align-items-center" style="font-size: 0.75rem;" title="Arsipkan ke KSP_Trash">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </form>
                                 </div>
                             <?php else: ?>
-                                <span class="text-danger small italic">Belum diupload</span>
+                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2 py-1" style="font-size: 0.65rem;">
+                                    <i class="bi bi-x-circle-fill me-1"></i>Belum diupload
+                                </span>
                             <?php endif; ?>
                         </div>
-                        <?php if (empty($listDokumen['kk'])): ?>
-                            <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/upload') ?>" method="POST" enctype="multipart/form-data" class="d-flex gap-1 mt-1">
-                                <?= View::csrf() ?>
-                                <input type="hidden" name="jenis_dokumen" value="kk">
-                                <input type="file" name="berkas_dokumen" class="form-control form-control-sm" accept="image/*,application/pdf" required>
-                                <button type="submit" class="btn btn-sm btn-primary py-0 px-2"><i class="bi bi-upload"></i></button>
-                            </form>
-                        <?php endif; ?>
+                        <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/upload') ?>" method="POST" enctype="multipart/form-data" class="d-flex gap-1 mt-2"
+                              <?php if (!empty($listDokumen['kk'])): ?>onsubmit="return confirm('Dokumen Kartu Keluarga sudah ada. Apakah Anda yakin ingin menimpa dokumen ini? Dokumen lama akan otomatis dipindahkan ke arsip KSP_Trash.')"<?php endif; ?>>
+                            <?= View::csrf() ?>
+                            <input type="hidden" name="jenis_dokumen" value="kk">
+                            <input type="file" name="berkas_dokumen" class="form-control form-control-sm" accept="image/*,application/pdf" required>
+                            <button type="submit" class="btn btn-sm btn-primary py-0 px-2 shadow-sm rounded-3" title="Unggah Dokumen"><i class="bi bi-upload"></i></button>
+                        </form>
+                        <div class="text-muted mt-1 d-flex align-items-center gap-1" style="font-size: 0.7rem; opacity: 0.85;">
+                            <i class="bi bi-info-circle"></i>
+                            <span><?= !empty($listDokumen['kk']) ? 'Unggah baru akan mengarsipkan berkas lama ke KSP_Trash.' : 'Format dokumen: JPG, PNG, atau PDF.' ?></span>
+                        </div>
                     </div>
                     
+                    <!-- DOKUMEN 3: SURAT PERJANJIAN -->
                     <div class="list-group-item px-0 py-3">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <div><i class="bi bi-file-earmark-text me-2 text-secondary"></i> Surat Perjanjian</div>
+                            <div class="fw-semibold text-secondary d-flex align-items-center">
+                                <i class="bi bi-file-earmark-text me-2 text-primary fs-6"></i> Surat Perjanjian
+                            </div>
                             <?php if (!empty($listDokumen['perjanjian'])): ?>
-                                <div class="d-flex gap-1">
-                                    <a href="<?= url('/anggota/dokumen/' . $anggota['id'] . '/perjanjian') ?>" class="btn btn-sm btn-outline-primary py-0 px-2 rounded-pill">
-                                        <i class="bi bi-eye me-1"></i>Buka
+                                <div class="d-flex gap-1 align-items-center">
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1 me-1" style="font-size: 0.65rem;">
+                                        <i class="bi bi-check-circle-fill me-1"></i>Terunggah
+                                    </span>
+                                    <a href="<?= url('/anggota/dokumen/' . $anggota['id'] . '/perjanjian') ?>" class="btn btn-xs btn-outline-primary py-0 px-2 rounded-pill d-flex align-items-center gap-1" style="font-size: 0.75rem;">
+                                        <i class="bi bi-eye"></i> Buka
                                     </a>
-                                    <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/delete') ?>" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus Surat Perjanjian ini?')">
+                                    <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/delete') ?>" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin mengarsipkan Surat Perjanjian lama Anda ke folder KSP_Trash?')">
                                         <?= View::csrf() ?>
                                         <input type="hidden" name="jenis_dokumen" value="perjanjian">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-2 rounded-pill">
+                                        <button type="submit" class="btn btn-xs btn-outline-danger py-0 px-2 rounded-pill d-flex align-items-center" style="font-size: 0.75rem;" title="Arsipkan ke KSP_Trash">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </form>
                                 </div>
                             <?php else: ?>
-                                <span class="text-danger small italic">Belum diupload</span>
+                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2 py-1" style="font-size: 0.65rem;">
+                                    <i class="bi bi-x-circle-fill me-1"></i>Belum diupload
+                                </span>
                             <?php endif; ?>
                         </div>
-                        <?php if (empty($listDokumen['perjanjian'])): ?>
-                            <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/upload') ?>" method="POST" enctype="multipart/form-data" class="d-flex gap-1 mt-1">
-                                <?= View::csrf() ?>
-                                <input type="hidden" name="jenis_dokumen" value="perjanjian">
-                                <input type="file" name="berkas_dokumen" class="form-control form-control-sm" accept="image/*,application/pdf" required>
-                                <button type="submit" class="btn btn-sm btn-primary py-0 px-2"><i class="bi bi-upload"></i></button>
-                            </form>
-                        <?php endif; ?>
+                        <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/upload') ?>" method="POST" enctype="multipart/form-data" class="d-flex gap-1 mt-2"
+                              <?php if (!empty($listDokumen['perjanjian'])): ?>onsubmit="return confirm('Dokumen Surat Perjanjian sudah ada. Apakah Anda yakin ingin menimpa dokumen ini? Dokumen lama akan otomatis dipindahkan ke arsip KSP_Trash.')"<?php endif; ?>>
+                            <?= View::csrf() ?>
+                            <input type="hidden" name="jenis_dokumen" value="perjanjian">
+                            <input type="file" name="berkas_dokumen" class="form-control form-control-sm" accept="image/*,application/pdf" required>
+                            <button type="submit" class="btn btn-sm btn-primary py-0 px-2 shadow-sm rounded-3" title="Unggah Dokumen"><i class="bi bi-upload"></i></button>
+                        </form>
+                        <div class="text-muted mt-1 d-flex align-items-center gap-1" style="font-size: 0.7rem; opacity: 0.85;">
+                            <i class="bi bi-info-circle"></i>
+                            <span><?= !empty($listDokumen['perjanjian']) ? 'Unggah baru akan mengarsipkan berkas lama ke KSP_Trash.' : 'Format dokumen: JPG, PNG, atau PDF.' ?></span>
+                        </div>
                     </div>
                     
+                    <!-- DOKUMEN 4: FORM PENGAJUAN -->
                     <div class="list-group-item px-0 py-3">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <div><i class="bi bi-file-earmark-arrow-up me-2 text-secondary"></i> Form Pengajuan</div>
+                            <div class="fw-semibold text-secondary d-flex align-items-center">
+                                <i class="bi bi-file-earmark-arrow-up me-2 text-primary fs-6"></i> Form Pengajuan
+                            </div>
                             <?php if (!empty($listDokumen['pengajuan'])): ?>
-                                <div class="d-flex gap-1">
-                                    <a href="<?= url('/anggota/dokumen/' . $anggota['id'] . '/pengajuan') ?>" class="btn btn-sm btn-outline-primary py-0 px-2 rounded-pill">
-                                        <i class="bi bi-eye me-1"></i>Buka
+                                <div class="d-flex gap-1 align-items-center">
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1 me-1" style="font-size: 0.65rem;">
+                                        <i class="bi bi-check-circle-fill me-1"></i>Terunggah
+                                    </span>
+                                    <a href="<?= url('/anggota/dokumen/' . $anggota['id'] . '/pengajuan') ?>" class="btn btn-xs btn-outline-primary py-0 px-2 rounded-pill d-flex align-items-center gap-1" style="font-size: 0.75rem;">
+                                        <i class="bi bi-eye"></i> Buka
                                     </a>
-                                    <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/delete') ?>" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus Form Pengajuan ini?')">
+                                    <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/delete') ?>" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin mengarsipkan Form Pengajuan lama Anda ke folder KSP_Trash?')">
                                         <?= View::csrf() ?>
                                         <input type="hidden" name="jenis_dokumen" value="pengajuan">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-2 rounded-pill">
+                                        <button type="submit" class="btn btn-xs btn-outline-danger py-0 px-2 rounded-pill d-flex align-items-center" style="font-size: 0.75rem;" title="Arsipkan ke KSP_Trash">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </form>
                                 </div>
                             <?php else: ?>
-                                <span class="text-danger small italic">Belum diupload</span>
+                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2 py-1" style="font-size: 0.65rem;">
+                                    <i class="bi bi-x-circle-fill me-1"></i>Belum diupload
+                                </span>
                             <?php endif; ?>
                         </div>
-                        <?php if (empty($listDokumen['pengajuan'])): ?>
-                            <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/upload') ?>" method="POST" enctype="multipart/form-data" class="d-flex gap-1 mt-1">
-                                <?= View::csrf() ?>
-                                <input type="hidden" name="jenis_dokumen" value="pengajuan">
-                                <input type="file" name="berkas_dokumen" class="form-control form-control-sm" accept="image/*,application/pdf" required>
-                                <button type="submit" class="btn btn-sm btn-primary py-0 px-2"><i class="bi bi-upload"></i></button>
-                            </form>
-                        <?php endif; ?>
+                        <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/upload') ?>" method="POST" enctype="multipart/form-data" class="d-flex gap-1 mt-2"
+                              <?php if (!empty($listDokumen['pengajuan'])): ?>onsubmit="return confirm('Dokumen Form Pengajuan sudah ada. Apakah Anda yakin ingin menimpa dokumen ini? Dokumen lama akan otomatis dipindahkan ke arsip KSP_Trash.')"<?php endif; ?>>
+                            <?= View::csrf() ?>
+                            <input type="hidden" name="jenis_dokumen" value="pengajuan">
+                            <input type="file" name="berkas_dokumen" class="form-control form-control-sm" accept="image/*,application/pdf" required>
+                            <button type="submit" class="btn btn-sm btn-primary py-0 px-2 shadow-sm rounded-3" title="Unggah Dokumen"><i class="bi bi-upload"></i></button>
+                        </form>
+                        <div class="text-muted mt-1 d-flex align-items-center gap-1" style="font-size: 0.7rem; opacity: 0.85;">
+                            <i class="bi bi-info-circle"></i>
+                            <span><?= !empty($listDokumen['pengajuan']) ? 'Unggah baru akan mengarsipkan berkas lama ke KSP_Trash.' : 'Format dokumen: JPG, PNG, atau PDF.' ?></span>
+                        </div>
                     </div>
 
                 </div>

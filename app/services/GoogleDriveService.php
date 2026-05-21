@@ -131,4 +131,28 @@ class GoogleDriveService {
             return false;
         }
     }
+
+    /**
+     * Memindahkan berkas di Google Drive ke folder KSP_Trash/archiveFolderName/subFolder
+     * 
+     * @param string $driveFileId ID berkas di Google Drive
+     * @param string $archiveFolderName Nama folder arsip tujuan
+     * @param string $subFolder Subfolder ('profil' atau 'pinjaman')
+     * @return bool
+     */
+    public function archiveFile($driveFileId, $archiveFolderName, $subFolder) {
+        try {
+            $params = [
+                'action' => 'archiveFile',
+                'driveFileId' => $driveFileId,
+                'archiveFolderName' => $archiveFolderName,
+                'subFolder' => $subFolder
+            ];
+            $this->sendRequest($params);
+            return true;
+        } catch (Exception $e) {
+            error_log("Gagal mengarsipkan berkas di Google Drive ID {$driveFileId} ke KSP_Trash/{$archiveFolderName}/{$subFolder}: " . $e->getMessage());
+            return false;
+        }
+    }
 }

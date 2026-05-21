@@ -351,19 +351,27 @@ class AnggotaController extends Controller
                 }
 
                 $db = db();
-                // Cek apakah dokumen jenis ini sudah ada untuk menghapusnya dari Google Drive (agar tidak menjadi sampah yatim piatu)
+                // Cek apakah dokumen jenis ini sudah ada untuk mengarsipkannya ke KSP_Trash di Google Drive
                 $stmtExist = $db->prepare("SELECT drive_file_id, nama_file FROM anggota_dokumen WHERE anggota_id = ? AND jenis_dokumen = ?");
                 $stmtExist->execute([$id, $jenisDokumen]);
                 $oldDoc = $stmtExist->fetch(PDO::FETCH_ASSOC);
 
                 if ($oldDoc) {
+                    $waktuHapus = date('d-m-Y_H-i');
+                    $archiveFolderName = "{$anggota['no_anggota']}_{$anggota['nama']}_{$waktuHapus}";
+                    $subFolder = in_array($jenisDokumen, ['ktp', 'kk']) ? 'profil' : 'pinjaman';
+
                     if (!empty($oldDoc['drive_file_id'])) {
-                        $drive->deleteFile($oldDoc['drive_file_id']);
+                        $drive->archiveFile($oldDoc['drive_file_id'], $archiveFolderName, $subFolder);
                     }
                     if (!empty($oldDoc['nama_file'])) {
                         $oldLocalPath = APP_PATH . '/../public/uploads/dokumen/' . $oldDoc['nama_file'];
                         if (file_exists($oldLocalPath)) {
-                            unlink($oldLocalPath);
+                            $localTrashDir = APP_PATH . '/../public/uploads/KSP_Trash/' . $archiveFolderName . '/' . $subFolder . '/';
+                            if (!is_dir($localTrashDir)) {
+                                mkdir($localTrashDir, 0755, true);
+                            }
+                            rename($oldLocalPath, $localTrashDir . $oldDoc['nama_file']);
                         }
                     }
                     // Hapus record lama
@@ -402,23 +410,31 @@ class AnggotaController extends Controller
                 }
                 $finalDestPath = $destDir . $newFileName;
 
-                // Pastikan untuk menghapus file lama jika ada di DB lokal
+                // Pastikan untuk mengarsipkan file lama jika ada di DB lokal
                 $stmtExist = $db->prepare("SELECT nama_file, drive_file_id FROM anggota_dokumen WHERE anggota_id = ? AND jenis_dokumen = ?");
                 $stmtExist->execute([$id, $jenisDokumen]);
                 $oldDoc = $stmtExist->fetch(PDO::FETCH_ASSOC);
 
                 if ($oldDoc) {
+                    $waktuHapus = date('d-m-Y_H-i');
+                    $archiveFolderName = "{$anggota['no_anggota']}_{$anggota['nama']}_{$waktuHapus}";
+                    $subFolder = in_array($jenisDokumen, ['ktp', 'kk']) ? 'profil' : 'pinjaman';
+
                     if (!empty($oldDoc['nama_file'])) {
                         $oldLocalPath = $destDir . $oldDoc['nama_file'];
                         if (file_exists($oldLocalPath)) {
-                            unlink($oldLocalPath);
+                            $localTrashDir = APP_PATH . '/../public/uploads/KSP_Trash/' . $archiveFolderName . '/' . $subFolder . '/';
+                            if (!is_dir($localTrashDir)) {
+                                mkdir($localTrashDir, 0755, true);
+                            }
+                            rename($oldLocalPath, $localTrashDir . $oldDoc['nama_file']);
                         }
                     }
                     if (!empty($oldDoc['drive_file_id'])) {
                         try {
                             require_once APP_PATH . '/services/GoogleDriveService.php';
                             $drive = new GoogleDriveService();
-                            $drive->deleteFile($oldDoc['drive_file_id']);
+                            $drive->archiveFile($oldDoc['drive_file_id'], $archiveFolderName, $subFolder);
                         } catch (Exception $e) {
                             // Abaikan error Google Drive saat fallback
                         }
@@ -563,7 +579,7 @@ class AnggotaController extends Controller
         ]);
     }
     
-    // METHOD UNTUK MENGHAPUS DOKUMEN DAN SINKRONISASI DENGAN GOOGLE DRIVE
+    // METHOD UNTUK MENGHAPUS DOKUMEN DAN SINKRONISASI DENGAN GOOGLE DRIVE (PENGARSIPAN KSP_Trash)
     public function deleteDokumen($id)
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -571,6 +587,11 @@ class AnggotaController extends Controller
         }
 
         $jenisDokumen = $_POST['jenis_dokumen'] ?? '';
+
+        $anggota = $this->anggotaModel->find($id);
+        if (!$anggota) {
+            $this->redirect('/anggota', 'Anggota tidak ditemukan', 'error');
+        }
 
         try {
             $db = db();
@@ -580,29 +601,37 @@ class AnggotaController extends Controller
             $doc = $stmt->fetch();
 
             if ($doc) {
-                // 2. Hapus berkas dari Google Drive jika drive_file_id tersedia
+                $waktuHapus = date('d-m-Y_H-i');
+                $archiveFolderName = "{$anggota['no_anggota']}_{$anggota['nama']}_{$waktuHapus}";
+                $subFolder = in_array($jenisDokumen, ['ktp', 'kk']) ? 'profil' : 'pinjaman';
+
+                // 2. Arsipkan berkas dari Google Drive jika drive_file_id tersedia
                 if (!empty($doc['drive_file_id'])) {
                     require_once APP_PATH . '/services/GoogleDriveService.php';
                     $drive = new GoogleDriveService();
-                    $drive->deleteFile($doc['drive_file_id']);
+                    $drive->archiveFile($doc['drive_file_id'], $archiveFolderName, $subFolder);
                 }
 
-                // Hapus juga berkas fisik lokal jika tertinggal
+                // Arsipkan berkas fisik lokal ke KSP_Trash jika ada/tertinggal
                 $filePath = APP_PATH . '/../public/uploads/dokumen/' . $doc['nama_file'];
                 if (file_exists($filePath)) {
-                    unlink($filePath);
+                    $localTrashDir = APP_PATH . '/../public/uploads/KSP_Trash/' . $archiveFolderName . '/' . $subFolder . '/';
+                    if (!is_dir($localTrashDir)) {
+                        mkdir($localTrashDir, 0755, true);
+                    }
+                    rename($filePath, $localTrashDir . $doc['nama_file']);
                 }
 
                 // 3. Hapus baris data rekaman dari tabel database
                 $stmtDelete = $db->prepare("DELETE FROM anggota_dokumen WHERE anggota_id = ? AND jenis_dokumen = ?");
                 $stmtDelete->execute([$id, $jenisDokumen]);
 
-                $this->redirect("/anggota/{$id}/edit", 'Dokumen kelengkapan berhasil dihapus dari sistem dan Google Drive.', 'success');
+                $this->redirect("/anggota/{$id}/edit", 'Dokumen kelengkapan berhasil diarsipkan ke folder KSP_Trash dengan aman.', 'success');
             } else {
                 $this->redirect("/anggota/{$id}/edit", 'Gagal: Data dokumen tidak ditemukan.', 'error');
             }
         } catch (Exception $e) {
-            $this->redirect("/anggota/{$id}/edit", 'Terjadi kesalahan saat menghapus berkas: ' . $e->getMessage(), 'error');
+            $this->redirect("/anggota/{$id}/edit", 'Terjadi kesalahan saat mengarsipkan berkas: ' . $e->getMessage(), 'error');
         }
     }
 }
