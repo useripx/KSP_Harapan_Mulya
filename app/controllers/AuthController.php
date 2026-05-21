@@ -97,19 +97,19 @@ class AuthController extends Controller
 
             switch ($role) {
                 case ROLE_ADMIN:
-                    $this->redirect('/validator', 'Selamat datang, Validator!', 'success');
+                    $this->redirect('/validator');
                     break;
                 case ROLE_TELLER:
-                    $this->redirect('/bau', 'Selamat datang, BAU!', 'success');
+                    $this->redirect('/bau');
                     break;
                 case ROLE_KETUA:
-                    $this->redirect('/manager', 'Selamat datang, Manager!', 'success');
+                    $this->redirect('/manager');
                     break;
                 case ROLE_ANGGOTA:
-                    $this->redirect('/anggota/dashboard', 'Selamat datang, Anggota!', 'success');
+                    $this->redirect('/anggota/dashboard');
                     break;
                 default:
-                    $this->redirect('/dashboard', 'Login berhasil!', 'success');
+                    $this->redirect('/dashboard');
             }
         } else {
             // Log failed attempt
