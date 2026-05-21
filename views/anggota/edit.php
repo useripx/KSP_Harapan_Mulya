@@ -134,7 +134,7 @@
                         <?php if (empty($listDokumen['ktp'])): ?>
                         <div class="text-muted mt-1 d-flex align-items-center gap-1" style="font-size: 0.7rem; opacity: 0.85;">
                             <i class="bi bi-info-circle"></i>
-                            <span>Format dokumen: JPG, PNG, atau PDF.</span>
+                            <span>Format dokumen: JPG, PNG, atau PDF, Max 5MB.</span>
                         </div>
                         <?php endif; ?>
                     </div>
@@ -177,7 +177,7 @@
                         <?php if (empty($listDokumen['kk'])): ?>
                         <div class="text-muted mt-1 d-flex align-items-center gap-1" style="font-size: 0.7rem; opacity: 0.85;">
                             <i class="bi bi-info-circle"></i>
-                            <span>Format dokumen: JPG, PNG, atau PDF.</span>
+                            <span>Format dokumen: JPG, PNG, atau PDF, Max 5MB.</span>
                         </div>
                         <?php endif; ?>
                     </div>
@@ -220,7 +220,7 @@
                         <?php if (empty($listDokumen['perjanjian'])): ?>
                         <div class="text-muted mt-1 d-flex align-items-center gap-1" style="font-size: 0.7rem; opacity: 0.85;">
                             <i class="bi bi-info-circle"></i>
-                            <span>Format dokumen: JPG, PNG, atau PDF.</span>
+                            <span>Format dokumen: JPG, PNG, atau PDF, Max 5MB.</span>
                         </div>
                         <?php endif; ?>
                     </div>
@@ -263,7 +263,7 @@
                         <?php if (empty($listDokumen['pengajuan'])): ?>
                         <div class="text-muted mt-1 d-flex align-items-center gap-1" style="font-size: 0.7rem; opacity: 0.85;">
                             <i class="bi bi-info-circle"></i>
-                            <span>Format dokumen: JPG, PNG, atau PDF.</span>
+                            <span>Format dokumen: JPG, PNG, atau PDF, Max 5MB.</span>
                         </div>
                         <?php endif; ?>
                     </div>

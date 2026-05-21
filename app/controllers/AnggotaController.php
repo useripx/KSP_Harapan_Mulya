@@ -626,7 +626,7 @@ class AnggotaController extends Controller
                 $stmtDelete = $db->prepare("DELETE FROM anggota_dokumen WHERE anggota_id = ? AND jenis_dokumen = ?");
                 $stmtDelete->execute([$id, $jenisDokumen]);
 
-                $this->redirect("/anggota/{$id}/edit", 'Dokumen kelengkapan berhasil diarsipkan ke folder KSP_Trash dengan aman.', 'success');
+                $this->redirect("/anggota/{$id}/edit", 'Dokumen telah diarsipkan anda bisa cek di Drive anda.', 'success');
             } else {
                 $this->redirect("/anggota/{$id}/edit", 'Gagal: Data dokumen tidak ditemukan.', 'error');
             }
