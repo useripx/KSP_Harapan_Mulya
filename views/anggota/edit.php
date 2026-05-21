@@ -300,7 +300,7 @@ function confirmOverwrite(event, docType) {
     const form = event.currentTarget;
     Swal.fire({
         title: 'Konfirmasi Unggah',
-        html: `Dokumen <strong>${docType}</strong> sudah ada.<br>Apakah Anda yakin ingin menimpa dokumen ini?<br><small class="text-muted">Dokumen lama akan otomatis dipindahkan ke folder KSP_Trash.</small>`,
+        html: `Dokumen <strong>${docType}</strong> sudah ada.<br>Apakah Anda yakin ingin menimpa dokumen ini?<br><small class="text-muted">Dokumen lama akan otomatis diarsipkan di Drive anda.</small>`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#3b82f6',
