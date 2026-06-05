@@ -367,7 +367,8 @@ class AnggotaController extends Controller
                     if (!empty($oldDoc['nama_file'])) {
                         $oldLocalPath = APP_PATH . '/../public/uploads/dokumen/' . $oldDoc['nama_file'];
                         if (file_exists($oldLocalPath)) {
-                            $localTrashDir = APP_PATH . '/../public/uploads/KSP_Trash/' . $archiveFolderName . '/' . $subFolder . '/';
+                            $tahunArsip = date('Y');
+                            $localTrashDir = APP_PATH . '/../public/uploads/Arsip_KSP/' . $tahunArsip . '/' . $archiveFolderName . '/' . $subFolder . '/';
                             if (!is_dir($localTrashDir)) {
                                 mkdir($localTrashDir, 0755, true);
                             }
@@ -427,7 +428,8 @@ class AnggotaController extends Controller
                     if (!empty($oldDoc['nama_file'])) {
                         $oldLocalPath = $destDir . $oldDoc['nama_file'];
                         if (file_exists($oldLocalPath)) {
-                            $localTrashDir = APP_PATH . '/../public/uploads/KSP_Trash/' . $archiveFolderName . '/' . $subFolder . '/';
+                            $tahunArsip = date('Y');
+                            $localTrashDir = APP_PATH . '/../public/uploads/Arsip_KSP/' . $tahunArsip . '/' . $archiveFolderName . '/' . $subFolder . '/';
                             if (!is_dir($localTrashDir)) {
                                 mkdir($localTrashDir, 0755, true);
                             }
@@ -587,7 +589,7 @@ class AnggotaController extends Controller
         ]);
     }
     
-    // METHOD UNTUK MENGHAPUS DOKUMEN DAN SINKRONISASI DENGAN GOOGLE DRIVE (PENGARSIPAN KSP_Trash)
+    // METHOD UNTUK MENGHAPUS DOKUMEN DAN SINKRONISASI DENGAN GOOGLE DRIVE (PENGARSIPAN Arsip_KSP)
     public function deleteDokumen($id)
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -620,10 +622,11 @@ class AnggotaController extends Controller
                     $drive->archiveFile($doc['drive_file_id'], $archiveFolderName, $subFolder);
                 }
 
-                // Arsipkan berkas fisik lokal ke KSP_Trash jika ada/tertinggal
+                // Arsipkan berkas fisik lokal ke Arsip_KSP jika ada/tertinggal
                 $filePath = APP_PATH . '/../public/uploads/dokumen/' . $doc['nama_file'];
                 if (file_exists($filePath)) {
-                    $localTrashDir = APP_PATH . '/../public/uploads/KSP_Trash/' . $archiveFolderName . '/' . $subFolder . '/';
+                    $tahunArsip = date('Y');
+                    $localTrashDir = APP_PATH . '/../public/uploads/Arsip_KSP/' . $tahunArsip . '/' . $archiveFolderName . '/' . $subFolder . '/';
                     if (!is_dir($localTrashDir)) {
                         mkdir($localTrashDir, 0755, true);
                     }

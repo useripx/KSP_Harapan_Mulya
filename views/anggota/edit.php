@@ -110,11 +110,11 @@
                                     <a href="<?= url('/anggota/dokumen/' . $anggota['id'] . '/ktp') ?>" class="btn btn-xs btn-outline-primary py-0 px-2 rounded-pill d-flex align-items-center gap-1" style="font-size: 0.75rem;">
                                         <i class="bi bi-eye"></i> Buka
                                     </a>
-                                    <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/delete') ?>" method="POST" onsubmit="confirmDelete(event, 'KTP', '<?= e(addslashes($anggota['nama'])) ?>')">
+                                    <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/delete') ?>" method="POST" onsubmit="confirmArchive(event, 'KTP', '<?= e(addslashes($anggota['nama'])) ?>')">
                                         <?= View::csrf() ?>
                                         <input type="hidden" name="jenis_dokumen" value="ktp">
-                                        <button type="submit" class="btn btn-xs btn-outline-danger py-0 px-2 rounded-pill d-flex align-items-center" style="font-size: 0.75rem;" title="Arsipkan ke KSP_Trash">
-                                            <i class="bi bi-trash"></i>
+                                        <button type="submit" class="btn btn-xs btn-outline-warning py-0 px-2 rounded-pill d-flex align-items-center" style="font-size: 0.75rem;" title="Arsipkan File">
+                                            <i class="bi bi-archive"></i>
                                         </button>
                                     </form>
                                 </div>
@@ -153,11 +153,11 @@
                                     <a href="<?= url('/anggota/dokumen/' . $anggota['id'] . '/kk') ?>" class="btn btn-xs btn-outline-primary py-0 px-2 rounded-pill d-flex align-items-center gap-1" style="font-size: 0.75rem;">
                                         <i class="bi bi-eye"></i> Buka
                                     </a>
-                                    <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/delete') ?>" method="POST" onsubmit="confirmDelete(event, 'KK', '<?= e(addslashes($anggota['nama'])) ?>')">
+                                    <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/delete') ?>" method="POST" onsubmit="confirmArchive(event, 'KK', '<?= e(addslashes($anggota['nama'])) ?>')">
                                         <?= View::csrf() ?>
                                         <input type="hidden" name="jenis_dokumen" value="kk">
-                                        <button type="submit" class="btn btn-xs btn-outline-danger py-0 px-2 rounded-pill d-flex align-items-center" style="font-size: 0.75rem;" title="Arsipkan ke KSP_Trash">
-                                            <i class="bi bi-trash"></i>
+                                        <button type="submit" class="btn btn-xs btn-outline-warning py-0 px-2 rounded-pill d-flex align-items-center" style="font-size: 0.75rem;" title="Arsipkan File">
+                                            <i class="bi bi-archive"></i>
                                         </button>
                                     </form>
                                 </div>
@@ -196,11 +196,11 @@
                                     <a href="<?= url('/anggota/dokumen/' . $anggota['id'] . '/perjanjian') ?>" class="btn btn-xs btn-outline-primary py-0 px-2 rounded-pill d-flex align-items-center gap-1" style="font-size: 0.75rem;">
                                         <i class="bi bi-eye"></i> Buka
                                     </a>
-                                    <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/delete') ?>" method="POST" onsubmit="confirmDelete(event, 'Surat Perjanjian', '<?= e(addslashes($anggota['nama'])) ?>')">
+                                    <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/delete') ?>" method="POST" onsubmit="confirmArchive(event, 'Surat Perjanjian', '<?= e(addslashes($anggota['nama'])) ?>')">
                                         <?= View::csrf() ?>
                                         <input type="hidden" name="jenis_dokumen" value="perjanjian">
-                                        <button type="submit" class="btn btn-xs btn-outline-danger py-0 px-2 rounded-pill d-flex align-items-center" style="font-size: 0.75rem;" title="Arsipkan ke KSP_Trash">
-                                            <i class="bi bi-trash"></i>
+                                        <button type="submit" class="btn btn-xs btn-outline-warning py-0 px-2 rounded-pill d-flex align-items-center" style="font-size: 0.75rem;" title="Arsipkan File">
+                                            <i class="bi bi-archive"></i>
                                         </button>
                                     </form>
                                 </div>
@@ -239,11 +239,11 @@
                                     <a href="<?= url('/anggota/dokumen/' . $anggota['id'] . '/pengajuan') ?>" class="btn btn-xs btn-outline-primary py-0 px-2 rounded-pill d-flex align-items-center gap-1" style="font-size: 0.75rem;">
                                         <i class="bi bi-eye"></i> Buka
                                     </a>
-                                    <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/delete') ?>" method="POST" onsubmit="confirmDelete(event, 'Form Pengajuan', '<?= e(addslashes($anggota['nama'])) ?>')">
+                                    <form action="<?= url('/anggota/dokumen/' . $anggota['id'] . '/delete') ?>" method="POST" onsubmit="confirmArchive(event, 'Form Pengajuan', '<?= e(addslashes($anggota['nama'])) ?>')">
                                         <?= View::csrf() ?>
                                         <input type="hidden" name="jenis_dokumen" value="pengajuan">
-                                        <button type="submit" class="btn btn-xs btn-outline-danger py-0 px-2 rounded-pill d-flex align-items-center" style="font-size: 0.75rem;" title="Arsipkan ke KSP_Trash">
-                                            <i class="bi bi-trash"></i>
+                                        <button type="submit" class="btn btn-xs btn-outline-warning py-0 px-2 rounded-pill d-flex align-items-center" style="font-size: 0.75rem;" title="Arsipkan File">
+                                            <i class="bi bi-archive"></i>
                                         </button>
                                     </form>
                                 </div>
@@ -275,17 +275,17 @@
 </div>
 
 <script>
-function confirmDelete(event, docType, memberName) {
+function confirmArchive(event, docType, memberName) {
     event.preventDefault();
     const form = event.currentTarget;
     Swal.fire({
-        title: 'Konfirmasi Hapus',
-        html: `Apakah Anda yakin ingin menghapus Dokumen <strong>${docType} ${memberName}</strong>?`,
+        title: 'Konfirmasi Arsip',
+        html: `Apakah Anda yakin ingin mengarsipkan Dokumen <strong>${docType} ${memberName}</strong>?<br><small class="text-muted">Dokumen akan dipindahkan ke folder Arsip di penyimpanan Drive</small>`,
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#ef4444',
+        confirmButtonColor: '#f59e0b',
         cancelButtonColor: '#64748b',
-        confirmButtonText: 'Ya, Hapus!',
+        confirmButtonText: 'Ya, Arsipkan!',
         cancelButtonText: 'Batal',
         reverseButtons: true
     }).then((result) => {
@@ -300,7 +300,7 @@ function confirmOverwrite(event, docType) {
     const form = event.currentTarget;
     Swal.fire({
         title: 'Konfirmasi Unggah',
-        html: `Dokumen <strong>${docType}</strong> sudah ada.<br>Apakah Anda yakin ingin menimpa dokumen ini?<br><small class="text-muted">Dokumen lama akan otomatis diarsipkan di Drive anda.</small>`,
+        html: `Dokumen <strong>${docType}</strong> sudah ada.<br>Apakah Anda yakin ingin menimpa dokumen ini?<br><small class="text-muted">Dokumen lama akan otomatis diarsipkan di folder Arsip_KSP Drive Anda.</small>`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#3b82f6',
