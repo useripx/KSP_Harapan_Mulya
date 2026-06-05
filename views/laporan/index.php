@@ -90,6 +90,31 @@
         </a>
     </div>
     <?php endif; ?>
+    
+    <?php if (Auth::role() === ROLE_KETUA || Auth::role() === ROLE_ADMIN): ?>
+    <!-- Manajemen Arsip (Manager & Validator) -->
+    <div class="col-12 mt-5">
+        <h5 class="fw-bold mb-3 d-flex align-items-center">
+            <i class="bi bi-archive-fill me-2" style="color: #fd7e14;"></i> Manajemen Arsip
+        </h5>
+    </div>
+    
+    <div class="col-md-4">
+        <a href="https://drive.google.com/drive/folders/1lj0EKeckJXstOy_f_lpsvniQj0wqWghI" target="_blank" class="text-decoration-none h-100 d-block">
+            <div class="card border-0 shadow-sm h-100 hover-shadow transition" style="border-left: 4px solid #fd7e14 !important;">
+                <div class="card-body py-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-warning-subtle p-3 rounded-3 me-3 text-warning">
+                            <i class="bi bi-archive-fill fs-4" style="color: #fd7e14;"></i>
+                        </div>
+                        <h6 class="card-title mb-0 fw-bold">Arsip</h6>
+                    </div>
+                    <p class="card-text text-muted small">Kelola dan tinjau riwayat dokumen lama anggota yang telah diarsipkan ke Google Drive.</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    <?php endif; ?>
 
     <!-- Operasional -->
     <div class="col-12 mt-5">

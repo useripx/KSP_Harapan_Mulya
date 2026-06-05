@@ -613,5 +613,45 @@ class LaporanController extends Controller
             'pageTitle' => 'Kirim Laporan ke BAU'
         ]);
     }
+
+    /**
+     * Menampilkan Halaman Arsip KSP_Trash
+     */
+    public function arsip()
+    {
+        $this->view('arsip/index', [
+            'pageTitle' => 'Arsip'
+        ]);
+    }
+
+    /**
+     * Endpoint API AJAX untuk mencari anggota pada Halaman Arsip
+     */
+    public function arsipSearch()
+    {
+        $q = $_GET['q'] ?? '';
+        
+        if (empty($q)) {
+            successResponse('Success', []);
+            return;
+        }
+
+        $db = db();
+        $sql = "SELECT no_anggota, nama, identitas_no AS nidn_niy, id 
+                FROM anggota 
+                WHERE status != 'HAPUS' 
+                AND (nama LIKE :q1 OR no_anggota LIKE :q2 OR identitas_no LIKE :q3) 
+                ORDER BY nama ASC LIMIT 10";
+                
+        $stmt = $db->prepare($sql);
+        $stmt->execute([
+            'q1' => "%$q%",
+            'q2' => "%$q%",
+            'q3' => "%$q%"
+        ]);
+        $results = $stmt->fetchAll();
+
+        successResponse('Success', $results);
+    }
 }
 

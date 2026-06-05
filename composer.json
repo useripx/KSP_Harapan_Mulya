@@ -1,6 +1,5 @@
 {
     "require": {
-        "google/apiclient": "^2.19",
         "fpdf/fpdf": "^1.86"
     }
 }

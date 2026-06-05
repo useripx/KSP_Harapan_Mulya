@@ -213,6 +213,10 @@ $router->get('/laporan/pembukuan/excel-anggota', 'LaporanController@excelAnggota
 $router->get('/api/laporan/pembukuan/ringkasan', 'LaporanController@apiRingkasanAnggota');
 $router->get('/laporan/pembukuan/kirim', 'LaporanController@pembukuanKirim');
 
+// Arsip KSP_Trash routes
+$router->get('/arsip', 'LaporanController@arsip');
+$router->get('/api/arsip/search', 'LaporanController@arsipSearch');
+
 // API routes (untuk AJAX)
 $router->get('/api/anggota/search', 'AnggotaController@search');
 $router->get('/api/anggota/{id}/saldo', 'AnggotaController@getSaldo');

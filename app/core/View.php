@@ -76,19 +76,51 @@ class View {
             unset($_SESSION['flash_message']);
             unset($_SESSION['flash_type']);
             
-            $alertClass = [
-                'success' => 'alert-success',
-                'error' => 'alert-danger',
-                'warning' => 'alert-warning',
-                'info' => 'alert-info'
-            ];
+            $icon = 'info';
+            $title = 'Informasi';
             
-            $class = $alertClass[$type] ?? 'alert-info';
+            if ($type === 'success') {
+                $icon = 'success';
+                $title = 'Berhasil!';
+            } elseif ($type === 'error' || $type === 'danger') {
+                $icon = 'error';
+                $title = 'Gagal!';
+            } elseif ($type === 'warning') {
+                $icon = 'warning';
+                $title = 'Peringatan!';
+            }
             
-            echo "<div class='alert {$class} alert-dismissible fade show' role='alert'>";
-            echo self::escape($message);
-            echo "<button type='button' class='btn-close' data-bs-dismiss='alert'></button>";
-            echo "</div>";
+            $jsonMessage = json_encode(self::escape($message), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+            $jsonTitle = json_encode($title);
+            $jsonIcon = json_encode($icon);
+            
+            echo "
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            title: {$jsonTitle},
+                            text: {$jsonMessage},
+                            icon: {$jsonIcon},
+                            confirmButtonText: 'OK',
+                            customClass: {
+                                popup: 'modern-swal-popup',
+                                title: 'modern-swal-title',
+                                htmlContainer: 'modern-swal-html',
+                                confirmButton: 'modern-swal-confirm-btn'
+                            },
+                            buttonsStyling: false,
+                            showClass: {
+                                popup: 'animate__animated animate__fadeIn animate__faster'
+                            },
+                            hideClass: {
+                                popup: 'animate__animated animate__fadeOut animate__faster'
+                            }
+                        });
+                    }
+                });
+            </script>
+            ";
         }
     }
     
