@@ -231,6 +231,12 @@ $router->get('/anggota/dokumen/(\d+)/(\w+)', 'AnggotaController@lihatDokumen');
 $router->post('/anggota/dokumen/(\d+)/upload', 'AnggotaController@uploadDokumen');
 $router->post('/anggota/dokumen/(\d+)/delete', 'AnggotaController@deleteDokumen');
 
+// 403 handler
+$router->get('/403', function () {
+    http_response_code(403);
+    require_once ROOT_PATH . '/views/errors/403.php';
+});
+
 // 404 handler
 $router->setNotFound(function () {
     http_response_code(404);
@@ -239,6 +245,12 @@ $router->setNotFound(function () {
 
 // Dispatch the router
 try {
+    if (isset($_GET['error']) && $_GET['error'] == '403') {
+        http_response_code(403);
+        require_once ROOT_PATH . '/views/errors/403.php';
+        exit;
+    }
+
     $router->dispatch();
 } catch (Exception $e) {
     if ($config['debug']) {
