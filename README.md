@@ -1,24 +1,27 @@
-
 <div align="center">
-  <br>
-  <i>Dikembangkan dengan ❤️ untuk digitalisasi dan efisiensi Koperasi Harapan Mulya.</i>
-  <br>  
-</div><div align="center">
-  <img src="https://img.shields.io/badge/Koperasi-Harapan%20Mulya-2b5a9b?style=for-the-badge&logo=home-assistant" alt="Koperasi Logo">
-  <h1>Sistem Informasi Manajemen Koperasi Simpan Pinjam</h1>
-<br>
-<p>
+  <img src="https://img.shields.io/badge/Koperasi-Harapan%20Mulya-2b5a9b?style=for-the-badge&logo=home-assistant" alt="Koperasi Logo" width="200">
+
+  <h1>KSP Harapan Mulya</h1>
+  
+  <p>
     <strong>Aplikasi Manajemen Koperasi Modern, Analitik Lanjutan, dan Keamanan Tingkat Tinggi.</strong>
   </p>
 
-<!-- Badges -->
+  <p>
+    <img src="https://img.shields.io/badge/PLATFORM-WEB-green?style=for-the-badge" alt="Platform">
+    <img src="https://img.shields.io/badge/PHP-8.x-777BB4?style=for-the-badge&logo=php&logoColor=white" alt="PHP">
+    <img src="https://img.shields.io/badge/BOOTSTRAP-5.3-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white" alt="Bootstrap">
+    <img src="https://img.shields.io/badge/ARCHITECTURE-MVC-2b5a9b?style=for-the-badge" alt="MVC">
+    <img src="https://img.shields.io/badge/LICENSE-MIT-yellow?style=for-the-badge" alt="License">
+  </p>
 
-<p>
-    <img src="https://img.shields.io/badge/PHP-8.x-777BB4?style=flat-square&logo=php&logoColor=white" alt="PHP">
-    <img src="https://img.shields.io/badge/MySQL-Database-4479A1?style=flat-square&logo=mysql&logoColor=white" alt="MySQL">
-    <img src="https://img.shields.io/badge/Bootstrap-5.3-7952B3?style=flat-square&logo=bootstrap&logoColor=white" alt="Bootstrap">
-    <img src="https://img.shields.io/badge/Architecture-MVC-2b5a9b?style=flat-square" alt="MVC">
-    <img src="https://img.shields.io/badge/Version-v24.0-success?style=flat-square" alt="Version">
+  <p>
+    <img src="https://img.shields.io/github/stars/useripx/KSP_Harapan_Mulya?style=flat-square" alt="Stars">
+    <img src="https://img.shields.io/github/forks/useripx/KSP_Harapan_Mulya?style=flat-square" alt="Forks">
+    <img src="https://img.shields.io/github/issues/useripx/KSP_Harapan_Mulya?style=flat-square" alt="Issues">
+    <img src="https://img.shields.io/github/issues-pr/useripx/KSP_Harapan_Mulya?style=flat-square" alt="Pull Requests">
+    <img src="https://img.shields.io/github/last-commit/useripx/KSP_Harapan_Mulya?style=flat-square" alt="Last Commit">
+    <img src="https://img.shields.io/github/repo-size/useripx/KSP_Harapan_Mulya?style=flat-square" alt="Repo Size">
   </p>
 </div>
 
