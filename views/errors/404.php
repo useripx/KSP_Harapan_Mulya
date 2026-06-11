@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <title>404 PAGE NOT FOUND</title>
-  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="<?= asset('css/404.css') ?>">
 
 </head>
 
@@ -159,15 +159,15 @@
       </div>
 
       <div id="navigation">
-        <a class="navigation" href="">Beranda</a><a class="navigation" href="">About
-          Us</a>
-        <a class="navigation" href="">Site Map</a>
+        <a class="navigation" href="<?= url('/dashboard') ?>">Beranda</a>
+        <a class="navigation" href="<?= url('/') ?>">About Us</a>
+        <a class="navigation" href="<?= url('/') ?>">Site Map</a>
         <a class="navigation" href="https://yogiario.my.id">Contact</a>
       </div>
     </div>
   </div>
   <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
-  <script src="./script.js"></script>
+  <script src="<?= asset('js/404.js') ?>"></script>
 
 </body>
 

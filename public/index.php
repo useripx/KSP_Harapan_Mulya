@@ -234,9 +234,7 @@ $router->post('/anggota/dokumen/(\d+)/delete', 'AnggotaController@deleteDokumen'
 // 404 handler
 $router->setNotFound(function () {
     http_response_code(404);
-    echo "<h1>404 - Page Not Found</h1>";
-    echo "<p>The page you are looking for does not exist.</p>";
-    echo "<a href='" . url('/') . "'>Go to Home</a>";
+    require_once ROOT_PATH . '/views/errors/404.php';
 });
 
 // Dispatch the router
