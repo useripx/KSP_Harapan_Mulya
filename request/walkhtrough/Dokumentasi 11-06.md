@@ -2,35 +2,31 @@
 
 *(Berdasarkan Analisis Riwayat Walkthrough: `walk-11-06.md`)*
 
-Dokumentasi ini merangkum seluruh perubahan kode, penambahan fitur halaman error 404, perbaikan animasi wordsearch, dan integrasi template ke dalam sistem routing aplikasi yang berhasil diimplementasikan di **KSP Harapan Mulya** pada tanggal 11 Juni 2026.
+Dokumentasi ini merangkum seluruh perubahan kode, penambahan fitur halaman error 404 dan 403, perbaikan animasi wordsearch, implementasi *Clean URL*, dan proteksi direktori sistem yang berhasil diimplementasikan di **KSP Harapan Mulya** pada tanggal 11 Juni 2026.
 
 ---
 
 ## 📌 Ringkasan Fitur Utama yang Berhasil Dibangun
 
 1. **Halaman Error 404 Kustom dengan Animasi Wordsearch**:
-   - Implementasi halaman 404 (*Page Not Found*) yang interaktif dan estetis, menggunakan konsep *wordsearch puzzle* yang menampilkan kata-kata "404", "PAGE", "NOT", dan "FOUND" yang menyala secara berurutan dengan animasi bertahap.
-   - Grid wordsearch berukuran 8×8 kotak menampilkan huruf-huruf acak dengan nama **YOGIE ARIO PRATAMA** tersembunyi di dalamnya sebagai *easter egg*.
 
+   - Implementasi halaman 404 (*Page Not Found*) yang interaktif, menggunakan konsep *wordsearch puzzle* yang menyala berurutan dengan animasi bertahap.
+   - Grid menampilkan "404 PAGE NOT FOUND" untuk halaman tidak ditemukan, untuk halaman yang ditolak aksesnya.
+   - Terdapat *easter egg*.
 2. **Perbaikan Bug Animasi jQuery (Script.js)**:
-   - Kode animasi awal menggunakan `$(this).delay().queue()` yang merujuk ke objek `document`, sehingga antrean animasi jQuery tidak terpicu sama sekali.
-   - Diperbaiki menggunakan pendekatan `setTimeout` dengan *incremental delay* (mulai dari 1500ms, bertambah 500ms per huruf), memastikan 15 huruf menyala secara berurutan sesuai kelas `.one` hingga `.fifteen`.
 
+   - Mengganti `$(this).delay().queue()` dengan pendekatan `setTimeout` *incremental delay* agar animasi menyala berurutan tidak tersendat dan dieksekusi dengan benar tanpa *bug* pemanggilan objek document.
 3. **Perbaikan Tata Letak Grid CSS**:
-   - Ditambahkan aturan CSS `#wordsearch ul li:nth-child(8n) { margin-right: 0; }` untuk menghilangkan *margin* kanan pada elemen ke-8 di setiap baris, mencegah *wrapping* yang menyebabkan grid berantakan akibat pembulatan piksel browser.
 
-4. **Perbaikan Pemuatan jQuery (Protocol-Relative URL)**:
-   - URL pemuatan jQuery diubah dari *protocol-relative* (`//cdnjs.cloudflare.com/...`) menjadi *explicit HTTPS* (`https://cdnjs.cloudflare.com/...`) agar skrip dapat dimuat dengan benar baik melalui server lokal maupun saat dibuka langsung sebagai file HTML.
+   - Menambahkan aturan CSS `#wordsearch ul li:nth-child(8n) { margin-right: 0; }` guna membuang margin sisa di pinggir kanan dan mencegah baris jatuh (wrap) ke baris baru.
+4. **Sistem Clean URL & Proteksi Folder (.htaccess Root)**:
 
-5. **Integrasi Template 404 ke Sistem Routing Aplikasi**:
-   - Template 404 statis (`request/404/dist/`) berhasil diintegrasikan ke dalam arsitektur MVC aplikasi PHP.
-   - File CSS dan JS dipindahkan ke direktori aset publik (`public/assets/css/404.css` dan `public/assets/js/404.js`).
-   - View PHP dibuat di `views/errors/404.php` dengan referensi aset menggunakan *helper* `asset()` bawaan framework.
-   - Handler 404 di router (`public/index.php`) diperbarui dari output HTML *inline* menjadi `require_once` ke file view yang terstruktur.
+   - Membuat file `.htaccess` di direktori *root* untuk secara otomatis (*silent redirect*) meneruskan semua permintaan ke dalam folder `/public/`. Hal ini menciptakan *Clean URL* murni tanpa `/public/` terekspos.
+   - Menonaktifkan *Directory Listing* global dengan parameter `Options -Indexes`.
+   - Mengamankan direktori rentan (seperti `app/`, `views/`, `database/`, `.git`) agar tidak bisa diintip. Akses langsung akan dicegat oleh *rewrite rule*!
+5. **Navigasi Kembali ke Dashboard Terpusat**:
 
-6. **Navigasi Kembali ke Dashboard dari Halaman 404**:
-   - Tombol "Beranda" pada halaman 404 diarahkan ke `<?= url('/dashboard') ?>`, yang secara otomatis mendeteksi peran (*role*) pengguna yang sedang *login* (Admin, Teller, Ketua, atau Anggota) dan mengarahkan ke *dashboard* masing-masing.
-   - Tombol "Contact" diarahkan ke `https://yogiario.my.id` sebagai tautan eksternal.
+   - Menautkan tombol "Beranda" dari halaman error ke *endpoint* `url('/dashboard')`, yang mendeteksi sesi *login* secara cerdas dan melempar *user* (Admin, Teller, Ketua, atau Anggota) kembali ke dasbor masing-masing.
 
 ---
 
@@ -38,47 +34,47 @@ Dokumentasi ini merangkum seluruh perubahan kode, penambahan fitur halaman error
 
 Berikut daftar berkas yang mengalami perubahan pada siklus perbaikan ini:
 
-| No | Lokasi File                                         | Status       | Kategori / Layer      | Deskripsi Singkat Perubahan                                                                                                |
-| -- | --------------------------------------------------- | ------------ | --------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| 1  | `request/404/dist/script.js`                        | **[MODIFY]** | Template / Sumber     | Perbaikan animasi: mengganti `$(this).delay().queue()` dengan `setTimeout` agar huruf menyala berurutan.                    |
-| 2  | `request/404/dist/style.css`                        | **[MODIFY]** | Template / Sumber     | Penambahan rule `nth-child(8n)` untuk menghilangkan margin kanan pada kolom terakhir setiap baris grid.                     |
-| 3  | `request/404/dist/index.html`                       | **[MODIFY]** | Template / Sumber     | Perbaikan URL jQuery (HTTPS eksplisit), perubahan teks konten ke Bahasa Indonesia, penyesuaian huruf grid.                  |
-| 4  | `public/assets/css/404.css`                         | **[NEW]**    | Aset Publik / CSS     | Salinan `style.css` yang telah diperbaiki, ditempatkan di direktori aset publik untuk diakses oleh view PHP.                 |
-| 5  | `public/assets/js/404.js`                           | **[NEW]**    | Aset Publik / JS      | Salinan `script.js` yang telah diperbaiki, ditempatkan di direktori aset publik untuk diakses oleh view PHP.                 |
-| 6  | `views/errors/404.php`                              | **[NEW]**    | Views / Error         | View PHP halaman 404 dengan referensi aset menggunakan helper `asset()` dan navigasi dinamis menggunakan helper `url()`.    |
-| 7  | `public/index.php`                                  | **[MODIFY]** | Routing / Controller  | Perubahan handler `setNotFound()` dari output HTML *inline* menjadi `require_once` ke `views/errors/404.php`.               |
+| No | Lokasi File                                 | Status             | Kategori / Layer     | Deskripsi Singkat Perubahan                                                                                                 |
+| -- | ------------------------------------------- | ------------------ | -------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| 1  | `.htaccess` (Root)                        | **[NEW]**    | Server Config        | Menerapkan Clean URL, Options -Indexes, dan mencegat akses ke folder internal untuk diarahkan ke parameter `?error=403`.  |
+| 2  | `request/404/dist/script.js`              | **[MODIFY]** | Template / Sumber    | Perbaikan animasi: mengganti `$(this).delay().queue()` dengan `setTimeout` agar huruf menyala berurutan.                |
+| 3  | `request/404/dist/style.css`              | **[MODIFY]** | Template / Sumber    | Penambahan rule `nth-child(8n)` untuk tata letak grid presisi 8x8.                                                        |
+| 4  | `public/assets/css/404.css` & `403.css` | **[NEW]**    | Aset Publik / CSS    | Aset*stylesheet* spesifik error page yang dipindahkan ke folder aset publik aplikasi.                                     |
+| 5  | `public/assets/js/404.js` & `403.js`    | **[NEW]**    | Aset Publik / JS     | Aset*script* dengan *array* konfigurasi huruf animasi yang di-*support* untuk 404 (15 kata) dan 403 (17 kata).        |
+| 6  | `views/errors/404.php`                    | **[NEW]**    | Views / Error        | Template UI "Page Not Found".                                                                                               |
+| 7  | `views/errors/403.php`                    | **[NEW]**    | Views / Error        | Template UI "Error Forbidden".                                                                                              |
+| 8  | `public/index.php`                        | **[MODIFY]** | Routing / Controller | Menambahkan detektor get variabel `?error=403`, mendaftarkan *route* `/403`, dan mengubah perilaku `setNotFound()`. |
 
 ---
 
-## 🔄 Visualisasi Alur Penanganan Error 404 (Mermaid Diagram)
+## 🔄 Visualisasi Alur Penanganan Security & Clean URL (Mermaid Diagram)
 
-Berikut alur logika sistem ketika pengguna mengakses URL yang tidak terdaftar di router aplikasi:
+Berikut adalah logika brilian di belakang layar saat orang tak diundang mengakses folder sensitif kita (misal: `/app`):
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor User as Pengguna
-    participant Apache as Apache / .htaccess
-    participant PHP as Front Controller (index.php)
-    participant Router as Router Class
-    participant View as views/errors/404.php
+    actor Hacker as Pengunjung / Hacker
+    participant Apache as Apache (Root .htaccess)
+    participant PHP as public/index.php
+    participant View as views/errors/403.php
 
-    User->>Apache: Request ke URL tidak dikenal
-    Apache->>Apache: Cek apakah file/direktori fisik ada
-    
-    alt File/Direktori Tidak Ditemukan
-        Apache->>PHP: Rewrite ke index.php (via .htaccess)
-    end
-    
-    PHP->>Router: dispatch() - cocokkan URL dengan routes
-    Router->>Router: Loop seluruh routes terdaftar
-    
-    alt Tidak Ada Route yang Cocok
-        Router->>Router: Panggil notFoundCallback
-        Router->>PHP: http_response_code(404)
-        PHP->>View: require_once views/errors/404.php
-        View->>View: Render halaman 404 (Wordsearch + Animasi)
-        View-->>User: Tampilkan halaman 404 kustom
+    Hacker->>Apache: Akses URL: http://.../app
+  
+    Apache->>Apache: Cek Aturan RewriteCond (Folder Internal)
+  
+    note right of Apache: Cocok dengan ^/(app|views|database...
+  
+    Apache->>PHP: Rewrite paksa ke public/index.php?error=403
+  
+    PHP->>PHP: Booting Aplikasi (Sesi, Config)
+    PHP->>PHP: Cek $_GET['error'] == '403'
+  
+    alt Jika Parameter 403 Terdeteksi
+        PHP->>View: http_response_code(403) & require 403.php
+        PHP->>PHP: exit() (Hentikan sistem routing normal)
+        View->>View: Render Tampilan "403 ERROR FORBIDDEN"
+        View-->>Hacker: Muncul Animasi Penolakan Akses
     end
 ```
 
@@ -88,35 +84,27 @@ sequenceDiagram
 
 ```
 Ksp_Koperasinat/
+├── .htaccess                         ← [NEW] Pengawal Pintu Utama & Clean URL
 ├── public/
 │   ├── assets/
 │   │   ├── css/
-│   │   │   └── 404.css              ← [NEW] Stylesheet halaman 404
+│   │   │   ├── 403.css               ← [NEW]
+│   │   │   └── 404.css               ← [NEW]
 │   │   └── js/
-│   │       └── 404.js               ← [NEW] Script animasi wordsearch
-│   ├── .htaccess                     ← Rewrite rule ke index.php
-│   └── index.php                     ← [MODIFY] Handler 404 diperbarui
+│   │       ├── 403.js                ← [NEW]
+│   │       └── 404.js                ← [NEW]
+│   ├── .htaccess                     ← Penerus ke index.php
+│   └── index.php                     ← [MODIFY] Sistem router untuk 403 & 404
 ├── views/
 │   └── errors/
-│       └── 404.php                   ← [NEW] View halaman error 404
+│       ├── 403.php                   ← [NEW] 
+│       └── 404.php                   ← [NEW] 
 └── request/
     └── 404/
-        └── dist/                     ← [MODIFY] Template sumber (diperbaiki)
-            ├── index.html
-            ├── script.js
-            └── style.css
+        └── dist/                     ← [MODIFY] Template asal telah diperbaiki
 ```
 
 ---
 
-## ✅ Verifikasi Mandiri
-
-Aplikasi web kini siap dijalankan! Silakan lakukan pengujian berikut:
-
-1. **Test Halaman 404**: Akses URL yang tidak terdaftar di aplikasi (contoh: `http://[domain-anda]/halaman-tidak-ada`) dan pastikan halaman wordsearch 404 muncul dengan animasi menyala berurutan.
-2. **Test Animasi**: Pastikan huruf-huruf "4", "0", "4", "P", "A", "G", "E", "N", "O", "T", "F", "O", "U", "N", "D" menyala secara berurutan dengan warna hijau (*teal*) setelah halaman dimuat.
-3. **Test Navigasi**: Klik tombol "Beranda" pada halaman 404 dan pastikan Anda diarahkan kembali ke dashboard sesuai peran (*role*) Anda.
-4. **Test Responsif**: Ubah ukuran jendela browser untuk memastikan grid wordsearch dan konten teks menyesuaikan tata letak secara responsif.
-
 > [!NOTE]
-> Branch Git: `fitur/404_Error`. Commit: *"Tahap awal pembuatan halaman 404"*. Branch telah berhasil di-push ke remote repository GitHub (`useripx/KSP_Harapan_Mulya`). Silakan buat Pull Request untuk merge ke branch utama.
+> Branch Git: `fitur/clean_url` dan `fitur/404_Error`. Branch telah berhasil di-checkout. Perubahan ini secara teknis telah membuat sistem Koperasi memiliki standar arsitektur "Clean & Hidden URL" yang profesional, aman dari pencurian kode sumber, dan ramah pengunjung!

@@ -87,6 +87,28 @@ Dokumen ini merangkum **seluruh file** yang mengalami perubahan (`[MODIFY]`), di
 
 ---
 
+## 📅 11 Juni 2026
+
+> **Fokus**: Halaman Error 404 & 403 Interaktif, Animasi Wordsearch, Implementasi Clean URL, Proteksi Struktur Direktori Server, Bypass Infinite Loop Apache ErrorDocument.
+
+| No | Lokasi File | Status | Kategori / Layer | Deskripsi Singkat Perubahan |
+| -- | --- | --- | --- | --- |
+| 1 | `request/404/dist/script.js` | **[MODIFY]** | Template | Perbaikan logika animasi menggunakan metode `setTimeout` berurutan. |
+| 2 | `request/404/dist/style.css` | **[MODIFY]** | Template | Perbaikan CSS tata letak kotak grid (*anti-wrapping*). |
+| 3 | `request/404/dist/index.html` | **[MODIFY]** | Template | Pembaruan URL jQuery ke HTTPS dan modifikasi huruf grid. |
+| 4 | `.htaccess` (Root) | **[NEW]** | Server Config | Enforcing Clean URL, Options -Indexes, & deteksi *Forbidden folders* (403). |
+| 5 | `public/index.php` | **[MODIFY]** | Routing | Perbaikan *setNotFound* dan penyisipan logika *interceptor* `$_GET['error']=403`. |
+| 6 | `views/errors/404.php` | **[NEW]** | Views | Pembuatan halaman template 404 "Page Not Found". |
+| 7 | `views/errors/403.php` | **[NEW]** | Views | Pembuatan halaman template 403 "Error Forbidden". |
+| 8 | `public/assets/css/404.css` | **[NEW]** | Aset Publik | Berkas stylesheet khusus halaman 404. |
+| 9 | `public/assets/css/403.css` | **[NEW]** | Aset Publik | Berkas stylesheet khusus halaman 403. |
+| 10 | `public/assets/js/404.js` | **[NEW]** | Aset Publik | Berkas script jquery khusus animasi 404 (15 kelas). |
+| 11 | `public/assets/js/403.js` | **[NEW]** | Aset Publik | Berkas script jquery khusus animasi 403 (17 kelas). |
+| 12 | `request/walkhtrough/walk-11-06.md` | **[NEW]** | Dokumentasi | Walkthrough catatan narasi komprehensif pengembangan tanggal 11 Juni 2026. |
+| 13 | `request/walkhtrough/Dokumentasi 11-06.md` | **[NEW]** | Dokumentasi | Dokumentasi teknis diagram alir 403 dan rekapitulasi file. |
+
+---
+
 ## 📊 Ringkasan Statistik Keseluruhan
 
 | Tanggal | File Baru (`[NEW]`) | File Dimodifikasi (`[MODIFY]`) | File Dihapus (`[DELETE]`) | Total Aksi |
@@ -95,7 +117,8 @@ Dokumen ini merangkum **seluruh file** yang mengalami perubahan (`[MODIFY]`), di
 | 19 Mei 2026 | 0 | 10 | 0 | **10** |
 | 20 Mei 2026 | 4 | 6 | 5 | **15** |
 | 21 Mei 2026 | 3 | 6 | 0 | **9** |
-| **Grand Total** | **8** | **32** | **5** | **45** |
+| 11 Juni 2026 | 9 | 4 | 0 | **13** |
+| **Grand Total** | **17** | **36** | **5** | **58** |
 
 ---
 
