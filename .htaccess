@@ -1,0 +1,16 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine on
+
+    # Disable directory listing
+    Options -Indexes
+
+    # Block direct access to internal folders and route to 403 error handler
+    RewriteCond %{REQUEST_URI} ^/(app|views|database|request|storage|vendor|\.git)(/.*)?$ [NC]
+    RewriteRule ^ public/index.php?error=403 [L]
+
+    # If the request is not already pointing to the public folder
+    RewriteCond %{REQUEST_URI} !^/public/
+    
+    # Forward the request to the public folder silently
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
